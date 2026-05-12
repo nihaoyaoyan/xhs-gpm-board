@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-12 13:01:58",
+  "generated_at": "2026-05-12 13:22:11",
   "periods": [
     {
       "key": "yesterday",
@@ -59,6 +59,7 @@
           "id": "t1_yesterday_perf",
           "name": "昨日业绩by场域",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23125652&shortcutId=15819955&projectId=4",
+          "render": "donut_table",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -74,6 +75,7 @@
           "id": "t1_bimonth_byAM",
           "name": "本双月业绩byAM",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49051631&shortcutId=15852322&projectId=4",
+          "render": "bar_h_byAM",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -89,6 +91,7 @@
           "id": "t1_14d_trend",
           "name": "近14天业绩走势",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23125652&shortcutId=15820464&projectId=4",
+          "render": "line_trend",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -104,6 +107,7 @@
           "id": "t1_bimonth_top_seller",
           "name": "本双月TOP商家",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15820873&projectId=4",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -119,6 +123,7 @@
           "id": "t1_bimonth_top_product",
           "name": "本双月TOP商品",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15820824&projectId=4",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -133,6 +138,7 @@
           "id": "t1_category_progress",
           "name": "类目的进展",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15875629&projectId=4",
+          "render": "bar_h_with_yoy",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -154,6 +160,7 @@
           "id": "t2_note_breakdown",
           "name": "近7日商品笔记GMV拆解",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=27843913&shortcutId=15822295&projectId=4",
+          "render": "kpi_grid",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -169,6 +176,7 @@
           "id": "t2_note_byAM",
           "name": "近7天笔记勤奋度byAM",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?projectId=4&analysisId=53209879",
+          "render": "bar_h_byAM_multi",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -184,6 +192,7 @@
           "id": "t2_note_top_new",
           "name": "近7日TOP新发笔记",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15822991&projectId=4",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -199,6 +208,7 @@
           "id": "t2_note_top_seller",
           "name": "近7日笔记TOP商家",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=53216604&shortcutId=15823090&projectId=4",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -220,6 +230,7 @@
           "id": "t3_live_byAM",
           "name": "近7天店播勤奋度byAM",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=53217556&shortcutId=15823266&projectId=4",
+          "render": "bar_h_byAM_multi",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -235,6 +246,7 @@
           "id": "t3_live_3w_big",
           "name": "近7天3W+店播大场",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49058408&shortcutId=15824131&projectId=4",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -250,6 +262,7 @@
           "id": "t3_live_stopped",
           "name": "近7天停播商家list",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49332778&shortcutId=15825364&projectId=4",
+          "render": "table_grouped_by_am",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -271,6 +284,7 @@
           "id": "t4_k_overview",
           "name": "近7日K播DGMV+动销买手+场次",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49051631&shortcutId=15826256&projectId=4",
+          "render": "kpi_grid",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -286,6 +300,7 @@
           "id": "t4_k_1w_big",
           "name": "近7日K播1W+大场（商家×买手）",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49051631&projectId=4&shortcutId=15825686",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -301,6 +316,7 @@
           "id": "t4_k_buyer_rank",
           "name": "本双月休食买手带货榜",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49051631&shortcutId=15827476&projectId=4",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -322,6 +338,7 @@
           "id": "t5_cat_dist",
           "name": "本双月二级类目GMV分布",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23125652&shortcutId=15829589&projectId=4",
+          "render": "treemap",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -337,6 +354,7 @@
           "id": "t5_cat_change",
           "name": "本双月类目异动及原因",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23125652&shortcutId=15829589&projectId=4",
+          "render": "bar_h_with_yoy",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -358,6 +376,7 @@
           "id": "t6_new_active",
           "name": "26年新动销商家list",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=38768325&projectId=4&shortcutId=15831461",
+          "render": "bar_h_top",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -373,6 +392,7 @@
           "id": "t6_seller_change",
           "name": "异动商家（突增、突降）",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15831571&projectId=4",
+          "render": "two_lists_change",
           "available_periods": [
             "yesterday",
             "last_7d",
