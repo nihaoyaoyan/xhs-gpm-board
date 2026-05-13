@@ -120,6 +120,11 @@ async function fetchData(period, chartId) {
 async function init() {
   const r = await fetch("data/index.json");
   STATE.index = await r.json();
+  // 加载全组日序列 (供 hero KPI 自算环比)
+  try {
+    const gs = await fetch("data/_global_series.json");
+    if (gs.ok) STATE.globalSeries = await gs.json();
+  } catch(e) { STATE.globalSeries = null; }
   EL.meta.textContent = `数据更新：${STATE.index.generated_at}`;
   renderPeriodButtons();
   renderTabBar();
@@ -258,31 +263,34 @@ function buildHeroKpis(datas) {
   wrap.className = "hero-kpis";
   const periodLabel = STATE.index.periods.find(p => p.key === STATE.currentPeriod).label;
 
-  // datas[0]: t1_yesterday_perf  -> 总 DGMV + 环比
-  // datas[1]: t1_bimonth_byAM   -> AM 数 + Top1
+  // datas[0]: t1_yesterday_perf  -> 总 DGMV + 场域数
+  // datas[1]: t1_bimonth_byAM   -> AM 数 + Top1 + TGMV
   // datas[3]: t1_bimonth_top_seller -> 商家数
 
   const yperf = datas[0];
-  let totalGmv = "-", deltaPct = null, scenes = "-";
+  let totalGmv = "-", scenes = "-", totalGmvNum = null;
   if (yperf && yperf.rows && yperf.rows.length) {
     const ci = findColIdxLoose(yperf.columns, "DGMV");
-    const ri = findColIdx(yperf.columns, "DGMV _环比-变化率");
     const total = yperf.rows.find(r => r[0] === "总计");
-    if (total) { totalGmv = fmt.money(total[ci]); deltaPct = total[ri]; }
+    if (total) { totalGmvNum = total[ci]; totalGmv = fmt.money(totalGmvNum); }
     scenes = yperf.rows.filter(r => r[0] !== "总计").length;
   }
 
   const byAM = datas[1];
-  let amCount = "-", topAM = "-", topAMValue = "";
+  let amCount = "-", topAM = "-", topAMValue = "", totalTgmv = null;
   if (byAM && byAM.rows && byAM.rows.length) {
     const dimI = findColIdx(byAM.columns, "AM");
     const dgmvI = findColIdxLoose(byAM.columns, "DGMV");
+    const tgmvI = findColIdx(byAM.columns, "TGMV");
     const rows = byAM.rows.filter(r => r[dimI] !== "总计");
     amCount = rows.length;
     if (rows.length) {
       const top = rows.slice().sort((a,b)=>(b[dgmvI]||0)-(a[dgmvI]||0))[0];
       topAM = top[dimI];
       topAMValue = fmt.money(top[dgmvI]);
+    }
+    if (tgmvI >= 0) {
+      totalTgmv = rows.reduce((s,r)=>s+(r[tgmvI]||0), 0);
     }
   }
 
@@ -292,7 +300,6 @@ function buildHeroKpis(datas) {
     sellerCount = sellerData.rows.filter(r => r[0] !== "总计" && (r[findColIdxLoose(sellerData.columns,"DGMV")]||0) > 0).length;
   }
 
-  // 算"日均 DGMV" — 用周期天数
   const period = STATE.index.periods.find(p => p.key === STATE.currentPeriod);
   const days = (function(){
     if (!period) return 1;
@@ -300,23 +307,71 @@ function buildHeroKpis(datas) {
     return Math.max(1, Math.round((e - s)/86400000)+1);
   })();
 
-  // 环比仅在"昨日"展示（chart 自带环比口径只对单日有意义；其他时段切换后口径错乱）
-  const showDelta = STATE.currentPeriod === "yesterday" && deltaPct != null && Math.abs(deltaPct) <= 1;
+  // ============ 自算环比 ============
+  // 用全组日序列 _global_series：当前时段 vs 上一同长度时段的 DGMV
+  let deltaPct = null, deltaLabel = "vs 上期";
+  if (STATE.globalSeries && STATE.globalSeries.daily_dgmv && period) {
+    const series = STATE.globalSeries.daily_dgmv;
+    const sumRange = (start, end) => {
+      let total = 0, hit = 0;
+      series.forEach(r => {
+        if (r.date >= start && r.date <= end) { total += r.dgmv; hit++; }
+      });
+      return hit > 0 ? total : null;
+    };
+    const addDays = (d, n) => {
+      const dt = new Date(d); dt.setDate(dt.getDate() + n);
+      return dt.toISOString().slice(0,10);
+    };
+    const periodLen = days;
+    const curSum = sumRange(period.start, period.end);
+    let prevStart, prevEnd;
+    if (period.key === "yesterday") {
+      prevStart = prevEnd = addDays(period.start, -1);
+      deltaLabel = "vs 前一日";
+    } else if (period.key === "yoy_bimonth") {
+      // 去年同期，无法本地算环比
+      prevStart = null;
+    } else {
+      prevEnd = addDays(period.start, -1);
+      prevStart = addDays(prevEnd, -(periodLen - 1));
+      deltaLabel = `vs 上${periodLen}天`;
+    }
+    if (prevStart) {
+      const prevSum = sumRange(prevStart, prevEnd);
+      if (prevSum && prevSum > 0 && curSum != null) {
+        deltaPct = (curSum - prevSum) / prevSum;
+      }
+    }
+  }
+
   const items = [
-    {label: `${periodLabel} · 全组 DGMV`, value: totalGmv, delta: showDelta ? deltaPct : null, deltaLabel: "vs 前一日"},
-    {label: "日均 DGMV", value: yperf && totalGmv !== "-" ? fmt.money((yperf.rows.find(r=>r[0]==="总计")[findColIdxLoose(yperf.columns,"DGMV")])/days) : "-", sub: `${days} 天`},
+    {label: `${periodLabel} · 全组 DGMV`, value: totalGmv, delta: deltaPct, deltaLabel},
+    totalTgmv != null
+      ? {label: `${periodLabel} · 全组 TGMV`, value: fmt.money(totalTgmv)}
+      : {label: "日均 DGMV", value: totalGmvNum != null ? fmt.money(totalGmvNum/days) : "-", sub: `${days} 天`},
+    {label: "日均 DGMV", value: totalGmvNum != null ? fmt.money(totalGmvNum/days) : "-", sub: `${days} 天`},
     {label: `Top AM`, value: topAM, sub: topAMValue},
     {label: "动销商家数", value: sellerCount === "-" ? "-" : sellerCount + " 家"},
     {label: "覆盖场域", value: scenes + " 个"},
   ];
+  // 去重（如果第二项已是 日均 DGMV，去掉第三项）
+  if (items[1].label === items[2].label) items.splice(2, 1);
   items.forEach(it => {
     const c = document.createElement("div");
     c.className = "kpi-card hero";
     let dh = "";
-    if (it.delta != null && typeof it.delta === "number" && Math.abs(it.delta) <= 1) {
+    if (it.delta != null && typeof it.delta === "number" && !isNaN(it.delta)) {
+      const abs = Math.abs(it.delta);
       const cls = it.delta >= 0 ? "delta-up" : "delta-down";
       const arrow = it.delta >= 0 ? "↑" : "↓";
-      dh = `<div class="delta ${cls}">${arrow} ${(Math.abs(it.delta)*100).toFixed(1)}% ${it.deltaLabel||""}</div>`;
+      if (abs > 5) {
+        dh = `<div class="delta delta-abnormal">${it.deltaLabel||""} 异常</div>`;
+      } else if (abs > 1) {
+        dh = `<div class="delta ${cls}">${arrow}${(abs*100).toFixed(0)}%<span class="muted-mini"> 显著</span> ${it.deltaLabel||""}</div>`;
+      } else {
+        dh = `<div class="delta ${cls}">${arrow} ${(abs*100).toFixed(1)}% ${it.deltaLabel||""}</div>`;
+      }
     }
     let sh = it.sub ? `<div class="sub">${it.sub}</div>` : "";
     c.innerHTML = `<div class="label">${it.label}</div><div class="value">${it.value}</div>${dh}${sh}`;
