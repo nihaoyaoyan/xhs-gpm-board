@@ -484,3 +484,134 @@ a.note-title:hover { color: var(--primary); }
   font-size: 11px;
   color: var(--text-mute);
 }
+
+/* ========== V4 业务卡片化 ========== */
+.card-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.card-grid-seller, .card-grid-default { grid-template-columns: repeat(2, 1fr); }
+.card-grid-product { grid-template-columns: repeat(2, 1fr); }
+.card-grid-live    { grid-template-columns: repeat(2, 1fr); }
+.card-grid-kbroadcast { grid-template-columns: repeat(2, 1fr); }
+.card-grid-change  { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+  .card-grid-seller, .card-grid-product, .card-grid-live, .card-grid-kbroadcast { grid-template-columns: 1fr; }
+}
+
+.biz-card {
+  display: grid;
+  grid-template-columns: 28px 1fr 110px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: #fafbfc;
+  border-radius: 8px;
+  border: 1px solid #f0f2f5;
+  transition: all 0.15s;
+}
+.biz-card:hover {
+  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(255,95,109,0.08);
+}
+.card-rank {
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-mute);
+  font-size: 14px;
+}
+.biz-card:nth-child(2) .card-rank,
+.biz-card:nth-child(3) .card-rank,
+.biz-card:nth-child(4) .card-rank { color: #ff9500; font-size: 16px; }
+
+.card-body { min-width: 0; overflow: hidden; }
+.card-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+a.card-title:hover { color: var(--primary); }
+
+.card-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #eef0f3;
+  color: var(--text-soft);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tag-am   { background: #fff4e8; color: #ff8500; }
+.tag-shop { background: #e8f4ff; color: #0078d4; }
+.tag-date { background: #f3e8ff; color: #7e3ff2; }
+
+.card-value {
+  text-align: right;
+  white-space: nowrap;
+}
+.vbig {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.vbig.up   { color: #d4380d; }
+.vbig.down { color: #389e0d; }
+.vlabel {
+  font-size: 11px;
+  color: var(--text-mute);
+}
+.vsmall {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+
+/* 异动归因摘要 */
+.attrib-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fafbfc;
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+.attrib-box.up   { border-left-color: #d4380d; background: #fff7e6; }
+.attrib-box.down { border-left-color: #389e0d; background: #f6ffed; }
+.attrib-box b { color: var(--text); margin-right: 6px; }
+.attrib-tag {
+  display: inline-block;
+  margin: 0 6px 4px 0;
+  padding: 2px 6px;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #f0f2f5;
+}
+.attrib-tag b { color: var(--primary); }
+
+.hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 4px;
+  padding-left: 8px;
+  border-left: 2px solid #f0f2f5;
+}

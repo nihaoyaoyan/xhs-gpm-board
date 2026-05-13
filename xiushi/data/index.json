@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-12 13:59:54",
+  "generated_at": "2026-05-13 12:18:22",
   "periods": [
     {
       "key": "yesterday",
@@ -107,7 +107,7 @@
           "id": "t1_bimonth_top_seller",
           "name": "TOP 商家",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15820873&projectId=4",
-          "render": "rank_list",
+          "render": "card_grid",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -123,7 +123,7 @@
           "id": "t1_bimonth_top_product",
           "name": "TOP 商品",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15820824&projectId=4",
-          "render": "rank_list",
+          "render": "card_grid",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -246,7 +246,7 @@
           "id": "t3_live_3w_big",
           "name": "店播大场（3W+）",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49058408&shortcutId=15824131&projectId=4",
-          "render": "rank_list",
+          "render": "card_grid",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -300,7 +300,7 @@
           "id": "t4_k_1w_big",
           "name": "K 播大场（1W+）商家×主播",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=49051631&projectId=4&shortcutId=15825686",
-          "render": "rank_list",
+          "render": "card_grid",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -338,7 +338,7 @@
           "id": "t5_cat_dist",
           "name": "二级类目 GMV 分布",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23125652&shortcutId=15829589&projectId=4",
-          "render": "category_treemap",
+          "render": "category_treemap_value",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -354,7 +354,7 @@
           "id": "t5_cat_change",
           "name": "二级类目环比异动",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23125652&shortcutId=15829589&projectId=4",
-          "render": "category_change_table",
+          "render": "category_change_v2",
           "available_periods": [
             "yesterday",
             "last_7d",
@@ -392,7 +392,7 @@
           "id": "t6_seller_change",
           "name": "异动商家：突增 vs 突降",
           "source_url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=23119218&shortcutId=15831571&projectId=4",
-          "render": "two_lists_change",
+          "render": "seller_change_cards",
           "available_periods": [
             "yesterday",
             "last_7d",
