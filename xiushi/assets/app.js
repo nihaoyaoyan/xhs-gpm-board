@@ -651,8 +651,33 @@ function buildHeroKpis(datas) {
 }
 
 // ============ V9 新增模块 ============
+async function ensureSummaryData(periodKey) {
+  // V11: 业绩摘要需要跨 tab 的 chart 数据，按需 fetch
+  const needed = ["t1_bimonth_byAM", "t2_note_byAM", "t3_live_byAM", "t4_k_overview"];
+  let dirty = false;
+  for (const cid of needed) {
+    const key = `${periodKey}/${cid}`;
+    if (!STATE.cache[key]) {
+      await fetchData(periodKey, cid);
+      dirty = true;
+    }
+  }
+  // 若 fetch 到新数据且当前页是团队总览，重渲染 summary
+  if (dirty && STATE.currentTab === "tab1_team_overview" && STATE.currentPeriod === periodKey) {
+    const old = document.querySelector(".summary-card.weekly-report");
+    if (old) {
+      const tab = STATE.index.tabs.find(t => t.key === STATE.currentTab);
+      const datas = await Promise.all(tab.charts.map(c => fetchData(STATE.currentPeriod, c.id)));
+      const fresh = buildSummaryCard(datas, tab);
+      old.replaceWith(fresh);
+    }
+  }
+}
+
 function buildSummaryCard(datas, tab) {
   // V11: 业绩摘要跟随 currentPeriod（用户选什么时段就显示什么时段）
+  // 异步预取需要的跨 tab chart
+  ensureSummaryData(STATE.currentPeriod);
   const card = document.createElement("section");
   card.className = "summary-card weekly-report";
   const isAM = STATE.currentAM !== "全组";
