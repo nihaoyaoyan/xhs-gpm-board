@@ -195,6 +195,11 @@ async function init() {
     const sm = await fetch("data/_summary.json" + cb, {cache: "no-store"});
     if (sm.ok) STATE.summary = await sm.json();
   } catch(e) { STATE.summary = null; }
+  // V10: 新商家数据
+  try {
+    const ns = await fetch("data/_new_seller.json" + cb, {cache: "no-store"});
+    if (ns.ok) STATE.newSeller = await ns.json();
+  } catch(e) { STATE.newSeller = null; }
   // V10: 预加载 last_7d + this_bimonth 几个 chart 给周报版 Summary 用
   STATE.weeklyData = {last_7d: {}, this_bimonth: {}};
   const wkCharts = ["t1_bimonth_byAM","t2_note_byAM","t3_live_byAM","t4_k_overview"];
@@ -375,6 +380,9 @@ async function renderActiveTab() {
   if (tab.key === "tab4_kbroadcast") {
     const ov = datas.find(d => d && d.chart_id === "t4_k_overview");
     if (ov) EL.main.appendChild(renderKpiGridCard(ov));
+  }
+  if (tab.key === "tab6_seller") {
+    EL.main.appendChild(buildNewSellerCard());  // V10: 新商家 by AM Top 5
   }
 
   tab.charts.forEach((cdef, i) => {
@@ -793,9 +801,24 @@ function buildSummaryCard(datas, tab) {
     </div>
     <div class="wr-section">
       <div class="wr-section-title">📦 2、新商</div>
-      <div class="wr-line muted">
-        ⚠️ 新商家数据需单独取数（dataset 2479 商家入驻时间），下一版本接入
-      </div>
+      ${(function(){
+        const ns = STATE.newSeller || {};
+        const new30d = (ns.new_30d && ns.new_30d.count) ? ns.new_30d.count[am || "全组"] : null;
+        const new2026 = (ns.new2026_active && ns.new2026_active.count) ? ns.new2026_active.count[am || "全组"] : null;
+        const new2026DGMV = (ns.new2026_active && ns.new2026_active.dgmv) ? ns.new2026_active.dgmv[am || "全组"] : null;
+        if (new30d == null && new2026 == null) {
+          return '<div class="wr-line muted">⚠️ 暂无新商家数据</div>';
+        }
+        return `
+          <div class="wr-line">
+            近 30 天新开商家 <b>${new30d != null ? new30d : "—"}</b> 家
+          </div>
+          <div class="wr-line">
+            2026 年新开商家本月动销 <b>${new2026 != null ? new2026 : "—"}</b> 家 ·
+            贡献 GMV <b>${new2026DGMV != null ? fmtMoney(new2026DGMV) : "—"}</b>
+          </div>
+        `;
+      })()}
     </div>
     <div class="wr-footer muted">
       📌 ${isAM ? "当前 AM 视角，所有数字为大门个人名下商家" : "全组合计视角"} ·
@@ -807,6 +830,86 @@ function buildSummaryCard(datas, tab) {
   card.innerHTML = `
     <div class="summary-header">📋 业绩摘要（周报版）· ${scope}</div>
     <div class="summary-body">${body}</div>
+  `;
+  return card;
+}
+
+function buildNewSellerCard() {
+  // V10: 新商家 by AM Top 5（动销新商家清单）
+  // 数据来源：当前 period 的 t6_new_active chart
+  const card = document.createElement("section");
+  card.className = "chart-card new-seller-card";
+  const isAM = STATE.currentAM !== "全组";
+  const scope = isAM ? STATE.currentAM : "全组";
+  const periodLabel = STATE.index.periods.find(p => p.key === STATE.currentPeriod).label;
+  const data = STATE.cache[`${STATE.currentPeriod}/t6_new_active`];
+
+  if (!data || !data.rows) {
+    card.innerHTML = `<div class='chart-header'><div class='chart-title'>🆕 新商家动销 Top（by AM）</div></div>
+      <div class='empty'>当前时段无新商家数据</div>`;
+    return card;
+  }
+
+  const cols = data.columns;
+  const ai = cols.findIndex(c => c === "AM");
+  const ni = cols.findIndex(c => c === "商家名称");
+  const sidI = cols.findIndex(c => c === "商家ID");
+  const gi = cols.findIndex(c => c === "DGMV " || c === "DGMV");
+  const rows = data.rows.filter(r => r[ai] && r[ai] !== "总计" && r[ni] && (r[gi]||0) > 0);
+
+  // by AM Top 5
+  const byAM = {};
+  rows.forEach(r => {
+    const am = r[ai];
+    if (!byAM[am]) byAM[am] = [];
+    byAM[am].push(r);
+  });
+  Object.keys(byAM).forEach(am => {
+    byAM[am] = byAM[am].sort((a,b)=>(b[gi]||0)-(a[gi]||0)).slice(0,5);
+  });
+
+  // 新商总数（来自 _new_seller）
+  const ns = STATE.newSeller || {};
+  const new30d = (ns.new_30d && ns.new_30d.count) ? ns.new_30d.count[scope] : null;
+  const new2026 = (ns.new2026_active && ns.new2026_active.count) ? ns.new2026_active.count[scope] : null;
+  const new2026DGMV = (ns.new2026_active && ns.new2026_active.dgmv) ? ns.new2026_active.dgmv[scope] : null;
+
+  let cardListHTML = "";
+  const orderedAMs = isAM ? [STATE.currentAM] : ["大门(朱锦程)","蕾塞(张嘉悦)","莱拉(付艺迪)","路歌(李红红)","秋罗(胡春秋)","诺亚(单恩浩)"];
+  orderedAMs.forEach(am => {
+    const list = byAM[am] || [];
+    if (!list.length && !isAM) return;
+    const items = list.length ? list.map((r,i) => {
+      const sname = r[ni];
+      const sid = r[sidI];
+      const sgmv = r[gi];
+      const url = sid ? `https://crm.xiaohongshu.com/eccrm/merchant-detail/${sid}?isSellerId=true&type=basicInfo` : "#";
+      return `<li><span class='ns-rank'>${i+1}</span> <a href="${url}" target="_blank" rel="noopener">${sname}</a> <span class='ns-gmv'>${fmt.money(sgmv)}</span></li>`;
+    }).join("") : '<li class="muted">暂无</li>';
+    cardListHTML += `
+      <div class="ns-am-card">
+        <div class="ns-am-name">${am}</div>
+        <ol class="ns-list">${items}</ol>
+      </div>
+    `;
+  });
+
+  const headerStats = `
+    <div class="ns-stats">
+      <span>近 30 天新开 <b>${new30d != null ? new30d : "—"}</b> 家</span>
+      <span>· 2026 新开本月动销 <b>${new2026 != null ? new2026 : "—"}</b> 家</span>
+      ${new2026DGMV != null ? `<span>· 贡献 <b>${fmt.money(new2026DGMV)}</b></span>` : ""}
+    </div>
+  `;
+
+  card.innerHTML = `
+    <div class='chart-header'>
+      <div class='chart-title'>🆕 新商家动销 Top（by AM）· ${scope}</div>
+      <div class='chart-meta muted'>${periodLabel}</div>
+    </div>
+    ${headerStats}
+    <div class="ns-grid">${cardListHTML}</div>
+    <div class='bd-tip muted'>💡 点击商家名跳转苍穹后台；新商起量是周报"新商"模块的核心数据。</div>
   `;
   return card;
 }
@@ -1054,20 +1157,29 @@ function buildNoteEfficiencyCard(datas, tab) {
 
   const benchmark = (STATE.noteBenchmark || {})[STATE.currentPeriod] || {};
   const benchCvr = benchmark.cvr;
+  const benchCtr = benchmark.ctr;
+  // 五组的 CTR：从 t2_note_breakdown 取
+  let ctr = null;
+  if (noteBd && noteBd.rows && noteBd.rows[0]) {
+    const ctrI = noteBd.columns.findIndex(c => c && c.includes("阅读率") && !c.includes("环比") && !c.includes("年同比"));
+    if (ctrI >= 0) ctr = noteBd.rows[0][ctrI];
+  }
 
   const avgPerSeller = (sellerCount && noteCount) ? noteCount / sellerCount : null;
   const avgExpPerNote = (noteCount && exposure) ? exposure / noteCount : null;
   const fmtN = (v, digits=1) => v == null ? "—" : v.toLocaleString("zh-CN",{maximumFractionDigits:digits});
   const fmtPct = (v) => v == null ? "—" : (v*100).toFixed(2) + "%";
 
-  // CVR vs benchmark
-  let cvrCmp = "";
-  if (cvr != null && benchCvr) {
-    const ratio = cvr / benchCvr;
-    if (ratio > 1.05) cvrCmp = `<span class='delta-up'>↑ 高于全平台均值 ${((ratio-1)*100).toFixed(0)}%</span>`;
-    else if (ratio < 0.95) cvrCmp = `<span class='delta-down'>↓ 低于全平台均值 ${((1-ratio)*100).toFixed(0)}%</span>`;
-    else cvrCmp = `<span class='muted'>≈ 全平台均值</span>`;
-  }
+  // CTR / CVR vs benchmark
+  const cmpVsBench = (val, bench) => {
+    if (val == null || !bench) return "";
+    const ratio = val / bench;
+    if (ratio > 1.05) return `<span class='delta-up'>↑ 高于全平台 ${((ratio-1)*100).toFixed(0)}%</span>`;
+    if (ratio < 0.95) return `<span class='delta-down'>↓ 低于全平台 ${((1-ratio)*100).toFixed(0)}%</span>`;
+    return `<span class='muted'>≈ 全平台</span>`;
+  };
+  const ctrCmp = cmpVsBench(ctr, benchCtr);
+  const cvrCmp = cmpVsBench(cvr, benchCvr);
 
   card.innerHTML = `
     <div class='chart-header'>
@@ -1090,17 +1202,22 @@ function buildNoteEfficiencyCard(datas, tab) {
         <div class='eff-sub muted'>总曝光 ${exposure != null ? fmt.money(exposure).replace("¥","") : "—"} PV</div>
       </div>
       <div class='eff-cell'>
-        <div class='eff-label'>③ 商品转化率</div>
-        <div class='eff-num'>${fmtPct(cvr)}</div>
-        <div class='eff-sub'>${cvrCmp}</div>
+        <div class='eff-label'>③ 笔记 CTR<span class='hint'>（曝光→商详）</span></div>
+        <div class='eff-num'>${fmtPct(ctr)}</div>
+        <div class='eff-sub'>${ctrCmp || `<span class='muted'>—</span>`}</div>
       </div>
       <div class='eff-cell'>
-        <div class='eff-label'>📊 全平台均值（benchmark）</div>
-        <div class='eff-num benchmark'>${fmtPct(benchCvr)}</div>
-        <div class='eff-sub muted'>商品笔记 CVR · 全平台</div>
+        <div class='eff-label'>④ 笔记 CVR<span class='hint'>（商详→购买）</span></div>
+        <div class='eff-num'>${fmtPct(cvr)}</div>
+        <div class='eff-sub'>${cvrCmp || `<span class='muted'>—</span>`}</div>
+      </div>
+      <div class='eff-cell benchmark-cell'>
+        <div class='eff-label'>📊 全平台 benchmark</div>
+        <div class='eff-num benchmark'>${fmtPct(benchCtr)} / ${fmtPct(benchCvr)}</div>
+        <div class='eff-sub muted'>CTR / CVR · 全平台均值</div>
       </div>
     </div>
-    <div class='bd-tip muted'>💡 评估笔记勤奋度看"商家平均发笔记数"+"笔记平均曝光"，避开盘子大小影响；CVR 与全平台对比看商品质量。</div>
+    <div class='bd-tip muted'>💡 数量勤奋度（商家平均发笔记数）+ 质量勤奋度（笔记平均曝光 / CTR / CVR）；红/绿对比全平台 benchmark。</div>
   `;
   return card;
 }
@@ -1884,15 +2001,15 @@ renderers.sellerChangeCards = function(body, data, cfg) {
     });
     const amWrap = document.createElement("div");
     amWrap.className = "byam-change-wrap";
-    amWrap.innerHTML = `<div class="byam-title">📋 按 AM 拆分（每 AM Top 5 突增 / Top 5 突降）</div>`;
+    amWrap.innerHTML = `<div class="byam-title">📋 按 AM 拆分（每 AM Top 10 突增 / Top 10 突降）</div>`;
     const amGrid = document.createElement("div");
     amGrid.className = "byam-change-grid";
     const orderedAMs = ["大门(朱锦程)","蕾塞(张嘉悦)","莱拉(付艺迪)","路歌(李红红)","秋罗(胡春秋)","诺亚(单恩浩)"];
     orderedAMs.forEach(am => {
       const list = byAMRows[am] || [];
       if (!list.length) return;
-      const ups5 = [...list].sort((a,b)=>(b[deltaI]||0)-(a[deltaI]||0)).slice(0,5).filter(r=>(r[deltaI]||0)>0);
-      const dns5 = [...list].sort((a,b)=>(a[deltaI]||0)-(b[deltaI]||0)).slice(0,5).filter(r=>(r[deltaI]||0)<0);
+      const ups5 = [...list].sort((a,b)=>(b[deltaI]||0)-(a[deltaI]||0)).slice(0,10).filter(r=>(r[deltaI]||0)>0);
+      const dns5 = [...list].sort((a,b)=>(a[deltaI]||0)-(b[deltaI]||0)).slice(0,10).filter(r=>(r[deltaI]||0)<0);
       const card = document.createElement("div");
       card.className = "byam-am-card";
       const liItem = (r, isUp) => {
@@ -1906,11 +2023,11 @@ renderers.sellerChangeCards = function(body, data, cfg) {
         <div class="byam-am-name">${am}</div>
         <div class="byam-sub-cols">
           <div class="byam-sub-col">
-            <div class="byam-sub-title up">突增 Top 5</div>
+            <div class="byam-sub-title up">突增 Top 10</div>
             <ul class="byam-list">${ups5.length ? ups5.map(r=>liItem(r,true)).join("") : '<li class="muted">无</li>'}</ul>
           </div>
           <div class="byam-sub-col">
-            <div class="byam-sub-title down">突降 Top 5</div>
+            <div class="byam-sub-title down">突降 Top 10</div>
             <ul class="byam-list">${dns5.length ? dns5.map(r=>liItem(r,false)).join("") : '<li class="muted">无</li>'}</ul>
           </div>
         </div>

@@ -947,3 +947,63 @@ a.card-title:hover { color: var(--primary); }
   padding-top: 8px;
   border-top: 1px dashed #fef3c7;
 }
+
+/* V10: 新商家 by AM */
+.chart-card.new-seller-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%);
+}
+.ns-stats {
+  padding: 8px 24px 12px;
+  font-size: 13px;
+  color: #475569;
+}
+.ns-stats b { color: #0f172a; font-weight: 700; font-size: 14px; margin: 0 2px; }
+.ns-stats span { margin-right: 8px; }
+.ns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+.ns-am-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  border-left: 3px solid #10b981;
+}
+.ns-am-name {
+  font-weight: 700;
+  color: #047857;
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.ns-list {
+  list-style: none;
+  padding: 0; margin: 0;
+}
+.ns-list li {
+  font-size: 12px;
+  padding: 3px 0;
+  color: #334155;
+  border-bottom: 1px dotted #f1f5f9;
+  line-height: 1.5;
+}
+.ns-list li.muted { color: #94a3b8; font-style: italic; }
+.ns-rank {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  text-align: center;
+  background: #10b981;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.ns-list a { color: #0c4a6e; text-decoration: none; }
+.ns-list a:hover { text-decoration: underline; color: #0369a1; }
+.ns-gmv { float: right; color: #be123c; font-weight: 600; }
