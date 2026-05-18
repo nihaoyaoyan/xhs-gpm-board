@@ -195,6 +195,17 @@ async function init() {
     const sm = await fetch("data/_summary.json" + cb, {cache: "no-store"});
     if (sm.ok) STATE.summary = await sm.json();
   } catch(e) { STATE.summary = null; }
+  // V10: 预加载 last_7d + this_bimonth 几个 chart 给周报版 Summary 用
+  STATE.weeklyData = {last_7d: {}, this_bimonth: {}};
+  const wkCharts = ["t1_bimonth_byAM","t2_note_byAM","t3_live_byAM","t4_k_overview"];
+  await Promise.all(["last_7d","this_bimonth"].flatMap(p =>
+    wkCharts.map(async c => {
+      try {
+        const r = await fetch(`data/${p}/${c}.json` + cb, {cache: "no-store"});
+        if (r.ok) STATE.weeklyData[p][c] = await r.json();
+      } catch(e) {}
+    })
+  ));
   EL.meta.textContent = `数据更新：${STATE.index.generated_at}`;
   renderAMButtons();
   renderPeriodButtons();
@@ -349,7 +360,7 @@ async function renderActiveTab() {
   EL.main.innerHTML = "";
 
   if (tab.key === "tab1_team_overview") {
-    EL.main.appendChild(buildSummaryCard());  // V9: 业绩摘要（替代 Top AM）
+    EL.main.appendChild(buildSummaryCard(datas, tab));  // V10: 业绩摘要（周报版）
     EL.main.appendChild(buildHeroKpis(datas.map(d => applyAMFilter(d))));
   }
   if (tab.key === "tab2_note") {
@@ -593,47 +604,209 @@ function buildHeroKpis(datas) {
 }
 
 // ============ V9 新增模块 ============
-function buildSummaryCard() {
-  // 团队总览顶部 Summary：用 _summary 数据 + 当前 AM 视角
+function buildSummaryCard(datas, tab) {
+  // V10: 周报版 Summary — 对标休食周报模板，AM/团队双视角
   const card = document.createElement("section");
-  card.className = "summary-card";
+  card.className = "summary-card weekly-report";
   const isAM = STATE.currentAM !== "全组";
+  const scope = isAM ? STATE.currentAM : "五组（休食）全组";
   const sm = STATE.summary || {};
-  const last = sm.last_day || {};
-  const dod = last.dod_pct;
-  const wow = sm.wow_pct;
-  const avg7 = sm.last_7d_avg;
 
-  const trend = (rate) => {
-    if (rate == null || isNaN(rate)) return "<span class='muted'>—</span>";
-    const abs = Math.abs(rate);
-    const cls = rate >= 0 ? "delta-up" : "delta-down";
-    const arrow = rate >= 0 ? "↑" : "↓";
-    if (abs > 5) return `<span class='delta-abnormal'>异常波动</span>`;
-    if (abs > 1) return `<span class='${cls}'>${arrow} 显著 ${(abs*100).toFixed(0)}%</span>`;
-    return `<span class='${cls}'>${arrow} ${(abs*100).toFixed(1)}%</span>`;
+  // ============= 数据准备：always 用 last_7d + this_bimonth =============
+  // 不管当前 period，固定算上周+本双月（周报真实场景）
+  // 数据从 STATE.weeklyData 缓存里取（init 时预加载）
+  const wd = STATE.weeklyData || {};
+  const last7 = wd.last_7d || {};
+  const bimonth = wd.this_bimonth || {};
+
+  // 提取函数
+  const findCol = (cols, name) => {
+    if (!cols) return -1;
+    return cols.findIndex(c => c === name || (c && c.startsWith(name)));
+  };
+  const getAMRow = (data, am) => {
+    if (!data || !data.rows) return null;
+    const ai = findCol(data.columns, "AM");
+    if (ai < 0) return null;
+    return data.rows.find(r => r[ai] === am);
+  };
+  const getTotalRow = (data) => {
+    if (!data || !data.rows) return null;
+    const ai = findCol(data.columns, "AM");
+    if (ai < 0) return data.rows[0];
+    return data.rows.find(r => r[ai] === "总计") || null;
+  };
+  const sumDGMV = (data, am, kw) => {
+    // 通用：拿某行某列
+    if (!data) return null;
+    const cols = data.columns;
+    const dgmvI = cols.findIndex(c => c && c.includes(kw) && !c.includes("环比") && !c.includes("年同比") && !c.includes("_1") && !c.includes("_2"));
+    if (dgmvI < 0) return null;
+    const row = am ? getAMRow(data, am) : getTotalRow(data);
+    return row ? row[dgmvI] : null;
   };
 
-  const scope = isAM ? STATE.currentAM : "五组（休食）全组";
-  const dateStr = last.date || "—";
+  const am = isAM ? STATE.currentAM : null;  // null → 取"总计" 行
 
-  // 文字化总结
-  let body = "";
-  if (isAM) {
-    // AM 视角：用 hero KPI 已有的数据（这里简化文字描述）
-    body = `<p>当前视角：<b>${STATE.currentAM}</b>。完整业绩请参考下方 KPI 卡片与各 Tab 详细数据。</p>
-            <p class='muted'>📌 提示：环比/同比基于全组日序列（无 AM 拆分），AM 视角下不显示自动计算的环比；请参考 byAM chart 中各 AM 行的"年同比/环比"。</p>`;
-  } else {
-    body = `
-      <p><b>${dateStr}</b>（${scope}）日 DGMV <b>${last.dgmv != null ? fmt.money(last.dgmv) : '—'}</b>，环比前一日 ${trend(dod)}。</p>
-      <p>近 7 天日均 <b>${avg7 != null ? fmt.money(avg7) : '—'}</b>，环比上 7 天 ${trend(wow)}。</p>
-      <p class='muted'>👉 切换上方 AM 即可查看个人版数据，可直接截图作为周报内容。</p>
-    `;
-  }
+  // 笔记：DGMV / 环比 / 新发笔记数 / 曝光量 / 曝光环比
+  const noteData7 = last7.t2_note_byAM, noteDataM = bimonth.t2_note_byAM;
+  const note7 = (function(){
+    if (!noteData7) return {};
+    const cols = noteData7.columns;
+    const row = am ? getAMRow(noteData7, am) : getTotalRow(noteData7);
+    if (!row) return {};
+    const findIdx = (kw, off=0) => {
+      let cnt = 0;
+      for (let i = 0; i < cols.length; i++) {
+        if (cols[i] === kw || (cols[i] && cols[i].startsWith(kw + "_"))) {
+          if (cnt === off) return i;
+          cnt++;
+        }
+      }
+      return -1;
+    };
+    return {
+      dgmv: row[findCol(cols, "商笔DGMV")],
+      wow: row[findCol(cols, "环比上期_环比-变化率")],  // 商笔DGMV 环比
+      notes: row[findCol(cols, "新发商笔数")],
+      exposure: row[findCol(cols, "商笔曝光量")],
+    };
+  })();
+
+  // 店播：DGMV / 环比 / 时长 / 开播商家数
+  const liveData7 = last7.t3_live_byAM;
+  const live7 = (function(){
+    if (!liveData7) return {};
+    const cols = liveData7.columns;
+    const row = am ? getAMRow(liveData7, am) : getTotalRow(liveData7);
+    if (!row) return {};
+    const dgmv = row[findCol(cols, "店播DGMV")];
+    const wow = row[findCol(cols, "环比上期_环比-变化率")];
+    const dur = row[findCol(cols, "店播--开播时长（小时）")];
+    return { dgmv, wow, duration_h: dur };
+  })();
+  // 从 _live_breakdown 拿开播商家数
+  const lb7 = (STATE.liveBreakdown || {}).last_7d || {};
+  const lbScope = lb7[am || "全组"] || {};
+
+  // K播：DGMV / 环比
+  const kData7 = last7.t4_k_overview;
+  const k7 = (function(){
+    if (!kData7 || !kData7.rows || !kData7.rows[0]) return {};
+    const cols = kData7.columns, r = kData7.rows[0];
+    return {
+      dgmv: r[findCol(cols, "DGMV（元）")],
+      wow: r[findCol(cols, "DGMV（元）_环比-变化率")],
+      anchors: r[findCol(cols, "动销主播数")],
+      sessions: r[findCol(cols, "动销场次数")],
+    };
+  })();
+
+  // 本双月 MTD DGMV
+  const bimAMData = bimonth.t1_bimonth_byAM;
+  const mtd = (function(){
+    if (!bimAMData) return {};
+    const cols = bimAMData.columns;
+    const dgmvI = cols.findIndex(c => c && c.startsWith("DGMV"));
+    const tgmvI = cols.findIndex(c => c === "TGMV");
+    if (am) {
+      const row = getAMRow(bimAMData, am);
+      if (!row) return {};
+      return { dgmv: row[dgmvI], tgmv: tgmvI>=0 ? row[tgmvI] : null };
+    } else {
+      // 总和
+      const ai = findCol(cols, "AM");
+      const dgmv = bimAMData.rows.filter(r => r[ai] !== "总计").reduce((s,r)=>s+(r[dgmvI]||0),0);
+      const tgmv = tgmvI>=0 ? bimAMData.rows.filter(r => r[ai] !== "总计").reduce((s,r)=>s+(r[tgmvI]||0),0) : null;
+      return { dgmv, tgmv };
+    }
+  })();
+  // 时间进度
+  const now = new Date();
+  const bimStart = new Date(STATE.index.periods.find(p=>p.key==="this_bimonth").start);
+  const bimEnd = new Date();
+  bimEnd.setDate(1); bimEnd.setMonth(bimEnd.getMonth() + (bimEnd.getMonth()%2===0?2:1)); // 双月末
+  const totalDays = Math.ceil((bimEnd - bimStart) / 86400000);
+  const passedDays = Math.floor((now - bimStart) / 86400000);
+  const timePct = passedDays / totalDays;
+
+  // 笔记 last_7d 环比
+  const noteDGMV = note7.dgmv || 0;
+  // 笔记年同比/环比
+  // ============= 渲染文本 =============
+  const fmtMoney = v => v == null ? "—" : fmt.money(v);
+  const fmtPct = v => v == null || isNaN(v) ? "—" : (v >= 0 ? "+" : "") + (v*100).toFixed(1) + "%";
+  const trend = v => {
+    if (v == null || isNaN(v)) return '<span class="muted">—</span>';
+    const cls = v >= 0 ? "delta-up" : "delta-down";
+    const arrow = v >= 0 ? "↑" : "↓";
+    const abs = Math.abs(v);
+    if (abs > 5) return '<span class="delta-abnormal">异常</span>';
+    return '<span class="' + cls + '">' + arrow + (abs*100).toFixed(1) + '%</span>';
+  };
+  // 周日期范围
+  const wrange = STATE.index.periods.find(p => p.key === "last_7d");
+  const weekLabel = wrange ? (wrange.start + " ~ " + wrange.end) : "上周";
+
+  const body = `
+    <div class="wr-section">
+      <div class="wr-section-title">📊 0、双月 DGMV 目标达成</div>
+      <div class="wr-line">
+        <b>MTD 达成 ${fmtMoney(mtd.dgmv)}</b>${mtd.tgmv ? ' · TGMV ' + fmtMoney(mtd.tgmv) : ''}，
+        时间进度 ${(timePct*100).toFixed(1)}%
+      </div>
+    </div>
+    <div class="wr-section">
+      <div class="wr-section-title">🎯 1、场域进展（${weekLabel}）</div>
+      <div class="wr-channel">
+        <div class="wr-channel-name">🎬 店播</div>
+        <div class="wr-line">
+          DGMV <b>${fmtMoney(live7.dgmv)}</b> ${trend(live7.wow)}（环比上 7 天）
+        </div>
+        <div class="wr-sub">
+          开播商家数 <b>${lbScope.live_seller_count != null ? lbScope.live_seller_count : "—"}</b> 家 ·
+          开播时长 <b>${lbScope.duration_h ? Math.round(lbScope.duration_h) : "—"}</b> h ·
+          CTR <b>${lbScope.ctr ? (lbScope.ctr*100).toFixed(2) + "%" : "—"}</b> ·
+          客单价 <b>${lbScope.aov ? "¥" + Math.round(lbScope.aov) : "—"}</b>
+        </div>
+      </div>
+      <div class="wr-channel">
+        <div class="wr-channel-name">📺 K 播</div>
+        <div class="wr-line">
+          DGMV <b>${fmtMoney(k7.dgmv)}</b> ${trend(k7.wow)}（环比上 7 天）
+          ${isAM ? '<span class="muted-mini"> · K 播暂无 AM 拆分，全组数据</span>' : ''}
+        </div>
+        <div class="wr-sub">
+          动销主播 <b>${k7.anchors || "—"}</b> 位 · 动销场次 <b>${k7.sessions || "—"}</b> 场
+        </div>
+      </div>
+      <div class="wr-channel">
+        <div class="wr-channel-name">📝 商笔</div>
+        <div class="wr-line">
+          DGMV <b>${fmtMoney(note7.dgmv)}</b> ${trend(note7.wow)}（环比上 7 天）
+        </div>
+        <div class="wr-sub">
+          新发笔记 <b>${note7.notes != null ? Math.round(note7.notes).toLocaleString() : "—"}</b> 篇 ·
+          曝光量 <b>${note7.exposure != null ? fmtMoney(note7.exposure).replace('¥','') : "—"}</b> PV
+        </div>
+      </div>
+    </div>
+    <div class="wr-section">
+      <div class="wr-section-title">📦 2、新商</div>
+      <div class="wr-line muted">
+        ⚠️ 新商家数据需单独取数（dataset 2479 商家入驻时间），下一版本接入
+      </div>
+    </div>
+    <div class="wr-footer muted">
+      📌 ${isAM ? "当前 AM 视角，所有数字为大门个人名下商家" : "全组合计视角"} ·
+      可直接截图作为周报「业绩部分」内容 ·
+      详细数据请切换上方时段/Tab 查看
+    </div>
+  `;
 
   card.innerHTML = `
-    <div class='summary-header'>📋 业绩摘要 · ${scope}</div>
-    <div class='summary-body'>${body}</div>
+    <div class="summary-header">📋 业绩摘要（周报版）· ${scope}</div>
+    <div class="summary-body">${body}</div>
   `;
   return card;
 }
