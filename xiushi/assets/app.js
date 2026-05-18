@@ -231,7 +231,21 @@ async function init() {
   renderPeriodButtons();
   initCustomRange();
   renderTabBar();
+  initSidebarToggle();
   await renderActiveTab();
+}
+
+function initSidebarToggle() {
+  const tgl = document.getElementById("sidebar-toggle");
+  const sb = document.getElementById("sidebar");
+  if (!tgl || !sb) return;
+  tgl.onclick = () => sb.classList.toggle("open");
+  // 移动端：选 AM 后自动收起
+  sb.addEventListener("click", e => {
+    if (e.target.tagName === "BUTTON" && window.innerWidth < 900) {
+      sb.classList.remove("open");
+    }
+  });
 }
 
 function renderAMButtons() {
@@ -638,30 +652,25 @@ function buildHeroKpis(datas) {
 
 // ============ V9 新增模块 ============
 function buildSummaryCard(datas, tab) {
-  // V10: 周报版 Summary — 对标休食周报模板，AM/团队双视角
+  // V11: 业绩摘要跟随 currentPeriod（用户选什么时段就显示什么时段）
   const card = document.createElement("section");
   card.className = "summary-card weekly-report";
   const isAM = STATE.currentAM !== "全组";
   const scope = isAM ? STATE.currentAM : "五组（休食）全组";
   const sm = STATE.summary || {};
+  const periodLabel = STATE.index.periods.find(p => p.key === STATE.currentPeriod).label;
+  const am = isAM ? STATE.currentAM : null;
 
-  // ============= 数据准备：always 用 last_7d + this_bimonth =============
-  // 不管当前 period，固定算上周+本双月（周报真实场景）
-  // 数据从 STATE.weeklyData 缓存里取（init 时预加载）
-  const wd = STATE.weeklyData || {};
-  const last7 = wd.last_7d || {};
-  const bimonth = wd.this_bimonth || {};
-
-  // 提取函数
+  // 从当前 period 的 datas / cache 取数
   const findCol = (cols, name) => {
     if (!cols) return -1;
     return cols.findIndex(c => c === name || (c && c.startsWith(name)));
   };
-  const getAMRow = (data, am) => {
+  const getAMRow = (data, amName) => {
     if (!data || !data.rows) return null;
     const ai = findCol(data.columns, "AM");
     if (ai < 0) return null;
-    return data.rows.find(r => r[ai] === am);
+    return data.rows.find(r => r[ai] === amName);
   };
   const getTotalRow = (data) => {
     if (!data || !data.rows) return null;
@@ -669,191 +678,145 @@ function buildSummaryCard(datas, tab) {
     if (ai < 0) return data.rows[0];
     return data.rows.find(r => r[ai] === "总计") || null;
   };
-  const sumDGMV = (data, am, kw) => {
-    // 通用：拿某行某列
-    if (!data) return null;
-    const cols = data.columns;
-    const dgmvI = cols.findIndex(c => c && c.includes(kw) && !c.includes("环比") && !c.includes("年同比") && !c.includes("_1") && !c.includes("_2"));
-    if (dgmvI < 0) return null;
-    const row = am ? getAMRow(data, am) : getTotalRow(data);
-    return row ? row[dgmvI] : null;
-  };
-
-  const am = isAM ? STATE.currentAM : null;  // null → 取"总计" 行
-
-  // 笔记：DGMV / 环比 / 新发笔记数 / 曝光量 / 曝光环比
-  const noteData7 = last7.t2_note_byAM, noteDataM = bimonth.t2_note_byAM;
-  const note7 = (function(){
-    if (!noteData7) return {};
-    const cols = noteData7.columns;
-    const row = am ? getAMRow(noteData7, am) : getTotalRow(noteData7);
-    if (!row) return {};
-    const findIdx = (kw, off=0) => {
-      let cnt = 0;
-      for (let i = 0; i < cols.length; i++) {
-        if (cols[i] === kw || (cols[i] && cols[i].startsWith(kw + "_"))) {
-          if (cnt === off) return i;
-          cnt++;
-        }
-      }
-      return -1;
-    };
-    return {
-      dgmv: row[findCol(cols, "商笔DGMV")],
-      wow: row[findCol(cols, "环比上期_环比-变化率")],  // 商笔DGMV 环比
-      notes: row[findCol(cols, "新发商笔数")],
-      exposure: row[findCol(cols, "商笔曝光量")],
-    };
-  })();
-
-  // 店播：DGMV / 环比 / 时长 / 开播商家数
-  const liveData7 = last7.t3_live_byAM;
-  const live7 = (function(){
-    if (!liveData7) return {};
-    const cols = liveData7.columns;
-    const row = am ? getAMRow(liveData7, am) : getTotalRow(liveData7);
-    if (!row) return {};
-    const dgmv = row[findCol(cols, "店播DGMV")];
-    const wow = row[findCol(cols, "环比上期_环比-变化率")];
-    const dur = row[findCol(cols, "店播--开播时长（小时）")];
-    return { dgmv, wow, duration_h: dur };
-  })();
-  // 从 _live_breakdown 拿开播商家数
-  const lb7 = (STATE.liveBreakdown || {}).last_7d || {};
-  const lbScope = lb7[am || "全组"] || {};
-
-  // K播：DGMV / 环比
-  const kData7 = last7.t4_k_overview;
-  const k7 = (function(){
-    if (!kData7 || !kData7.rows || !kData7.rows[0]) return {};
-    const cols = kData7.columns, r = kData7.rows[0];
-    return {
-      dgmv: r[findCol(cols, "DGMV（元）")],
-      wow: r[findCol(cols, "DGMV（元）_环比-变化率")],
-      anchors: r[findCol(cols, "动销主播数")],
-      sessions: r[findCol(cols, "动销场次数")],
-    };
-  })();
-
-  // 本双月 MTD DGMV
-  const bimAMData = bimonth.t1_bimonth_byAM;
-  const mtd = (function(){
-    if (!bimAMData) return {};
-    const cols = bimAMData.columns;
-    const dgmvI = cols.findIndex(c => c && c.startsWith("DGMV"));
-    const tgmvI = cols.findIndex(c => c === "TGMV");
-    if (am) {
-      const row = getAMRow(bimAMData, am);
-      if (!row) return {};
-      return { dgmv: row[dgmvI], tgmv: tgmvI>=0 ? row[tgmvI] : null };
-    } else {
-      // 总和
-      const ai = findCol(cols, "AM");
-      const dgmv = bimAMData.rows.filter(r => r[ai] !== "总计").reduce((s,r)=>s+(r[dgmvI]||0),0);
-      const tgmv = tgmvI>=0 ? bimAMData.rows.filter(r => r[ai] !== "总计").reduce((s,r)=>s+(r[tgmvI]||0),0) : null;
-      return { dgmv, tgmv };
+  const findDataInCurrent = (cid) => {
+    if (tab && tab.charts) {
+      const i = tab.charts.findIndex(c => c.id === cid);
+      if (i >= 0 && datas[i]) return datas[i];
     }
-  })();
-  // 时间进度
-  const now = new Date();
-  const bimStart = new Date(STATE.index.periods.find(p=>p.key==="this_bimonth").start);
-  const bimEnd = new Date();
-  bimEnd.setDate(1); bimEnd.setMonth(bimEnd.getMonth() + (bimEnd.getMonth()%2===0?2:1)); // 双月末
-  const totalDays = Math.ceil((bimEnd - bimStart) / 86400000);
-  const passedDays = Math.floor((now - bimStart) / 86400000);
-  const timePct = passedDays / totalDays;
-
-  // 笔记 last_7d 环比
-  const noteDGMV = note7.dgmv || 0;
-  // 笔记年同比/环比
-  // ============= 渲染文本 =============
-  const fmtMoney = v => v == null ? "—" : fmt.money(v);
-  const fmtPct = v => v == null || isNaN(v) ? "—" : (v >= 0 ? "+" : "") + (v*100).toFixed(1) + "%";
-  const trend = v => {
-    if (v == null || isNaN(v)) return '<span class="muted">—</span>';
-    const cls = v >= 0 ? "delta-up" : "delta-down";
-    const arrow = v >= 0 ? "↑" : "↓";
-    const abs = Math.abs(v);
-    if (abs > 5) return '<span class="delta-abnormal">异常</span>';
-    return '<span class="' + cls + '">' + arrow + (abs*100).toFixed(1) + '%</span>';
+    return STATE.cache[`${STATE.currentPeriod}/${cid}`] || null;
   };
-  // 周日期范围
-  const wrange = STATE.index.periods.find(p => p.key === "last_7d");
-  const weekLabel = wrange ? (wrange.start + " ~ " + wrange.end) : "上周";
+
+  // ============= 业绩数据（当前时段）=============
+  const bimonthByAM = findDataInCurrent("t1_bimonth_byAM");
+  let gmvRow = null;
+  if (bimonthByAM) gmvRow = am ? getAMRow(bimonthByAM, am) : getTotalRow(bimonthByAM);
+  const dgmvI = bimonthByAM ? findCol(bimonthByAM.columns, "DGMV") : -1;
+  const tgmvI = bimonthByAM ? findCol(bimonthByAM.columns, "TGMV") : -1;
+  const dgmv = (gmvRow && dgmvI >= 0) ? gmvRow[dgmvI] : null;
+  const tgmv = (gmvRow && tgmvI >= 0) ? gmvRow[tgmvI] : null;
+
+  // ============= 双月目标进度（仅 this_bimonth 才有意义）=============
+  let bimonthSection = "";
+  if (STATE.currentPeriod === "this_bimonth" && tgmv) {
+    const now = new Date();
+    const day = now.getDate();
+    // 5-6 双月共 61 天
+    const totalDays = 61;
+    const elapsed = (now.getMonth() === 4) ? day : 30 + day;  // 5 月: day, 6 月: 30+day
+    const pct = (elapsed / totalDays * 100).toFixed(1);
+    bimonthSection = `
+      <div class="wr-section">
+        <div class="wr-section-title">📊 0、双月 DGMV 目标达成</div>
+        <div class="wr-line">
+          MTD 达成 <b>${fmt.money(dgmv || 0)}</b> · TGMV <b>${fmt.money(tgmv)}</b>，时间进度 <b>${pct}%</b>
+        </div>
+      </div>
+    `;
+  } else if (dgmv != null) {
+    bimonthSection = `
+      <div class="wr-section">
+        <div class="wr-section-title">📊 0、业绩总览（${periodLabel}）</div>
+        <div class="wr-line">
+          DGMV <b>${fmt.money(dgmv)}</b>${tgmv ? ` · TGMV <b>${fmt.money(tgmv)}</b>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  // ============= 场域进展（当前时段）=============
+  const noteByAM = findDataInCurrent("t2_note_byAM");
+  const liveByAM = findDataInCurrent("t3_live_byAM");
+  const kOv = findDataInCurrent("t4_k_overview");
+  const period = STATE.index.periods.find(p => p.key === STATE.currentPeriod);
+
+  // 笔记
+  let noteLine = "—";
+  if (noteByAM) {
+    const cols = noteByAM.columns;
+    const ci = (kw) => cols.findIndex(c => c && c.includes(kw) && !c.includes("环比") && !c.includes("年同比") && !c.includes("_"));
+    const row = am ? getAMRow(noteByAM, am) : getTotalRow(noteByAM);
+    if (row) {
+      const ndgmvI = ci("商笔DGMV"), cntI = ci("新发商笔数"), expI = ci("商笔曝光量");
+      const ndgmv = ndgmvI >= 0 ? row[ndgmvI] : null;
+      const cnt = cntI >= 0 ? row[cntI] : null;
+      const exp = expI >= 0 ? row[expI] : null;
+      // 环比
+      const dgmvRateI = cols.findIndex((c,i) => c === "环比上期_环比-变化率" && i > 0);
+      const dgmvRate = dgmvRateI >= 0 ? row[dgmvRateI] : null;
+      const rateBadge = (dgmvRate != null)
+        ? `<span class='${dgmvRate >= 0 ? "delta-up" : "delta-down"}'>${dgmvRate >= 0 ? "↑" : "↓"} ${Math.abs(dgmvRate*100).toFixed(1)}%</span>`
+        : "";
+      noteLine = `DGMV <b>${fmt.money(ndgmv || 0)}</b> ${rateBadge}（环比）<br/>
+        <span class='wr-sub'>新发笔记 <b>${cnt ? cnt.toLocaleString("zh-CN") : "—"}</b> 篇 · 曝光 <b>${exp ? (exp > 1e8 ? (exp/1e8).toFixed(2)+"亿" : (exp/1e4).toFixed(0)+"万") + " PV" : "—"}</b></span>`;
+    }
+  }
+
+  // 店播
+  let liveLine = "—";
+  const lb = ((STATE.liveBreakdown || {})[STATE.currentPeriod] || {})[am || "全组"];
+  if (lb) {
+    liveLine = `DGMV <b>${fmt.money(lb.dgmv || 0)}</b><br/>
+      <span class='wr-sub'>开播商家 <b>${lb.live_seller_count || "—"}</b> 家 · 时长 <b>${(lb.duration_h||0).toLocaleString("zh-CN",{maximumFractionDigits:0})} h</b> · CTR <b>${((lb.card_ctr||0)*100).toFixed(2)}%</b> · 客单 <b>¥${(lb.aov||0).toFixed(1)}</b></span>`;
+  }
+
+  // K 播
+  let kLine = "—";
+  const kbyAM = ((STATE.kByAM || {})[STATE.currentPeriod] || {})[am || "全组"];
+  if (kbyAM && kbyAM.dgmv != null) {
+    kLine = `DGMV <b>${fmt.money(kbyAM.dgmv)}</b><br/>
+      <span class='wr-sub'>动销商家 <b>${(kbyAM.active_sellers||0).toLocaleString("zh-CN")}</b> 家 · 订单 <b>${(kbyAM.orders||0).toLocaleString("zh-CN")}</b> 单</span>`;
+  } else if (kOv && !isAM) {
+    // 全组：用 chart 取 K 播总览
+    const cols = kOv.columns;
+    const dgmvI2 = cols.findIndex(c => c === "DGMV（元）");
+    const showI = cols.findIndex(c => c.includes("场次"));
+    const anchorI = cols.findIndex(c => c.includes("主播"));
+    const r = kOv.rows[0];
+    if (r) {
+      kLine = `DGMV <b>${fmt.money(r[dgmvI2] || 0)}</b><br/>
+        <span class='wr-sub'>动销主播 <b>${r[anchorI] ? r[anchorI].toLocaleString("zh-CN") : "—"}</b> 位 · 场次 <b>${r[showI] ? r[showI].toLocaleString("zh-CN") : "—"}</b> 场</span>`;
+    }
+  }
+
+  // ============= 新商家（与时段无关，永远是近30天 + 2026本月动销）=============
+  const ns = STATE.newSeller || {};
+  const new30d = (ns.new_30d && ns.new_30d.count) ? ns.new_30d.count[am || "全组"] : null;
+  const new2026 = (ns.new2026_active && ns.new2026_active.count) ? ns.new2026_active.count[am || "全组"] : null;
+  const new2026DGMV = (ns.new2026_active && ns.new2026_active.dgmv) ? ns.new2026_active.dgmv[am || "全组"] : null;
 
   const body = `
+    ${bimonthSection}
     <div class="wr-section">
-      <div class="wr-section-title">📊 0、双月 DGMV 目标达成</div>
-      <div class="wr-line">
-        <b>MTD 达成 ${fmtMoney(mtd.dgmv)}</b>${mtd.tgmv ? ' · TGMV ' + fmtMoney(mtd.tgmv) : ''}，
-        时间进度 ${(timePct*100).toFixed(1)}%
-      </div>
-    </div>
-    <div class="wr-section">
-      <div class="wr-section-title">🎯 1、场域进展（${weekLabel}）</div>
+      <div class="wr-section-title">🎯 1、场域进展（${period.start} ~ ${period.end}）</div>
       <div class="wr-channel">
         <div class="wr-channel-name">🎬 店播</div>
-        <div class="wr-line">
-          DGMV <b>${fmtMoney(live7.dgmv)}</b> ${trend(live7.wow)}（环比上 7 天）
-        </div>
-        <div class="wr-sub">
-          开播商家数 <b>${lbScope.live_seller_count != null ? lbScope.live_seller_count : "—"}</b> 家 ·
-          开播时长 <b>${lbScope.duration_h ? Math.round(lbScope.duration_h) : "—"}</b> h ·
-          CTR <b>${lbScope.ctr ? (lbScope.ctr*100).toFixed(2) + "%" : "—"}</b> ·
-          客单价 <b>${lbScope.aov ? "¥" + Math.round(lbScope.aov) : "—"}</b>
-        </div>
+        <div class="wr-line">${liveLine}</div>
       </div>
       <div class="wr-channel">
         <div class="wr-channel-name">📺 K 播</div>
-        <div class="wr-line">
-          DGMV <b>${fmtMoney(k7.dgmv)}</b> ${trend(k7.wow)}（环比上 7 天）
-          ${isAM ? '<span class="muted-mini"> · K 播暂无 AM 拆分，全组数据</span>' : ''}
-        </div>
-        <div class="wr-sub">
-          动销主播 <b>${k7.anchors || "—"}</b> 位 · 动销场次 <b>${k7.sessions || "—"}</b> 场
-        </div>
+        <div class="wr-line">${kLine}</div>
       </div>
       <div class="wr-channel">
         <div class="wr-channel-name">📝 商笔</div>
-        <div class="wr-line">
-          DGMV <b>${fmtMoney(note7.dgmv)}</b> ${trend(note7.wow)}（环比上 7 天）
-        </div>
-        <div class="wr-sub">
-          新发笔记 <b>${note7.notes != null ? Math.round(note7.notes).toLocaleString() : "—"}</b> 篇 ·
-          曝光量 <b>${note7.exposure != null ? fmtMoney(note7.exposure).replace('¥','') : "—"}</b> PV
-        </div>
+        <div class="wr-line">${noteLine}</div>
       </div>
     </div>
     <div class="wr-section">
-      <div class="wr-section-title">📦 2、新商</div>
-      ${(function(){
-        const ns = STATE.newSeller || {};
-        const new30d = (ns.new_30d && ns.new_30d.count) ? ns.new_30d.count[am || "全组"] : null;
-        const new2026 = (ns.new2026_active && ns.new2026_active.count) ? ns.new2026_active.count[am || "全组"] : null;
-        const new2026DGMV = (ns.new2026_active && ns.new2026_active.dgmv) ? ns.new2026_active.dgmv[am || "全组"] : null;
-        if (new30d == null && new2026 == null) {
-          return '<div class="wr-line muted">⚠️ 暂无新商家数据</div>';
-        }
-        return `
-          <div class="wr-line">
-            近 30 天新开商家 <b>${new30d != null ? new30d : "—"}</b> 家
-          </div>
-          <div class="wr-line">
-            2026 年新开商家本月动销 <b>${new2026 != null ? new2026 : "—"}</b> 家 ·
-            贡献 GMV <b>${new2026DGMV != null ? fmtMoney(new2026DGMV) : "—"}</b>
-          </div>
-        `;
-      })()}
+      <div class="wr-section-title">📦 2、新商（近 30 天）</div>
+      <div class="wr-line">
+        近 30 天新开商家 <b>${new30d != null ? new30d : "—"}</b> 家 ·
+        2026 新开商家本月动销 <b>${new2026 != null ? new2026 : "—"}</b> 家
+        ${new2026DGMV != null ? ` · 贡献 <b>${fmt.money(new2026DGMV)}</b>` : ""}
+      </div>
     </div>
     <div class="wr-footer muted">
-      📌 ${isAM ? "当前 AM 视角，所有数字为大门个人名下商家" : "全组合计视角"} ·
-      可直接截图作为周报「业绩部分」内容 ·
-      详细数据请切换上方时段/Tab 查看
+      📌 当前时段：<b>${periodLabel}</b> · 切换顶部时段筛选可联动所有数据 ·
+      可直接截图作为周报「业绩部分」内容
     </div>
   `;
 
   card.innerHTML = `
-    <div class="summary-header">📋 业绩摘要（周报版）· ${scope}</div>
+    <div class="summary-header">📋 业绩摘要 · ${scope} · ${periodLabel}</div>
     <div class="summary-body">${body}</div>
   `;
   return card;

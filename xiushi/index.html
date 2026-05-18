@@ -4,51 +4,66 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>休食组业绩看板</title>
-<link rel="stylesheet" href="assets/style.css?v=20260518d">
+<link rel="stylesheet" href="assets/style.css?v=20260518e">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
+
+<!-- 左侧 sidebar：品牌 + AM 视角选择器 -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
     <span class="emoji">🍫</span>
-    <h1>休食组业绩看板</h1>
-    <span class="subtitle">五组（休食）· 全员视角</span>
+    <div>
+      <h1>休食组看板</h1>
+      <div class="subtitle">五组（休食）· 全员视角</div>
+    </div>
   </div>
-  <div class="meta" id="meta-area">
-    <span id="generated-at">--</span>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">👤 视角（AM）</div>
+    <div class="am-list" id="am-buttons"></div>
   </div>
-</header>
-
-<nav class="am-bar">
-  <div class="am-label">👤 视角</div>
-  <div class="am-buttons" id="am-buttons"></div>
-  <div class="am-info" id="am-info"></div>
-</nav>
-
-<nav class="period-bar">
-  <div class="period-label">📅 时段</div>
-  <div class="period-buttons" id="period-buttons"></div>
-  <div class="period-info" id="period-info"></div>
-  <div class="custom-range" id="custom-range" style="display:none;">
-    <span class="muted">自定义：</span>
-    <input type="date" id="custom-start" />
-    <span>~</span>
-    <input type="date" id="custom-end" />
-    <button id="custom-apply">应用</button>
+  <div class="sidebar-section sidebar-meta">
+    <div id="am-info" class="muted-mini"></div>
+    <div id="generated-at" class="muted-mini">--</div>
   </div>
-</nav>
+  <div class="sidebar-footer muted-mini">
+    数据源：RedBI 1922/2479/5574 · 沿用 REDoc 5.11 取数规划
+  </div>
+</aside>
 
-<nav class="tab-bar" id="tab-bar"></nav>
+<!-- 移动端：sidebar 折叠抽屉触发按钮 -->
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="切换视角">☰ 视角</button>
 
-<main id="main-content">
-  <div class="loading">加载中…</div>
-</main>
+<!-- 主内容区域 -->
+<div class="main-wrap">
+  <!-- 顶部：时段栏 -->
+  <nav class="topbar-v2">
+    <div class="period-row">
+      <span class="period-label-v2">📅 时段</span>
+      <div class="period-buttons" id="period-buttons"></div>
+      <div class="custom-range" id="custom-range">
+        <span class="muted-mini">或自定义：</span>
+        <input type="date" id="custom-start" />
+        <span>~</span>
+        <input type="date" id="custom-end" />
+        <button id="custom-apply">应用</button>
+      </div>
+      <div class="period-info-v2" id="period-info"></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab-bar" id="tab-bar"></div>
+    </div>
+  </nav>
 
-<footer>
-  <span>数据源：RedBI 1922/2479 等 · 沿用 REDoc 5.11 取数规划</span>
-  <span>问题反馈 → 大门(朱锦程)</span>
-</footer>
+  <main id="main-content">
+    <div class="loading">加载中…</div>
+  </main>
 
-<script src="assets/app.js?v=20260518d"></script>
+  <footer>
+    <span>问题反馈 → 大门(朱锦程)</span>
+  </footer>
+</div>
+
+<script src="assets/app.js?v=20260518e"></script>
 </body>
 </html>
