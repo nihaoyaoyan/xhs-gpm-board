@@ -3694,6 +3694,23 @@
           "punish_time": "2026-05-17",
           "punish_type": "黑盒"
         }
+      ],
+      "active_count": 166,
+      "active_severe": 68,
+      "active_high_repeat": 1,
+      "active_top_domains": [
+        [
+          "违规营销笔记",
+          159
+        ],
+        [
+          "(未分类)",
+          5
+        ],
+        [
+          "举报结果",
+          1
+        ]
       ]
     },
     {
@@ -3787,6 +3804,23 @@
           "punish_time": "2026-05-17",
           "punish_type": "黑盒"
         }
+      ],
+      "active_count": 271,
+      "active_severe": 132,
+      "active_high_repeat": 152,
+      "active_top_domains": [
+        [
+          "问题账号",
+          194
+        ],
+        [
+          "商品合规准入回查",
+          24
+        ],
+        [
+          "商业生态",
+          22
+        ]
       ]
     },
     {
@@ -3873,6 +3907,23 @@
           "punish_time": "2026-05-17",
           "punish_type": "白盒"
         }
+      ],
+      "active_count": 21,
+      "active_severe": 10,
+      "active_high_repeat": 0,
+      "active_top_domains": [
+        [
+          "问题账号",
+          11
+        ],
+        [
+          "内容画风",
+          4
+        ],
+        [
+          "商业生态",
+          3
+        ]
       ]
     },
     {
@@ -3959,6 +4010,23 @@
           "punish_time": "2026-05-17",
           "punish_type": "黑盒"
         }
+      ],
+      "active_count": 406,
+      "active_severe": 255,
+      "active_high_repeat": 168,
+      "active_top_domains": [
+        [
+          "问题账号",
+          232
+        ],
+        [
+          "内容画风",
+          144
+        ],
+        [
+          "商业生态",
+          11
+        ]
       ]
     },
     {
@@ -4036,6 +4104,23 @@
           "punish_time": "2026-05-17",
           "punish_type": "黑盒"
         }
+      ],
+      "active_count": 178,
+      "active_severe": 89,
+      "active_high_repeat": 100,
+      "active_top_domains": [
+        [
+          "问题账号",
+          163
+        ],
+        [
+          "(未分类)",
+          7
+        ],
+        [
+          "无货源",
+          2
+        ]
       ]
     }
   ],
