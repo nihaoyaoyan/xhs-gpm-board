@@ -671,65 +671,96 @@ function buildHeroKpis(datas) {
     }
   }
 
-  // V13: 邻居 period 算 TGMV/动销商家数/覆盖场域 环比（仅双月类时段可用）
-  const prevKeyHero = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
-  const prevLabelHero = prevKeyHero ? (STATE.index.periods.find(p => p.key === prevKeyHero)?.label || prevKeyHero) : "";
-  // V13c: 进行中的 this_bimonth 用 days_ratio 缩放 prev 上双月（完整 61 天）到同长度（18 天）
-  const prevPeriod = prevKeyHero ? STATE.index.periods.find(p => p.key === prevKeyHero) : null;
-  let prevScale = 1, prevDays = null;
-  if (prevPeriod && STATE.currentPeriod === "this_bimonth") {
-    const ps = new Date(prevPeriod.start), pe = new Date(prevPeriod.end);
-    prevDays = Math.round((pe - ps)/86400000) + 1;
-    prevScale = days / prevDays;  // 按进行中天数缩放
-  }
+  // V13e: 优先用 data.prev_rows（同口径，所有时段），fallback 邻居 chart（双月类）
   const heroDelta = (curVal, prevVal, label, opts) => {
     opts = opts || {};
     if (curVal == null || prevVal == null || prevVal === 0) return null;
-    // 累加型字段按 prevScale 缩放（TGMV/DGMV/商家数都按比例算前 N 天）
-    // 比率型/计数型场域字段不缩放
-    const effPrev = opts.skipScale ? prevVal : (prevVal * prevScale);
+    const effPrev = (opts.scaleFactor != null) ? prevVal * opts.scaleFactor : prevVal;
     const rate = (curVal - effPrev) / Math.abs(effPrev);
     return {rate, prevVal: effPrev, label};
   };
-  // TGMV 上一时段：从 STATE.cache[prevKey/t1_bimonth_byAM] 拿
+
   let prevTgmv = null, prevSellerCount = null, prevScenes = null;
-  if (prevKeyHero) {
-    const prevBy = STATE.cache[`${prevKeyHero}/t1_bimonth_byAM`];
-    if (prevBy && prevBy.columns) {
-      const tgmvI = findColIdx(prevBy.columns, "TGMV");
-      const amI = findColIdx(prevBy.columns, "AM");
-      let pTgmv = 0;
-      prevBy.rows.forEach(r => {
-        const am = r[amI];
-        if (am === "总计") return;
-        if (isAM && am !== STATE.currentAM) return;
-        pTgmv += (r[tgmvI] || 0);
-      });
-      prevTgmv = pTgmv || null;
-    }
-    // 动销商家数 — 全组用 _distinct_counts；AM 视角暂时跳过
-    if (!isAM) {
-      const prevDC = (STATE.distinctCounts || {})[prevKeyHero];
-      if (prevDC && prevDC.seller_count != null) {
-        prevSellerCount = prevDC.seller_count;
+  let heroLabel = "上一同长度时段";
+  let heroScale = 1;
+  let heroHasPrev = false;
+
+  // 1) 优先：t1_bimonth_byAM 的 prev_rows (TGMV)
+  const perfData = datas.find(d => d && d.chart_id === "t1_yesterday_perf");
+  const byamData = datas.find(d => d && d.chart_id === "t1_bimonth_byAM");
+  if (byamData && byamData.prev_rows && byamData.prev_columns) {
+    const tgmvI = findColIdx(byamData.prev_columns, "TGMV");
+    const amI = findColIdx(byamData.prev_columns, "AM");
+    let pTgmv = 0;
+    byamData.prev_rows.forEach(r => {
+      const am = r[amI];
+      if (am === "总计") return;
+      if (isAM && am !== STATE.currentAM) return;
+      pTgmv += (r[tgmvI] || 0);
+    });
+    prevTgmv = pTgmv || null;
+    heroHasPrev = true;
+  }
+  if (perfData && perfData.prev_rows && perfData.prev_columns) {
+    const dimI = findColIdx(perfData.prev_columns, "载体小类");
+    const valI = findColIdxLoose(perfData.prev_columns, "DGMV");
+    const sceneSet = new Set();
+    perfData.prev_rows.forEach(r => {
+      if (r[dimI] === "总计") return;
+      if ((r[valI] || 0) > 0) sceneSet.add(r[dimI]);
+    });
+    prevScenes = sceneSet.size || null;
+    heroHasPrev = true;
+  }
+  // 动销商家数 — 暂无 prev_rows 路径（_distinct_counts.json 没分 prev）
+  // 兜底走邻居 cache + days_ratio 缩放
+  if (!heroHasPrev) {
+    const prevKeyHero = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
+    if (prevKeyHero) {
+      heroLabel = STATE.index.periods.find(p => p.key === prevKeyHero)?.label || prevKeyHero;
+      const periodCur = STATE.index.periods.find(p => p.key === STATE.currentPeriod);
+      const periodPrev = STATE.index.periods.find(p => p.key === prevKeyHero);
+      if (STATE.currentPeriod === "this_bimonth" && periodCur && periodPrev) {
+        const curD = (new Date(periodCur.end) - new Date(periodCur.start))/86400000 + 1;
+        const prevD = (new Date(periodPrev.end) - new Date(periodPrev.start))/86400000 + 1;
+        heroScale = curD / prevD;
       }
-    }
-    const prevPerf = STATE.cache[`${prevKeyHero}/t1_yesterday_perf`];
-    if (prevPerf && prevPerf.rows) {
-      // 覆盖场域 = 非"总计"行的去重数（DGMV > 0）
-      const dimI = findColIdx(prevPerf.columns, "载体小类");
-      const valI = findColIdxLoose(prevPerf.columns, "DGMV");
-      const sceneSet = new Set();
-      prevPerf.rows.forEach(r => {
-        if (r[dimI] === "总计") return;
-        if ((r[valI] || 0) > 0) sceneSet.add(r[dimI]);
-      });
-      prevScenes = sceneSet.size || null;
+      const prevBy = STATE.cache[`${prevKeyHero}/t1_bimonth_byAM`];
+      if (prevBy && prevBy.columns) {
+        const tgmvI = findColIdx(prevBy.columns, "TGMV");
+        const amI = findColIdx(prevBy.columns, "AM");
+        let pTgmv = 0;
+        prevBy.rows.forEach(r => {
+          const am = r[amI];
+          if (am === "总计") return;
+          if (isAM && am !== STATE.currentAM) return;
+          pTgmv += (r[tgmvI] || 0);
+        });
+        prevTgmv = pTgmv || null;
+      }
+      const prevPerf = STATE.cache[`${prevKeyHero}/t1_yesterday_perf`];
+      if (prevPerf && prevPerf.rows) {
+        const dimI = findColIdx(prevPerf.columns, "载体小类");
+        const valI = findColIdxLoose(prevPerf.columns, "DGMV");
+        const sceneSet = new Set();
+        prevPerf.rows.forEach(r => {
+          if (r[dimI] === "总计") return;
+          if ((r[valI] || 0) > 0) sceneSet.add(r[dimI]);
+        });
+        prevScenes = sceneSet.size || null;
+      }
+      heroHasPrev = (prevTgmv != null || prevScenes != null);
     }
   }
-  const tgmvDelta = heroDelta(totalTgmv, prevTgmv, prevLabelHero);  // TGMV 累加型按比例缩
-  const scDelta = heroDelta(sellerCount === "-" || sellerCount == null ? null : sellerCount, prevSellerCount, prevLabelHero, {skipScale: true});  // 商家数 distinct 不缩
-  const scenesDelta = heroDelta(scenes === "-" || scenes == null ? null : scenes, prevScenes, prevLabelHero, {skipScale: true});  // 场域数不缩
+  // 动销商家数 prev：暂用 _distinct_counts 邻居 fallback（双月类才有）
+  const prevKeyFallback = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
+  if (!isAM && prevKeyFallback) {
+    const prevDC = (STATE.distinctCounts || {})[prevKeyFallback];
+    if (prevDC && prevDC.seller_count != null) prevSellerCount = prevDC.seller_count;
+  }
+  const tgmvDelta = heroDelta(totalTgmv, prevTgmv, heroLabel, {scaleFactor: heroScale});
+  const scDelta = heroDelta(sellerCount === "-" || sellerCount == null ? null : sellerCount, prevSellerCount, prevKeyFallback ? (STATE.index.periods.find(p=>p.key===prevKeyFallback)?.label||prevKeyFallback) : heroLabel);
+  const scenesDelta = heroDelta(scenes === "-" || scenes == null ? null : scenes, prevScenes, heroLabel);
 
   // ============ 卡片清单 ============
   const items = [];
@@ -1239,19 +1270,20 @@ function buildLiveBreakdownCard() {
   // V13 升级 — DGMV / 时长 / 商家数 用 chart 自带 _mom（全 8 时段可用）
   const momKeyMap = {dgmv: "dgmv_mom", duration_h: "duration_mom", live_seller_count: "live_seller_count_mom"};
   const cmpMoM = (key, isRate) => {
-    // 优先走 chart 自带 mom
+    // V13e：优先用 _prev 字段（全 8 时段同口径，prev 直接 fetch 来的）
+    if (data._prev && data._prev[key] != null && data[key] != null) {
+      const fmtRef = isRate ? (v => (v*100).toFixed(2)+'%') : (v => fmtN(v,1));
+      return deltaBadge(data[key], data._prev[key], "上一同长度时段（同口径）", {fmt: fmtRef});
+    }
+    // 次选：chart 自带 mom（V13 老路径，DGMV/时长/商家数）
     const momKey = momKeyMap[key];
     if (momKey && data[momKey] != null) {
       const rate = data[momKey];
-      const prevVal = data[key] / (1 + rate);  // 反推上一时段值给 tooltip
+      const prevVal = data[key] / (1 + rate);
       const fmtRef = isRate ? (v => (v*100).toFixed(2)+'%') : (v => fmtN(v,1));
       return deltaBadge(data[key], prevVal, "上一同长度时段（chart 自算）", {fmt: fmtRef});
     }
-    // 后备：双月类时段才有的 prevData
-    if (!prevData || prevData[key] == null || data[key] == null) return "";
-    const prevLabel = STATE.index.periods.find(p => p.key === prevKey)?.label || prevKey;
-    const fmtRef = isRate ? (v => (v*100).toFixed(2)+'%') : (v => fmtN(v,1));
-    return deltaBadge(data[key], prevData[key], `${prevLabel} 同口径`, {fmt: fmtRef});
+    return "";
   };
 
   card.innerHTML = `
@@ -1382,13 +1414,31 @@ function buildLiveEfficiencyCard() {
   const prevAscAll = prevKey ? ((STATE.amSellerCounts || {})[prevKey] || {}) : {};
   const prevTotalSellers = prevAscAll[scope];
   const cmpMoM = (key, curVal, isRate, isDerived) => {
-    // V13: 优先用 chart 自带 mom（覆盖全 8 时段）
+    if (curVal == null) return "";
+    // V13e: 优先用 data._prev（覆盖全 8 时段）
+    if (data._prev) {
+      let benchVal = null;
+      if (key === "openRatio") {
+        // openRatio 需要 prevTotalSellers 才能算，不便利就跳过
+        if (data._prev.live_seller_count && prevTotalSellers) benchVal = data._prev.live_seller_count / prevTotalSellers;
+      } else if (key === "avgDurationPerSeller") {
+        if (data._prev.duration_h && data._prev.live_seller_count) benchVal = data._prev.duration_h / data._prev.live_seller_count;
+      } else {
+        benchVal = data._prev[key];
+      }
+      if (benchVal != null) {
+        const fmtRef = isRate ? (v => (v*100).toFixed(2)+'%') : (v => fmtN(v,1));
+        return deltaBadge(curVal, benchVal, "上一同长度时段（同口径）", {fmt: fmtRef});
+      }
+    }
+    // 次选：chart 自带 mom 字段
     if (key === "duration_h" && data.duration_mom != null) {
       const rate = data.duration_mom;
       const prevVal = curVal / (1 + rate);
       return deltaBadge(curVal, prevVal, "上一同长度时段（chart 自算）", {fmt: v => fmtN(v,1)});
     }
-    if (!prevData || curVal == null) return "";
+    // 最后兜底：旧 prevData（双月类时段）
+    if (!prevData) return "";
     let benchVal = null;
     if (key === "openRatio") {
       benchVal = (prevData.live_seller_count && prevTotalSellers) ? prevData.live_seller_count / prevTotalSellers : null;
@@ -1600,30 +1650,45 @@ renderers.donutTableClean = function(body, data, cfg) {
   rows = rows.sort((a,b)=>(b[valI]||0)-(a[valI]||0));
   const total = rows.reduce((s,r)=>s+(r[valI]||0),0);
 
-  // V13: chart 自带 rate 字段不可信（148倍涨幅离谱），改用邻居 period chart 数据算
-  // 仅对 this_bimonth/last_bimonth 可对照（其它时段无邻居 chart 数据）
-  const prevKey = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
-  const prevChartKey = prevKey ? `${prevKey}/t1_yesterday_perf` : null;
-  const prevData = prevChartKey ? STATE.cache[prevChartKey] : null;
-  const prevDimVal = {};
-  if (prevData && prevData.columns) {
-    const pDimI = findColIdx(prevData.columns, cfg.dim);
-    const pValI = findColIdxLoose(prevData.columns, cfg.value);
-    prevData.rows.forEach(r => {
+  // V13e: 优先用 data.prev_rows（同口径同长度，所有时段，已 fetch）
+  let prevDimVal = {};
+  let prevLabel = "上一同长度时段";
+  let prevSource = null;  // 'prev_rows' | 'neighbor'
+  let scaleFactor = 1;
+  if (data.prev_rows && data.prev_columns) {
+    const pDimI = findColIdx(data.prev_columns, cfg.dim);
+    const pValI = findColIdxLoose(data.prev_columns, cfg.value);
+    data.prev_rows.forEach(r => {
       const dim = r[pDimI];
       if (dim && dim !== "总计") prevDimVal[dim] = r[pValI];
     });
+    prevSource = 'prev_rows';
   }
-  const prevLabel = prevKey ? (STATE.index.periods.find(p => p.key === prevKey)?.label || prevKey) : "";
-  // V13c: 进行中本双月 vs 完整上双月 按天数缩放
-  const periodCur = STATE.index.periods.find(p => p.key === STATE.currentPeriod);
-  const periodPrev = prevKey ? STATE.index.periods.find(p => p.key === prevKey) : null;
-  let scaleFactor = 1;
-  if (STATE.currentPeriod === "this_bimonth" && periodCur && periodPrev) {
-    const curD = (new Date(periodCur.end) - new Date(periodCur.start))/86400000 + 1;
-    const prevD = (new Date(periodPrev.end) - new Date(periodPrev.start))/86400000 + 1;
-    scaleFactor = curD / prevD;
+  // Fallback：用邻居 chart 数据（双月类时段才有）
+  const prevKey = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
+  if (!prevSource && prevKey) {
+    const prevChartKey = `${prevKey}/t1_yesterday_perf`;
+    const prevData = STATE.cache[prevChartKey];
+    if (prevData && prevData.columns) {
+      const pDimI = findColIdx(prevData.columns, cfg.dim);
+      const pValI = findColIdxLoose(prevData.columns, cfg.value);
+      prevData.rows.forEach(r => {
+        const dim = r[pDimI];
+        if (dim && dim !== "总计") prevDimVal[dim] = r[pValI];
+      });
+      prevLabel = STATE.index.periods.find(p => p.key === prevKey)?.label || prevKey;
+      prevSource = 'neighbor';
+      // 双月类邻居要 days_ratio 缩放
+      const periodCur = STATE.index.periods.find(p => p.key === STATE.currentPeriod);
+      const periodPrev = STATE.index.periods.find(p => p.key === prevKey);
+      if (STATE.currentPeriod === "this_bimonth" && periodCur && periodPrev) {
+        const curD = (new Date(periodCur.end) - new Date(periodCur.start))/86400000 + 1;
+        const prevD = (new Date(periodPrev.end) - new Date(periodPrev.start))/86400000 + 1;
+        scaleFactor = curD / prevD;
+      }
+    }
   }
+  const hasPrev = prevSource !== null;
 
   const grid = document.createElement("div");
   grid.className = "grid-donut";
@@ -1634,16 +1699,15 @@ renderers.donutTableClean = function(body, data, cfg) {
 
   const tbl = document.createElement("div");
   tbl.className = "side-table";
-  const envTip = prevKey ? `vs ${prevLabel}（同口径）` : "暂无邻居时段对照（仅本双月/上双月/去年同期可显示环比）";
-  let html = `<table class="data-table"><thead><tr><th>场域</th><th class="num">DGMV</th><th class="num">占比</th><th class="num" data-tip="${envTip}">环比 ${prevKey?'<span class="hint-tip">ⓘ</span>':'<span class="hint-tip" data-tip="'+envTip+'">ⓘ</span>'}</th></tr></thead><tbody>`;
+  const envTip = hasPrev ? `vs ${prevLabel}（同口径）` : "暂无对照";
+  let html = `<table class="data-table"><thead><tr><th>场域</th><th class="num">DGMV</th><th class="num">占比</th><th class="num" data-tip="${envTip}">环比 <span class="hint-tip" data-tip="${envTip}">ⓘ</span></th></tr></thead><tbody>`;
   rows.forEach(r => {
     const v = r[valI];
     const pct = total > 0 ? (v/total*100).toFixed(1)+"%" : "-";
-    // V13: 改用邻居 period 算 delta
     const dim = r[dimI];
     const prevV = prevDimVal[dim];
     let envCell = '<span class="muted">—</span>';
-    if (prevKey && prevV != null && v != null && prevV !== 0) {
+    if (hasPrev && prevV != null && v != null && prevV !== 0) {
       const effPrev = prevV * scaleFactor;
       const rate = (v - effPrev) / Math.abs(effPrev);
       const scaleTip = scaleFactor !== 1 ? `（按时间长度 ${(scaleFactor*100).toFixed(0)}% 缩放）` : '';
