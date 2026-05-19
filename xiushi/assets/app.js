@@ -662,21 +662,75 @@ function buildHeroKpis(datas) {
     }
   }
 
+  // V13: 邻居 period 算 TGMV/动销商家数/覆盖场域 环比（仅双月类时段可用）
+  const prevKeyHero = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
+  const prevLabelHero = prevKeyHero ? (STATE.index.periods.find(p => p.key === prevKeyHero)?.label || prevKeyHero) : "";
+  const heroDelta = (curVal, prevVal, label) => {
+    if (curVal == null || prevVal == null || prevVal === 0) return null;
+    const rate = (curVal - prevVal) / Math.abs(prevVal);
+    return {rate, prevVal, label};
+  };
+  // TGMV 上一时段：从 STATE.cache[prevKey/t1_bimonth_byAM] 拿
+  let prevTgmv = null, prevSellerCount = null, prevScenes = null;
+  if (prevKeyHero) {
+    const prevBy = STATE.cache[`${prevKeyHero}/t1_bimonth_byAM`];
+    if (prevBy && prevBy.columns) {
+      const tgmvI = findColIdx(prevBy.columns, "TGMV");
+      const amI = findColIdx(prevBy.columns, "AM");
+      let pTgmv = 0;
+      prevBy.rows.forEach(r => {
+        const am = r[amI];
+        if (am === "总计") return;
+        if (isAM && am !== STATE.currentAM) return;
+        pTgmv += (r[tgmvI] || 0);
+      });
+      prevTgmv = pTgmv || null;
+    }
+    // 动销商家数 — 全组用 _distinct_counts；AM 视角暂时跳过
+    if (!isAM) {
+      const prevDC = (STATE.distinctCounts || {})[prevKeyHero];
+      if (prevDC && prevDC.seller_count != null) {
+        prevSellerCount = prevDC.seller_count;
+      }
+    }
+    const prevPerf = STATE.cache[`${prevKeyHero}/t1_yesterday_perf`];
+    if (prevPerf && prevPerf.rows) {
+      // 覆盖场域 = 非"总计"行的去重数（DGMV > 0）
+      const dimI = findColIdx(prevPerf.columns, "载体小类");
+      const valI = findColIdxLoose(prevPerf.columns, "DGMV");
+      const sceneSet = new Set();
+      prevPerf.rows.forEach(r => {
+        if (r[dimI] === "总计") return;
+        if ((r[valI] || 0) > 0) sceneSet.add(r[dimI]);
+      });
+      prevScenes = sceneSet.size || null;
+    }
+  }
+  const tgmvDelta = heroDelta(totalTgmv, prevTgmv, prevLabelHero);
+  const scDelta = heroDelta(sellerCount === "-" || sellerCount == null ? null : sellerCount, prevSellerCount, prevLabelHero);
+  const scenesDelta = heroDelta(scenes === "-" || scenes == null ? null : scenes, prevScenes, prevLabelHero);
+
   // ============ 卡片清单 ============
   const items = [];
   items.push({label: `${periodLabel} · ${scopeLabel} DGMV`, value: totalGmv,
     delta: deltaPct, deltaLabel});
   if (totalTgmv != null) {
-    items.push({label: `${periodLabel} · ${scopeLabel} TGMV`, value: fmt.money(totalTgmv)});
+    items.push({label: `${periodLabel} · ${scopeLabel} TGMV`, value: fmt.money(totalTgmv),
+      delta: tgmvDelta ? tgmvDelta.rate : null,
+      deltaLabel: tgmvDelta ? `vs ${prevLabelHero}` : null,
+      prevTip: tgmvDelta ? `vs ${prevLabelHero} TGMV: ${fmt.money(tgmvDelta.prevVal)}（当前 ${fmt.money(totalTgmv)}）` : null});
   }
   items.push({label: "日均 DGMV", value: totalGmvNum != null ? fmt.money(totalGmvNum/days) : "-", sub: `${days} 天`});
-  if (!isAM) {
-    items.push({label: "动销商家数", value: (sellerCount === "-" || sellerCount == null) ? "-" : sellerCount + " 家"});
-  } else {
-    items.push({label: `${STATE.currentAM} 名下动销商家`, value: (sellerCount === "-" || sellerCount == null) ? "-" : sellerCount + " 家"});
-  }
+  const scLabel = isAM ? `${STATE.currentAM} 名下动销商家` : "动销商家数";
+  items.push({label: scLabel, value: (sellerCount === "-" || sellerCount == null) ? "-" : sellerCount + " 家",
+    delta: scDelta ? scDelta.rate : null,
+    deltaLabel: scDelta ? `vs ${prevLabelHero}` : null,
+    prevTip: scDelta ? `vs ${prevLabelHero} 动销商家: ${scDelta.prevVal} 家（当前 ${sellerCount} 家）` : null});
   if (!isAM && scenes !== "-") {
-    items.push({label: "覆盖场域", value: scenes + " 个"});
+    items.push({label: "覆盖场域", value: scenes + " 个",
+      delta: scenesDelta ? scenesDelta.rate : null,
+      deltaLabel: scenesDelta ? `vs ${prevLabelHero}` : null,
+      prevTip: scenesDelta ? `vs ${prevLabelHero} 覆盖场域: ${scenesDelta.prevVal} 个（当前 ${scenes} 个）` : null});
   }
 
   items.forEach(it => {
@@ -687,13 +741,17 @@ function buildHeroKpis(datas) {
       const abs = Math.abs(it.delta);
       const cls = it.delta >= 0 ? "delta-up" : "delta-down";
       const arrow = it.delta >= 0 ? "↑" : "↓";
+      const tipAttr = it.prevTip ? ` data-tip="${it.prevTip}"` : '';
       if (abs > 5) {
-        dh = `<div class="delta delta-abnormal">${it.deltaLabel||""} 异常</div>`;
+        dh = `<div class="delta delta-abnormal"${tipAttr}>${it.deltaLabel||""} 异常</div>`;
       } else if (abs > 1) {
-        dh = `<div class="delta ${cls}">${arrow}${(abs*100).toFixed(0)}%<span class="muted-mini"> 显著</span> ${it.deltaLabel||""}</div>`;
+        dh = `<div class="delta ${cls}"${tipAttr}>${arrow}${(abs*100).toFixed(0)}%<span class="muted-mini"> 显著</span> ${it.deltaLabel||""}</div>`;
       } else {
-        dh = `<div class="delta ${cls}">${arrow} ${(abs*100).toFixed(1)}% ${it.deltaLabel||""}</div>`;
+        dh = `<div class="delta ${cls}"${tipAttr}>${arrow} ${(abs*100).toFixed(1)}% ${it.deltaLabel||""}</div>`;
       }
+    } else if (it.delta === null && !it.sub) {
+      // 双月外时段无环比 — 标注一下
+      dh = `<div class="delta muted-mini hint-tip" data-tip="该时段无邻居对照（仅本双月/上双月/去年同期可显示环比）">— 无环比</div>`;
     }
     let sh = it.sub ? `<div class="sub">${it.sub}</div>` : "";
     c.innerHTML = `<div class="label">${it.label}</div><div class="value">${it.value}</div>${dh}${sh}`;
@@ -1521,6 +1579,22 @@ renderers.donutTableClean = function(body, data, cfg) {
   rows = rows.sort((a,b)=>(b[valI]||0)-(a[valI]||0));
   const total = rows.reduce((s,r)=>s+(r[valI]||0),0);
 
+  // V13: chart 自带 rate 字段不可信（148倍涨幅离谱），改用邻居 period chart 数据算
+  // 仅对 this_bimonth/last_bimonth 可对照（其它时段无邻居 chart 数据）
+  const prevKey = ({this_bimonth: "last_bimonth", last_bimonth: "yoy_bimonth"})[STATE.currentPeriod];
+  const prevChartKey = prevKey ? `${prevKey}/t1_yesterday_perf` : null;
+  const prevData = prevChartKey ? STATE.cache[prevChartKey] : null;
+  const prevDimVal = {};
+  if (prevData && prevData.columns) {
+    const pDimI = findColIdx(prevData.columns, cfg.dim);
+    const pValI = findColIdxLoose(prevData.columns, cfg.value);
+    prevData.rows.forEach(r => {
+      const dim = r[pDimI];
+      if (dim && dim !== "总计") prevDimVal[dim] = r[pValI];
+    });
+  }
+  const prevLabel = prevKey ? (STATE.index.periods.find(p => p.key === prevKey)?.label || prevKey) : "";
+
   const grid = document.createElement("div");
   grid.className = "grid-donut";
   const chartBox = document.createElement("div");
@@ -1530,12 +1604,20 @@ renderers.donutTableClean = function(body, data, cfg) {
 
   const tbl = document.createElement("div");
   tbl.className = "side-table";
-  let html = `<table class="data-table"><thead><tr><th>场域</th><th class="num">DGMV</th><th class="num">占比</th><th class="num">环比</th></tr></thead><tbody>`;
+  const envTip = prevKey ? `vs ${prevLabel}（同口径）` : "暂无邻居时段对照（仅本双月/上双月/去年同期可显示环比）";
+  let html = `<table class="data-table"><thead><tr><th>场域</th><th class="num">DGMV</th><th class="num">占比</th><th class="num" data-tip="${envTip}">环比 ${prevKey?'<span class="hint-tip">ⓘ</span>':'<span class="hint-tip" data-tip="'+envTip+'">ⓘ</span>'}</th></tr></thead><tbody>`;
   rows.forEach(r => {
     const v = r[valI];
-    const rate = rateI>=0 ? r[rateI] : null;
     const pct = total > 0 ? (v/total*100).toFixed(1)+"%" : "-";
-    html += `<tr><td>${r[dimI]}</td><td class="num">${fmt.money(v)}</td><td class="num">${pct}</td><td class="num">${renderDelta(rate)}</td></tr>`;
+    // V13: 改用邻居 period 算 delta
+    const dim = r[dimI];
+    const prevV = prevDimVal[dim];
+    let envCell = '<span class="muted">—</span>';
+    if (prevKey && prevV != null && v != null && prevV !== 0) {
+      const rate = (v - prevV) / Math.abs(prevV);
+      envCell = `<span class="${rate>=0?'delta-up':'delta-down'}" data-tip="vs ${prevLabel}: ${fmt.money(prevV)}（当前 ${fmt.money(v)}）">${rate>=0?'↑':'↓'} ${Math.abs(rate*100).toFixed(1)}%</span>`;
+    }
+    html += `<tr><td>${dim}</td><td class="num">${fmt.money(v)}</td><td class="num">${pct}</td><td class="num">${envCell}</td></tr>`;
   });
   html += "</tbody></table>";
   tbl.innerHTML = html;
