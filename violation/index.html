@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>休食组违规预警看板</title>
+<link rel="stylesheet" href="assets/style.css?v=20260519a">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="emoji">🚨</span>
+    <div>
+      <h1>违规预警</h1>
+      <div class="subtitle">五组（休食）· T-1 监控</div>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">👥 视角</div>
+    <div class="am-list" id="am-buttons"></div>
+  </div>
+  <div class="sidebar-section sidebar-meta">
+    <div id="meta-info" class="muted-mini"></div>
+  </div>
+  <div class="sidebar-footer muted-mini">
+    数据源：RedBI · Themis 25094
+  </div>
+</aside>
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="切换视角">☰ 视角</button>
+
+<div class="main-wrap">
+  <main id="main-content">
+    <div class="loading">加载中…</div>
+  </main>
+  <footer>
+    <span>问题反馈 → 大门(朱锦程)</span>
+  </footer>
+</div>
+
+<script src="assets/app.js?v=20260519a"></script>
+</body>
+</html>

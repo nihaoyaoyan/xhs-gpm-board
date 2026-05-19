@@ -1,0 +1,46 @@
+{
+  "am_list": [
+    {
+      "am": "大门(朱锦程)",
+      "email": "zhujincheng@xiaohongshu.com",
+      "yest_count": 183,
+      "yest_severe": 2,
+      "d14_count": 439
+    },
+    {
+      "am": "秋罗(胡春秋)",
+      "email": "huchunqiu@xiaohongshu.com",
+      "yest_count": 20,
+      "yest_severe": 0,
+      "d14_count": 681
+    },
+    {
+      "am": "路歌(李红红)",
+      "email": "luge1@xiaohongshu.com",
+      "yest_count": 72,
+      "yest_severe": 0,
+      "d14_count": 387
+    },
+    {
+      "am": "诺亚(单恩浩)",
+      "email": "shanenhao2@xiaohongshu.com",
+      "yest_count": 23,
+      "yest_severe": 0,
+      "d14_count": 299
+    },
+    {
+      "am": "莱拉(付艺迪)",
+      "email": "fuyidi@xiaohongshu.com",
+      "yest_count": 31,
+      "yest_severe": 0,
+      "d14_count": 299
+    },
+    {
+      "am": "蕾塞(张嘉悦)",
+      "email": "zhangjiayue@xiaohongshu.com",
+      "yest_count": 47,
+      "yest_severe": 0,
+      "d14_count": 520
+    }
+  ]
+}
