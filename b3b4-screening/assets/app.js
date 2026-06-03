@@ -114,16 +114,26 @@ function ensureCurrentUser() {
 // Builder API 调用：始终带 credentials: 'include'，失败必抛
 async function builderPost(path, body) {
   const url = `${BUILDER_BASE}${path}`;
-  const resp = await fetch(url, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Builder-App-Id': BUILDER_APP_ID,
-    },
-    body: JSON.stringify(body),
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  let resp;
+  try {
+    resp = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Builder-App-Id': BUILDER_APP_ID,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (netErr) {
+    // 网络层失败：通常是 CORS / 公司内网代理 / 浏览器拦截 / 离线
+    throw new Error(`网络连不上 Builder（${netErr.message || netErr}）— 检查是否在公司内网、是否开了广告/隐私拦截插件`);
+  }
+  if (!resp.ok) {
+    let detail = '';
+    try { detail = ' · ' + (await resp.text()).slice(0, 120); } catch (_) {}
+    throw new Error(`Builder 返回 HTTP ${resp.status}${detail}`);
+  }
   const json = await resp.json();
   if (json.code !== 0) throw new Error(json.message || `Builder code ${json.code}`);
   return json.data;
@@ -850,6 +860,7 @@ async function boot() {
 
   // 先拉打标缓存（失败不阻塞主流程）
   await loadAllMarks();
+  renderMarksErrorBanner();
 
   renderTopbar();
   renderTracks();
@@ -857,6 +868,41 @@ async function boot() {
   renderSellerCards();
   renderDict();
   refreshKPI();
+}
+
+// 顶部持久横幅：打标失败时显眼提示 + 重试
+function renderMarksErrorBanner() {
+  const existing = document.getElementById('marks-error-banner');
+  if (existing) existing.remove();
+  if (!state.marksError) return;
+  const banner = document.createElement('div');
+  banner.id = 'marks-error-banner';
+  banner.className = 'marks-error-banner';
+  banner.innerHTML = `
+    <span class="meb-icon">⚠️</span>
+    <span class="meb-text">
+      <strong>协作打标功能离线</strong> · ${escHTML(state.marksError)}
+      <span class="meb-hint">（仅影响 ⭐ 标重要 / 📝 备注，其他数据正常）</span>
+    </span>
+    <button class="meb-retry" id="meb-retry-btn">🔄 重试</button>
+    <button class="meb-close" id="meb-close-btn" title="关闭">×</button>
+  `;
+  document.body.insertBefore(banner, document.body.firstChild);
+  document.getElementById('meb-retry-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('meb-retry-btn');
+    btn.textContent = '⏳ 重试中...';
+    btn.disabled = true;
+    await loadAllMarks();
+    renderMarksErrorBanner();
+    if (!state.marksError) {
+      renderSellerCards();
+      refreshKPI();
+      showToast('✅ 打标功能已恢复', 'ok');
+    }
+  });
+  document.getElementById('meb-close-btn').addEventListener('click', () => {
+    banner.remove();
+  });
 }
 
 boot().catch(err => {
