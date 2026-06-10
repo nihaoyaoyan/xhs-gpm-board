@@ -135,7 +135,16 @@ async function builderPost(path, body) {
   }
   if (!resp.ok) {
     let detail = '';
-    try { detail = ' · ' + (await resp.text()).slice(0, 120); } catch (_) {}
+    try {
+      const raw = await resp.text();
+      // 解码 JSON 里的 \uXXXX 中文转义，否则横幅会显示乱码
+      let parsedMsg = '';
+      try {
+        const j = JSON.parse(raw);
+        parsedMsg = j.message || j.msg || '';
+      } catch (_) {}
+      detail = parsedMsg ? ' · ' + parsedMsg : ' · ' + raw.slice(0, 120);
+    } catch (_) {}
     throw new Error(`Builder 返回 HTTP ${resp.status}${detail}`);
   }
   const json = await resp.json();
@@ -773,7 +782,23 @@ function renderMarkedTab() {
     return;
   }
   if (state.marksError) {
-    panel.innerHTML = `<div class="hint" style="padding:40px;text-align:center;color:#dc2626">⚠️ 打标功能离线，本 Tab 暂不可用。<br>${escHTML(state.marksError)}</div>`;
+    const errMsg = String(state.marksError);
+    const isAuth = /未识别|登录|用户信息|unauth|HTTP 40[013]/i.test(errMsg);
+    if (isAuth) {
+      panel.innerHTML = `
+        <div style="padding:60px 24px;text-align:center;max-width:560px;margin:0 auto">
+          <div style="font-size:56px;margin-bottom:16px">🔐</div>
+          <h3 style="color:#dc2626;margin-bottom:8px">需要先登录 Builder 平台</h3>
+          <p style="color:#6b7280;margin-bottom:24px">本 Tab 依赖 SSO 登录态读取打标数据。<br>点下方按钮 → 新标签页登录 Builder → 回来刷新本页即可。</p>
+          <a href="https://builder.devops.xiaohongshu.com" target="_blank" rel="noopener"
+             style="display:inline-block;padding:10px 24px;background:#dc2626;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">🔐 去登录 Builder</a>
+          <button onclick="location.reload()"
+             style="display:inline-block;padding:10px 24px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;margin-left:8px;cursor:pointer;font-weight:600">🔄 已登录，刷新</button>
+          <div style="margin-top:24px;font-size:11px;color:#9ca3af">其他 Tab（赛道清单 / 重点商家 / 信号说明）不受影响</div>
+        </div>`;
+    } else {
+      panel.innerHTML = `<div class="hint" style="padding:40px;text-align:center;color:#dc2626">⚠️ 打标功能离线，本 Tab 暂不可用。<br>${escHTML(errMsg)}</div>`;
+    }
     return;
   }
 
@@ -1379,9 +1404,9 @@ function renderMarksErrorBanner() {
   if (existing) existing.remove();
   if (!state.marksError) return;
 
-  // 判断是否登录态失效：HTTP 400 含"用户信息" / "登录" / "未识别"
+  // 判断是否登录态失效：HTTP 400/401/403 含"用户信息" / "登录" / "未识别"
   const errMsg = String(state.marksError);
-  const isAuthErr = /未识别|登录|unauth|HTTP 401|HTTP 403/i.test(errMsg);
+  const isAuthErr = /未识别|登录|用户信息|unauth|HTTP 40[013]/i.test(errMsg);
 
   const banner = document.createElement('div');
   banner.id = 'marks-error-banner';
