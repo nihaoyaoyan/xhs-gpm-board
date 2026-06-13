@@ -2,6 +2,8 @@
 
 晚风店铺 · 小红书商品笔记绩效日报，基于商家后台导出数据自动生成。
 
+**🔗 直达链接：https://nihaoyaoyan.github.io/xhs-gpm-board/**
+
 ## 📁 目录
 
 ```
