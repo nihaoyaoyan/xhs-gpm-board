@@ -29,6 +29,8 @@
   .tab { padding: 10px 20px; cursor: pointer; font-size: 14px; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; }
   .tab:hover { color: #ff2442; }
   .tab.active { color: #ff2442; border-bottom-color: #ff2442; font-weight: 600; }
+  .tab.disabled { cursor: not-allowed; opacity: .85; }
+  .tab.disabled:hover { color: #92400e; }
 
   .tab-pane { display: none; padding: 24px; max-width: 1400px; margin: 0 auto; }
   .tab-pane.active { display: block; }
@@ -149,6 +151,7 @@
   <div class="tab" data-tab="pane-formula">🎯 公式拆解</div>
   <div class="tab" data-tab="pane-blogger">👥 博主矩阵</div>
   <div class="tab" data-tab="pane-library">📚 100条标题库</div>
+  <div class="tab disabled" data-tab="pane-salmon" title="三文鱼爆款数据待补">🐟 三文鱼爆款 <span style="font-size:10px;background:#fde68a;color:#92400e;padding:1px 5px;border-radius:3px;margin-left:4px">待数据</span></div>
 </div>
 
 <div class="tab-pane active" id="pane-overview">
@@ -275,6 +278,26 @@
 
 </div>
 
+<div class="tab-pane" id="pane-salmon">
+
+  <div style="background:#fffbeb;border:1px dashed #f59e0b;border-radius:12px;padding:40px 32px;text-align:center;margin-top:24px">
+    <div style="font-size:48px;margin-bottom:12px">🐟</div>
+    <h2 style="font-size:20px;color:#92400e;margin-bottom:8px">三文鱼爆款笔记 · 即将上线</h2>
+    <p style="font-size:13px;color:#78716c;line-height:1.7;max-width:520px;margin:0 auto">
+      本 Tab 用于展示小红书"三文鱼"品类的竞品爆款笔记（含互动数据 · 标题公式 · 博主矩阵 · 公式库）。<br/>
+      数据来源：蒲公英【社媒助手】热门商业笔记 · 导出后接入即可上线。<br/>
+      复用虾仁看板的 4-Tab 框架，预期 1-2 个工作日完成。
+    </p>
+    <div style="margin-top:20px;display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <span style="background:#fff;color:#92400e;font-size:12px;padding:4px 10px;border-radius:4px;border:1px solid #fde68a">📊 爆款全貌</span>
+      <span style="background:#fff;color:#92400e;font-size:12px;padding:4px 10px;border-radius:4px;border:1px solid #fde68a">🎯 公式拆解</span>
+      <span style="background:#fff;color:#92400e;font-size:12px;padding:4px 10px;border-radius:4px;border:1px solid #fde68a">👥 博主矩阵</span>
+      <span style="background:#fff;color:#92400e;font-size:12px;padding:4px 10px;border-radius:4px;border:1px solid #fde68a">📚 标题库</span>
+    </div>
+  </div>
+
+</div>
+
 <footer>
   数据源：蒲公英【社媒助手】热门商业笔记 · 2026-06-13 · 全 100 条 · <a href="../../../index.html">返回落地页</a>
 </footer>
@@ -285,6 +308,11 @@ var D = {"meta": {"export_source": "蒲公英【社媒助手】笔记数据", "e
 // ============== Tab 切换 ==============
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
+    if (t.classList.contains('disabled')) {
+      // 占位 tab：弹一个友好提示（不切换、不报错）
+      window.alert('🐟 三文鱼爆款数据待补\n\n请先用【社媒助手】导出"三文鱼"关键词的热门商业笔记（包含互动数据），上传后即接入。');
+      return;
+    }
     document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
     document.querySelectorAll('.tab-pane').forEach(function(x){x.classList.remove('active');});
     t.classList.add('active');
