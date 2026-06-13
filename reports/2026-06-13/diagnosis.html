@@ -68,7 +68,7 @@ tr.expanded td{background:#f0f0ff!important}
 
 <div class="header">
   <h1>🔍 笔记诊断看板 · 吃点Lite</h1>
-  <span class="formula">GMV = 曝光 × 封面点击率 × 商品转化率 × CVR × 件单价</span>
+  <span class="formula">GMV = 曝光 × 封面点击率 × 商品转化率 × 笔记支付转化率 × 件单价</span>
 </div>
 
 <div class="main">
@@ -99,7 +99,7 @@ tr.expanded td{background:#f0f0ff!important}
     </div>
     <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
       <table><thead><tr>
-        <th>笔记ID</th><th>标题</th><th>曝光</th><th>封面点击率</th><th>商品转化率</th><th>CVR</th><th>客单价</th><th>GMV</th><th>最大瓶颈</th><th>CVR补单</th>
+        <th>笔记ID</th><th>标题</th><th>曝光</th><th>封面点击率</th><th>商品转化率</th><th>笔记支付转化率</th><th>客单价</th><th>GMV</th><th>最大瓶颈</th><th>CVR补单</th>
       </tr></thead><tbody id="tableBody"></tbody></table>
     </div>
   </div>
@@ -122,11 +122,11 @@ document.getElementById('kpiRow').innerHTML = [
   {label:'最大瓶颈',value:Object.entries(SUMMARY.bottleneck_pct).sort(function(a,b){return b[1]-a[1]})[0][0],sub:Object.entries(SUMMARY.bottleneck_pct).sort(function(a,b){return b[1]-a[1]})[0][1]+'%'},
   {label:'封面点击率低于平均',value:SUMMARY.factor_below_avg.cover_ctr,sub:Math.round(SUMMARY.factor_below_avg.cover_ctr/SUMMARY.total*100)+'%'},
   {label:'商品转化率低于平均',value:SUMMARY.factor_below_avg.card_ctr,sub:Math.round(SUMMARY.factor_below_avg.card_ctr/SUMMARY.total*100)+'%'},
-  {label:'CVR低于平均',value:SUMMARY.factor_below_avg.cvr,sub:Math.round(SUMMARY.factor_below_avg.cvr/SUMMARY.total*100)+'%'},
+  {label:'笔记支付转化率低于平均',value:SUMMARY.factor_below_avg.cvr,sub:Math.round(SUMMARY.factor_below_avg.cvr/SUMMARY.total*100)+'%'},
 ].map(function(k){return '<div class="kpi-card"><div class="label">'+k.label+'</div><div class="value">'+k.value+'</div><div class="sub">'+k.sub+'</div></div>';}).join('');
 
 // CHART 1: RADAR
-var avgSer = [{name:'封面点击率',max:13},{name:'商品转化率',max:20},{name:'CVR',max:8},{name:'客单价',max:130}];
+var avgSer = [{name:'封面点击率',max:13},{name:'商品转化率',max:20},{name:'笔记支付转化率',max:8},{name:'客单价',max:130}];
 var r1 = echarts.init(document.getElementById('radarChart'));
 r1.setOption({
   tooltip:{},
