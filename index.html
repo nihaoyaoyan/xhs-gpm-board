@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小红书 GPM 数据看板 · 晚风店铺</title>
+<title>若溪 · 小红书 GPM 分析</title>
 <style>
   :root {
     --red: #ff2442;
@@ -18,81 +18,123 @@
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
   }
-  .container { max-width: 640px; width: 100%; padding: 40px 24px; }
-  .hero { text-align: center; margin-bottom: 40px; }
-  .hero h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
-  .hero h1 span { background: linear-gradient(135deg, var(--red), #ff5577); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .hero p { color: var(--text-dim); font-size: 15px; }
-  .cards { display: grid; gap: 16px; }
-  .card {
+  .header {
+    background: linear-gradient(135deg, var(--red), #e01b38);
+    color: #fff;
+    padding: 32px 40px;
+    text-align: center;
+  }
+  .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+  .report-list { display: flex; flex-direction: column; gap: 12px; }
+  .report-card {
     background: var(--card-bg);
     border-radius: var(--radius);
-    padding: 24px 28px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+    transition: all 0.2s;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border: 1px solid #e5e7eb;
-    transition: all 0.2s;
-    display: flex; align-items: center; gap: 16px;
   }
-  .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); border-color: var(--red); }
-  .card-icon { font-size: 32px; width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .card-icon.a { background: #fef2f2; }
-  .card-icon.b { background: #fefce8; }
-  .card-icon.c { background: #eef2ff; }
-  .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-  .card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
-  .card .tag {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    font-size: 11px; font-weight: 600; margin-top: 6px;
+  .report-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border-color: var(--red);
   }
-  .tag.new { background: #ff2442; color: #fff; }
-  .tag.old { background: #e5e7eb; color: #6b7280; }
-  .footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+  .report-date {
+    font-size: 28px; font-weight: 800;
+    color: var(--red);
+    flex-shrink: 0;
+    width: 80px; text-align: center;
+    line-height: 1.2;
+  }
+  .report-date small { display: block; font-size: 12px; font-weight: 500; color: var(--text-dim); }
+  .report-meta { flex: 1; min-width: 0; }
+  .report-meta h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .report-meta p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .report-links { display: flex; gap: 10px; flex-shrink: 0; }
+  .report-links a {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .btn-dash { background: #fff0f2; color: var(--red); }
+  .btn-dash:hover { background: var(--red); color: #fff; }
+  .btn-rpt { background: #f5f5f5; color: var(--text-dim); }
+  .btn-rpt:hover { background: var(--text); color: #fff; }
+  .footer { text-align: center; padding: 24px; font-size: 12px; color: var(--text-dim); }
   .footer a { color: var(--red); text-decoration: none; }
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 8px 0 16px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-dim); letter-spacing: 1px;
+  }
+  .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+  @media (max-width: 640px) {
+    .report-card { flex-wrap: wrap; }
+    .report-links { width: 100%; justify-content: flex-end; }
+  }
 </style>
 </head>
 <body>
+
+<div class="header">
+  <h1>若溪 · 小红书 GPM 分析</h1>
+  <p>晚风店铺 · 商品笔记绩效日报</p>
+</div>
+
 <div class="container">
 
-  <div class="hero">
-    <h1>小红书 <span>GPM 数据看板</span></h1>
-    <p>晚风店铺 · 商品笔记绩效分析</p>
-  </div>
+  <div class="divider">2026 年 6 月</div>
 
-  <div class="cards">
-    <a href="gpm-report/" class="card">
-      <div class="card-icon a">📊</div>
-      <div>
-        <h2>GPM 交互看板 <span class="tag new">2026-06</span></h2>
-        <p>8 个 KPI 卡片 + 交互图表 + 明细表 · 筛选 / 搜索 / CSV 导出 · 行业优秀基准对比</p>
-      </div>
-    </a>
-
-    <a href="gpm-report/report.html" class="card">
-      <div class="card-icon b">📋</div>
-      <div>
-        <h2>GPM 分析报告</h2>
-        <p>6 大板块 · 7 项核心发现 · 月度趋势解读 · 5 条优先级行动建议 · A4 打印友好</p>
-      </div>
-    </a>
-
-    <a href="xhs-gpm/" class="card">
-      <div class="card-icon c">📈</div>
-      <div>
-        <h2>旧版参考看板 <span class="tag old">历史</span></h2>
-        <p>早期版本 · 包含商品 GMV 排名 / 每日趋势 / 笔记类型雷达图等更多图表</p>
-      </div>
-    </a>
+  <div class="report-list" id="report-list">
+    <!-- Reports loaded here -->
   </div>
 
   <div class="footer">
     数据来源：小红书商家后台 · <a href="https://github.com/nihaoyaoyan/xhs-gpm-board">GitHub</a>
   </div>
-
 </div>
+
+<script>
+// Auto-discover reports from reports/ directory
+// For now, render from known dates
+var reports = [
+  {
+    date: '2026-06-13',
+    gmv: '¥17,147',
+    orders: '169',
+    notes: '1,669',
+    highlights: '封面点击率 8.02%，出单率 4.97%，6月加速增长'
+  }
+];
+
+var list = document.getElementById('report-list');
+reports.forEach(function(r){
+  var d = new Date(r.date);
+  var weekday = ['日','一','二','三','四','五','六'][d.getDay()];
+  var path = 'reports/' + r.date + '/';
+  list.innerHTML += 
+    '<a class="report-card" href="' + path + '">' +
+    '<div class="report-date">' + d.getDate() + '<small>' + (d.getMonth()+1) + '月 周' + weekday + '</small></div>' +
+    '<div class="report-meta">' +
+    '<h3>' + r.date + ' · 商品笔记数据画像</h3>' +
+    '<p>GMV ' + r.gmv + ' · ' + r.orders + ' 单 · ' + r.notes + ' 篇笔记 · ' + r.highlights + '</p>' +
+    '</div>' +
+    '<div class="report-links">' +
+    '<span class="btn-dash">📊 看板</span>' +
+    '<span class="btn-rpt">📋 报告</span>' +
+    '</div>' +
+    '</a>';
+});
+</script>
+
 </body>
 </html>
