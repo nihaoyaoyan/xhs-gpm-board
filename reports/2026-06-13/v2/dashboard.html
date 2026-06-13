@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>鲜水湾 · 综合数据看板</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root{--red:#ff2442;--blue:#0984e3;--green:#00b894;--yellow:#fdcb6e;--purple:#6c5ce7;--bg:#f5f6fa;--card:#fff;--text:#2d3436;--sub:#636e72;--border:#e5e7eb;--radius:12px;--shadow:0 2px 12px rgba(0,0,0,.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.header{background:linear-gradient(135deg,var(--blue) 0%,#0066cc 50%,#0044aa 100%);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(9,132,227,.2)}
+.header h1{font-size:20px;font-weight:700}
+.header .formula{font-size:12px;opacity:.85;background:rgba(255,255,255,.12);padding:4px 12px;border-radius:20px}
+.main{max-width:1400px;margin:0 auto;padding:24px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);text-align:center}
+.kpi-card .label{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-card .value{font-size:26px;font-weight:800}
+.kpi-card .sub{font-size:11px;color:var(--sub);margin-top:2px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.chart-card h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.chart{width:100%;height:340px}
+.chart.wide{height:400px}
+.table-section{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.table-section h3{font-size:14px;font-weight:600;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f0f0f8;color:var(--sub);font-weight:600;padding:10px 8px;text-align:left;font-size:11px;border-bottom:2px solid var(--border)}
+td{padding:8px;border-bottom:1px solid var(--border)}
+tr:hover td{background:#f8f8ff}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-red{background:#ffe0e0;color:#d63031}
+.tag-green{background:#e6faf5;color:#00b894}
+.tag-blue{background:#e8f0fe;color:#0984e3}
+.footer{text-align:center;padding:24px;color:var(--sub);font-size:12px;border-top:1px solid var(--border)}
+@media(max-width:768px){.chart-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 鲜水湾 · 综合数据看板</h1>
+  <span class="formula">笔记诊断 + 搜索词分析 · 双数据源整合</span>
+</div>
+<div class="main">
+  <div class="kpi-row" id="kpiRow"></div>
+  <div class="chart-row">
+    <div class="chart-card"><h3>🏆 商品GMV排行 TOP5</h3><div class="chart" id="chartProduct"></div></div>
+    <div class="chart-card"><h3>👤 作者贡献度</h3><div class="chart" id="chartAuthor"></div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card"><h3>📈 搜索GMV月度趋势</h3><div class="chart" id="chartMonthly"></div></div>
+    <div class="chart-card"><h3>📊 笔记推荐衰减分布</h3><div class="chart" id="chartDecay"></div></div>
+  </div>
+  <div class="chart-row" style="grid-template-columns:1fr">
+    <div class="chart-card"><h3>⭐ 长尾金词 TOP10 — 高转化低竞争</h3><div class="chart wide" id="chartGold"></div></div>
+  </div>
+  <div class="table-section">
+    <h3>📋 商品明细表</h3>
+    <table><thead><tr><th>商品</th><th>GMV</th><th>订单</th><th>笔记数</th><th>近七日阅读</th></tr></thead><tbody id="prodBody"></tbody></table>
+  </div>
+</div>
+<div class="footer">鲜水湾 · 综合数据看板 · 数据来源：商品笔记 06-06~12 + 笔记分析 06-13 + 搜索词 2025.11~2026.05</div>
+
+<script id="summary-data" type="application/json">{"summary": {"noteGMV": 8910.9, "noteOrders": 96, "totalNotes": 1669, "notesWithSales": 45, "searchGMV": 101862.36, "searchOrders": 1024, "searchKeywords": 1431, "avgCoverCtr": 8.58}, "products": [{"name": "手剥虾仁 无冰衣无添加 低脂餐一人食 上", "gmv": 5445.0, "orders": 73, "notes": 1161, "reads": 22820}, {"name": "智利尾端中段整条三文鱼 8斤深海鱼低脂餐", "gmv": 2113.9, "orders": 14, "notes": 100, "reads": 3119}, {"name": "三文鱼扒智利三文鱼扒轮切三文鱼冷冻三文鱼", "gmv": 1352.0, "orders": 9, "notes": 177, "reads": 3750}, {"name": "青岛大鲅鱼春鲅鱼鲅鱼新鲜冷冻马鲛鱼蓝点马", "gmv": 0, "orders": 0, "notes": 5, "reads": 186}, {"name": "北极甜虾头籽甜虾元宝虾北极熊冰虾孕妈妈宝", "gmv": 0, "orders": 0, "notes": 18, "reads": 136}, {"name": "盐田虾无抗有机盐田虾孕妈妈宝宝辅食顺丰包", "gmv": 0, "orders": 0, "notes": 1, "reads": 40}, {"name": "大虾鲜冻大虾厄瓜多尔白虾盐冻大虾虾仁海洋", "gmv": 0, "orders": 0, "notes": 140, "reads": 151}, {"name": "挪威冰鲜三文鱼刺身级食材生鱼片日式火锅食", "gmv": 0, "orders": 0, "notes": 3, "reads": 50}, {"name": "生蚝乳山生蚝海蛎子顺丰包邮", "gmv": 0, "orders": 0, "notes": 62, "reads": 30}, {"name": "王牌大虾鲜冻大虾厄瓜多尔白虾盐冻大虾年货", "gmv": 0, "orders": 0, "notes": 2, "reads": 0}], "authors": [{"name": "鲜水湾", "gmv": 3016.9, "orders": 25, "notes": 478, "reads": 6700}, {"name": "菲菲上班吃什么", "gmv": 2937.0, "orders": 40, "notes": 444, "reads": 16034}, {"name": "婉婉上班吃什么", "gmv": 2016.0, "orders": 19, "notes": 347, "reads": 4883}, {"name": "小柚练后吃什么", "gmv": 941.0, "orders": 12, "notes": 400, "reads": 2665}], "monthly": [{"month": "2025-11", "keywords": 91, "gmv": 1378.0, "orders": 20, "exposure": 8986, "clicks": 282}, {"month": "2025-12", "keywords": 172, "gmv": 3532.3, "orders": 34, "exposure": 15041, "clicks": 894}, {"month": "2026-01", "keywords": 224, "gmv": 2973.9, "orders": 36, "exposure": 21503, "clicks": 845}, {"month": "2026-02", "keywords": 260, "gmv": 7302.6, "orders": 40, "exposure": 22437, "clicks": 1234}, {"month": "2026-03", "keywords": 261, "gmv": 5137.1, "orders": 53, "exposure": 17066, "clicks": 1362}, {"month": "2026-04", "keywords": 471, "gmv": 34203.16, "orders": 280, "exposure": 24262, "clicks": 4294}, {"month": "2026-05", "keywords": 894, "gmv": 47335.3, "orders": 561, "exposure": 54817, "clicks": 7084}], "decay": {"推荐中": 50, "搜索续命": 1619}, "factors": {"封面点击率": 532, "商品转化率": 1401, "笔记支付转化率": 1625, "客单价": 1659}, "bnPct": {"封面CTR": 3.5, "商品卡CTR": 80.6, "CVR": 15.1, "客单价": 0.7, "曝光量": 0.0}, "longTailGold": [{"keyword": "智利三文鱼排冷冻三文鱼三文鱼扒顺丰包邮整条三文鱼深海鱼", "gmv": 439.0, "orders": 7, "buyers": 7, "exposure": 8, "clicks": 6, "ctr": 75.0, "cvr": 116.67, "months": 1, "length": 27, "score": 485.22}, {"keyword": "挪威冰鲜三文鱼刺身级食材生鱼片日式火锅食材顺丰包邮", "gmv": 349.3, "orders": 7, "buyers": 7, "exposure": 7, "clicks": 7, "ctr": 100.0, "cvr": 100.0, "months": 1, "length": 25, "score": 415.89}, {"keyword": "什么菜可以冻上吃", "gmv": 138.0, "orders": 2, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 200.0, "months": 1, "length": 8, "score": 395.5}, {"keyword": "减脂吃三文鱼", "gmv": 496.0, "orders": 2, "buyers": 1, "exposure": 2, "clicks": 1, "ctr": 50.0, "cvr": 200.0, "months": 1, "length": 6, "score": 351.56}, {"keyword": "早餐营养食谱", "gmv": 187.0, "orders": 2, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 200.0, "months": 1, "length": 6, "score": 351.56}, {"keyword": "营养午餐", "gmv": 226.0, "orders": 2, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 200.0, "months": 1, "length": 4, "score": 307.61}, {"keyword": "青岛大鲅鱼春鲅鱼鲅鱼新鲜冷冻马鲛鱼蓝点马鲛鱼顺丰包邮", "gmv": 59.7, "orders": 3, "buyers": 3, "exposure": 4, "clicks": 3, "ctr": 75.0, "cvr": 100.0, "months": 1, "length": 26, "score": 277.26}, {"keyword": "盐田虾无抗有机盐田虾孕妈妈宝宝辅食顺丰包邮无打药无污染健康虾", "gmv": 109.6, "orders": 4, "buyers": 4, "exposure": 5, "clicks": 5, "ctr": 100.0, "cvr": 80.0, "months": 1, "length": 30, "score": 257.51}, {"keyword": "青岛大鲅鱼春鲅鱼鲅鱼新鲜冷冻马鲛鱼蓝点马鲛鱼", "gmv": 39.8, "orders": 2, "buyers": 2, "exposure": 2, "clicks": 2, "ctr": 100.0, "cvr": 100.0, "months": 1, "length": 22, "score": 219.72}, {"keyword": "哪里能买到好的三文鱼", "gmv": 338.0, "orders": 1, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 100.0, "months": 1, "length": 10, "score": 138.63}], "gaps": [{"keyword": "虾仁做法大全", "gmv": 138.0, "orders": 2, "buyers": 2, "exposure": 17649, "clicks": 115, "ctr": 0.65, "cvr": 1.74, "months": 7, "length": 6}, {"keyword": "北极甜虾", "gmv": 119.8, "orders": 2, "buyers": 2, "exposure": 1699, "clicks": 227, "ctr": 13.36, "cvr": 0.88, "months": 5, "length": 4}, {"keyword": "生蚝的营养价值和功效", "gmv": 109.9, "orders": 1, "buyers": 1, "exposure": 1243, "clicks": 160, "ctr": 12.87, "cvr": 0.62, "months": 5, "length": 10}, {"keyword": "煎三文鱼", "gmv": 632.0, "orders": 4, "buyers": 4, "exposure": 950, "clicks": 235, "ctr": 24.74, "cvr": 1.7, "months": 3, "length": 4}, {"keyword": "抗炎饮食", "gmv": 456.0, "orders": 2, "buyers": 2, "exposure": 783, "clicks": 149, "ctr": 19.03, "cvr": 1.34, "months": 3, "length": 4}], "emerging": [{"keyword": "减脂餐食谱", "gmv": 3676.0, "orders": 49, "buyers": 49, "exposure": 4663, "clicks": 685, "ctr": 14.69, "cvr": 7.15, "months": 2, "length": 5}, {"keyword": "减肥餐食谱", "gmv": 1429.0, "orders": 19, "buyers": 19, "exposure": 1714, "clicks": 234, "ctr": 13.65, "cvr": 8.12, "months": 2, "length": 5}, {"keyword": "减脂餐一日三餐一周食谱", "gmv": 1281.0, "orders": 16, "buyers": 16, "exposure": 1531, "clicks": 219, "ctr": 14.3, "cvr": 7.31, "months": 2, "length": 11}, {"keyword": "盒马虾仁", "gmv": 1153.0, "orders": 15, "buyers": 15, "exposure": 1945, "clicks": 218, "ctr": 11.21, "cvr": 6.88, "months": 2, "length": 4}, {"keyword": "青岛鲅鱼", "gmv": 723.8, "orders": 4, "buyers": 3, "exposure": 274, "clicks": 69, "ctr": 25.18, "cvr": 5.8, "months": 2, "length": 4}], "avg补单数": 1.1}</script>
+<script>
+var D = JSON.parse(document.getElementById('summary-data').innerHTML);
+var S = D.summary;
+
+document.getElementById('kpiRow').innerHTML = [
+  {l:'笔记直接GMV',v:'¥'+S.noteGMV.toLocaleString(),s:S.noteOrders+'单 / '+S.notesWithSales+'篇出单'},
+  {l:'搜索GMV',v:'¥'+(S.searchGMV/10000).toFixed(1)+'万',s:S.searchOrders+'单 / '+S.searchKeywords+'个词'},
+  {l:'搜索/笔记倍率',v:(S.searchGMV/S.noteGMV).toFixed(1)+'×',s:'搜索是笔记直接收入的倍数'},
+  {l:'封面CTR均值',v:S.avgCoverCtr+'%',s:'行业平均6% / 优秀10.1%'},
+  {l:'推荐中笔记',v:D.decay['推荐中'],s:'发布≤3天，仍有推荐流量'},
+  {l:'需补单均值',v:D.avg补单数+'单',s:'使CVR达行业优秀需补'},
+].map(function(k){return '<div class="kpi-card"><div class="label">'+k.l+'</div><div class="value">'+k.value+'</div><div class="sub">'+k.sub+'</div></div>';}).join('');
+
+// Product chart
+var r1 = echarts.init(document.getElementById('chartProduct'));
+r1.setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+  grid:{left:10,right:60,top:10,bottom:40,containLabel:true},
+  xAxis:{type:'value',axisLabel:{formatter:'¥{value}'}},
+  yAxis:{type:'category',data:D.products.slice(0,5).map(function(p){return p.name;}),axisLabel:{fontSize:10,formatter:function(v){return v.length>15?v.slice(0,14)+'…':v;}}},
+  series:[{type:'bar',data:D.products.slice(0,5).map(function(p){return p.gmv;}),itemStyle:{color:'#0984e3'},barMaxWidth:24,
+    label:{show:true,position:'right',formatter:function(p){return '¥'+p.value.toLocaleString();},fontSize:11}}
+  ]
+});
+
+// Author chart
+var r2 = echarts.init(document.getElementById('chartAuthor'));
+r2.setOption({
+  tooltip:{trigger:'axis'},
+  legend:{data:['GMV','笔记数'],bottom:0},
+  grid:{left:10,right:10,top:10,bottom:40,containLabel:true},
+  xAxis:{type:'category',data:D.authors.map(function(a){return a.name.length>8?a.name.slice(0,7)+'…':a.name;})},
+  yAxis:[{type:'value',name:'GMV(¥)',axisLabel:{formatter:'¥{value}'}},{type:'value',name:'笔记数'}],
+  series:[
+    {name:'GMV',type:'bar',data:D.authors.map(function(a){return a.gmv;}),itemStyle:{color:'#0984e3'}},
+    {name:'笔记数',type:'line',yAxisIndex:1,data:D.authors.map(function(a){return a.notes;}),itemStyle:{color:'#ff2442'},symbolSize:8}
+  ]
+});
+
+// Monthly trend
+var r3 = echarts.init(document.getElementById('chartMonthly'));
+r3.setOption({
+  tooltip:{trigger:'axis'},
+  legend:{data:['搜索GMV','搜索订单'],bottom:0},
+  grid:{left:10,right:10,top:10,bottom:40,containLabel:true},
+  xAxis:{type:'category',data:D.monthly.map(function(m){return m.month;})},
+  yAxis:[{type:'value',axisLabel:{formatter:'¥{value}'}},{type:'value',name:'订单'}],
+  series:[
+    {name:'搜索GMV',type:'bar',data:D.monthly.map(function(m){return m.gmv;}),itemStyle:{color:'#0984e3'},barMaxWidth:24},
+    {name:'搜索订单',type:'line',yAxisIndex:1,data:D.monthly.map(function(m){return m.orders;}),itemStyle:{color:'#00b894'},symbolSize:8}
+  ]
+});
+
+// Decay pie
+var r4 = echarts.init(document.getElementById('chartDecay'));
+r4.setOption({
+  tooltip:{trigger:'item'},
+  series:[{type:'pie',radius:['50%','75%'],center:['50%','60%'],itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:2},
+    label:{formatter:'{b}\n{d}%',fontSize:13},
+    data:[
+      {name:'推荐中(≤3天)',value:D.decay['推荐中'],itemStyle:{color:'#00b894'}},
+      {name:'搜索续命(>3天)',value:D.decay['搜索续命'],itemStyle:{color:'#e17055'}}
+    ]
+  }]
+});
+
+// Gold keywords
+var r5 = echarts.init(document.getElementById('chartGold'));
+r5.setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+  legend:{data:['GMV','CVR'],bottom:0},
+  grid:{left:10,right:60,top:10,bottom:50,containLabel:true},
+  xAxis:{type:'category',data:D.longTailGold.map(function(g){return g.keyword.length>10?g.keyword.slice(0,9)+'…':g.keyword;})},
+  yAxis:[{type:'value',name:'GMV(¥)',axisLabel:{formatter:'¥{value}'}},{type:'value',name:'CVR(%)',axisLabel:{formatter:'{value}%'}}],
+  series:[
+    {name:'GMV',type:'bar',data:D.longTailGold.map(function(g){return g.gmv;}),itemStyle:{color:'#0984e3'},barMaxWidth:18},
+    {name:'CVR',type:'line',yAxisIndex:1,data:D.longTailGold.map(function(g){return g.cvr;}),itemStyle:{color:'#ff2442'},symbolSize:8}
+  ]
+});
+
+// Product table
+document.getElementById('prodBody').innerHTML = D.products.map(function(p,i){
+  return '<tr><td style="font-weight:600">'+p.name+'</td><td>¥'+p.gmv.toLocaleString()+'</td><td>'+p.orders+'</td><td>'+p.notes+'</td><td>'+p.reads.toLocaleString()+'</td></tr>';
+}).join('');
+
+window.addEventListener('resize',function(){r1.resize();r2.resize();r3.resize();r4.resize();r5.resize();});
+</script>
+</body>
+</html>
