@@ -122,18 +122,26 @@ reports.forEach(function(r){
   var weekday = ['日','一','二','三','四','五','六'][d.getDay()];
   var path = 'reports/' + r.date + '/';
   var v = '?v=' + r.date.replace(/-/g,'');
-  list.innerHTML += 
-    '<a class="report-card" href="' + path + 'dashboard.html' + v + '">' +
+  list.innerHTML +=
+    '<div class="report-card" style="flex-direction:column;align-items:stretch;gap:12px">'+
+    '<a href="' + path + 'dashboard.html' + v + '" style="display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit">' +
     '<div class="report-date">' + d.getDate() + '<small>' + (d.getMonth()+1) + '月 周' + weekday + '</small></div>' +
     '<div class="report-meta">' +
     '<h3>' + r.date + ' · 商品笔记数据画像</h3>' +
     '<p>GMV ' + r.gmv + ' · ' + r.orders + ' 单 · ' + r.notes + ' 篇笔记 · ' + r.highlights + '</p>' +
     '</div>' +
     '<div class="report-links">' +
-    '<span class="btn-dash">📊 看板</span>' +
+    '<span class="btn-dash">📊 综合看板</span>' +
     '<span class="btn-rpt">📋 报告</span>' +
     '</div>' +
-    '</a>';
+    '</a>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed #e5e7eb">' +
+    '<a href="' + path + 'diagnosis.html' + v + '" style="font-size:12px;padding:5px 10px;background:#fff0f2;color:var(--red);border-radius:6px;text-decoration:none">📊 笔记诊断</a>' +
+    '<a href="' + path + 'search.html' + v + '" style="font-size:12px;padding:5px 10px;background:#e8f0fe;color:#0984e3;border-radius:6px;text-decoration:none">🔍 搜索词</a>' +
+    '<a href="' + path + 'competitor.html' + v + '" style="font-size:12px;padding:5px 10px;background:#ffe0e0;color:#d63031;border-radius:6px;text-decoration:none">🔥 竞品爆款</a>' +
+    '<a href="' + path + 'report.html' + v + '" style="font-size:12px;padding:5px 10px;background:#f5f5f5;color:#6b7280;border-radius:6px;text-decoration:none">📑 GPM报告</a>' +
+    '</div>' +
+    '</div>';
 });
 </script>
 
