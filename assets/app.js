@@ -1,4 +1,4 @@
-// 大门业绩看板 V2 — 6 Tab，全部基于 NL 取数（dataset 1922 / 5574 / 39664）
+// 大门业绩看板 V2 — 7 Tab，全部基于 NL 取数（dataset 1922 / 5574 / 39664）
 (function () {
   const M = window.MOCK;
   const COLORS = {
@@ -755,6 +755,18 @@
     `;
   }
 
+  // ============ Tab 7: 小红书 GPM 数据看板 ============
+  function renderTab7() {
+    const root = document.getElementById('tab7');
+    root.innerHTML = `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;height:calc(100vh - 200px);min-height:750px;">
+        <iframe src="./xhs-gpm/" style="width:100%;height:100%;border:none;" title="小红书商品笔记GPM数据看板" loading="lazy"></iframe>
+      </div>
+      <div style="text-align:center;margin-top:12px;color:var(--text-dim);font-size:12px;">
+        📊 数据来源：小红书商家后台 · 2025-11-06 ~ 2026-05-31 · 1,192 篇商品笔记 · 9 个商品 · <a href="./xhs-gpm/report.html" target="_blank" style="color:var(--primary);">打开洞察报告 ↗</a>
+      </div>`;
+  }
+
   // ============ Tab 切换 ============
   function switchTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
@@ -779,6 +791,7 @@
     renderTab4();
     renderTab5();
     renderTab6();
+    renderTab7();
 
     document.querySelectorAll('.tab').forEach(t => {
       t.addEventListener('click', () => switchTab(t.dataset.tab));
