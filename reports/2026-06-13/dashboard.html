@@ -77,7 +77,7 @@ document.getElementById('kpiRow').innerHTML = [
   {l:'封面CTR均值',v:S.avgCoverCtr+'%',s:'行业平均6% / 优秀10.1%'},
   {l:'推荐中笔记',v:D.decay['推荐中'],s:'发布≤3天，仍有推荐流量'},
   {l:'需补单均值',v:D.avg补单数+'单',s:'使CVR达行业优秀需补'},
-].map(function(k){return '<div class="kpi-card"><div class="label">'+k.l+'</div><div class="value">'+k.value+'</div><div class="sub">'+k.sub+'</div></div>';}).join('');
+].map(function(k){return '<div class="kpi-card"><div class="label">'+k.l+'</div><div class="value">'+k.v+'</div><div class="sub">'+k.s+'</div></div>';}).join('');
 
 // Product chart
 var r1 = echarts.init(document.getElementById('chartProduct'));
