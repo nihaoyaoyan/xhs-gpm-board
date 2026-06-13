@@ -28,10 +28,13 @@ reports/2026-06-13/
 │    5大板块 · 执行摘要 → 诊断 → 搜索 → 商品 → 建议
 │    A4打印友好 · 面向决策
 │
-└── competitor.html      ← 🔥 竞品爆款笔记看板
-     4 Tab: 爆款榜单 / 数据明细 / 竞品对比 / 爆款公式库
-     三段式拆解: 封面 × 标题 × 评论区
-     自动生成「可复用爆款公式 TOP3」
+├── competitor-demo.html  ← 🎨 爆款样板（5 篇脱敏 demo，看效果）
+│    4 Tab: 爆款榜单 / 数据明细 / 竞品对比 / 爆款公式库
+│    三段式拆解: 封面 × 标题 × 评论区
+│
+└── competitor-shrimp.html ← 🦐 虾仁爆款（蒲公英 100 条真实数据）
+     4 Tab: 爆款全貌 / 公式拆解 / 博主矩阵 / 100条标题库
+     元数据版（无互动字段），11 种爆款公式 + TOP 30 博主
 ```
 
 **页面关联关系：**
@@ -49,7 +52,7 @@ reports/2026-06-13/
  双源整合     笔记漏斗     关键词掘金    综合建议
       │                                       
       ▼                                       
- 🔥 竞品爆款 (competitor)                       
+ 🔥 竞品爆款 (competitor-demo / competitor-shrimp)                       
       │                                       
       ▼                                       
  4 Tab 拆解：封面+标题+评论区                  
@@ -129,12 +132,19 @@ Excel文件（商家后台导出）
                     │             │
              dashboard.html   report.html
 
-└─ competitor_samples.json → competitor_data.json
+└─ competitor_samples.json → competitor_data.json   (5 篇脱敏样板)
    (用户手动维护)                  │
                           build_competitor.py
-                          (竞品爆款看板)
+                          (竞品爆款看板·样板)
                                │
-                          competitor.html
+                          competitor-demo.html
+
+└─ 【蒲公英导出 CSV】 → transform_shrimp.py → competitor_shrimp.json
+   (虾仁爆款 100 条)                    │
+                                build_competitor_shrimp.py
+                                (竞品爆款看板·虾仁真实数据)
+                                     │
+                                competitor-shrimp.html
 ```
 
 ### 一键更新命令
@@ -148,17 +158,27 @@ python data/build_search.py
 python data/build_summary.py && python data/build_report.py
 
 # 竞品爆款看板（用户手动更新 competitor_samples.json 后）
-python data/gen_competitor_samples.py   # 仅首次生成模板
+python data/gen_competitor_samples.py   # 仅首次生成样板
 python data/build_competitor.py
+
+# 虾仁爆款（蒲公英 CSV 导出后）
+python data/transform_shrimp.py
+python data/build_competitor_shrimp.py
 ```
 
 ---
 
 ## 🔥 竞品爆款笔记看板（v3 新增）
 
-**入口**：`reports/2026-06-13/competitor.html`
+**双页面并存**：
+- `competitor-demo.html` — 5 篇脱敏样板，展示三段式拆解效果
+- `competitor-shrimp.html` — 蒲公英导出的 100 条虾仁真实数据
 
-### 4 个 Tab
+### competitor-demo.html（样板）
+
+**入口**：`reports/2026-06-13/competitor-demo.html`
+
+#### 4 个 Tab
 
 | Tab | 内容 | 价值 |
 |-----|------|------|
@@ -167,14 +187,14 @@ python data/build_competitor.py
 | 🆚 竞品对比 | 自己 vs 竞品 雷达图 + 关键指标并排 | 找到差距 |
 | 🔬 爆款公式库 | 5 种公式聚合（数字+落差/情绪+反差/价差对比/量价锚定/反常识警告） | 复制打法 |
 
-### 三段式爆款拆解（按用户给的格式）
+#### 三段式爆款拆解（按用户给的格式）
 
 每篇爆款笔记拆解为：
 1. **封面** — 公式标签 + 元素逐项（如 "9.9元/100卡/瘦30斤" → 数字+落差）
 2. **标题** — 钩子解析（如 "9.9元 100卡 + 减脂晚餐 + 瘦30斤 + 才敢发"）
 3. **评论区** — 高赞评论 + 类型（反问句/窥探欲/共鸣/求链接/代际认同/学习共鸣）
 
-### 5 种爆款公式（已聚合并验证）
+#### 5 种爆款公式（已聚合并验证）
 
 | 公式 | 适用品类 | 平均CVR | 转化路径 | 复制难度 |
 |------|---------|--------:|---------|:---:|
@@ -184,13 +204,48 @@ python data/build_competitor.py
 | 量价+锚定 | 海鲜/食材 | 5-8% | 标题→产地信任→下单 | ⭐ |
 | 反常识警告 | 教程/技巧 | 5-8% | 标题→视频学完→下单 | ⭐⭐⭐ |
 
+### competitor-shrimp.html（虾仁真实数据）
+
+**入口**：`reports/2026-06-13/competitor-shrimp.html`
+
+**数据源**：蒲公英【社媒助手】热门商业笔记 · 2026-06-13 导出 · 关键词"虾仁" · 100 条
+
+**⚠️ 数据版本说明**：本批次 CSV 未提供互动字段（曝光/阅读/点赞/收藏/评论/订单/GMV），仅有元数据。看板重点：标题公式、话题分布、博主矩阵、发布时点、内容钩子。
+
+#### 4 个 Tab
+
+| Tab | 内容 | 价值 |
+|-----|------|------|
+| 📊 爆款全貌 | 7 个 KPI（笔记数/独立账号/主要公式/主导话题/主导层级/高频钩子/黄金时段）+ 7 个图表（公式分布/话题 TOP/24h发布/星期分布/层级/封面/月度） + 7 条核心洞察 | 速览虾仁品类全貌 |
+| 🎯 公式拆解 | 11 种爆款公式聚合（每种含代表笔记 3 篇 + 平均图片/话题/粉丝数） | 学习虾仁专属打法 |
+| 👥 博主矩阵 | 30 个 TOP 博主详情卡 + 笔记数 vs 粉丝数散点图 + TOP 10 横向条形图 | 找对标账号 |
+| 📚 100条标题库 | 全 100 条笔记的可搜索/筛选/排序表（按公式/博主/发布时间/粉丝数/图片数） | 选题灵感库 |
+
+#### 11 种虾仁爆款公式（启发式分类）
+
+| 公式 | 占比 | 关键钩子 |
+|------|----:|--------|
+| 一人食小包装 | 18% | 小包装/独立/独食/早八人 |
+| 场景种草型 | 15% | 早餐/晚餐/减脂/健身/宿舍 |
+| 反差型 | 12% | 以为/结果/没想到/低估 |
+| 数字+反差型 | 9% | 数字+单位+反差词 |
+| 情绪共鸣型 | 6% | 震惊/yyds/救命 |
+| 对话钩子型 | 4% | 引用/我爸妈/老爸/顾客/粉丝 |
+| 剧情对话型 | 3% | 引用+回购/被安利 |
+| 剧情反转型 | 3% | 我也不想/家人们谁懂 |
+| 回购+故事型 | 2% | 第N次/被安利 |
+| 数字+落差型 | 2% | 数字+价值词 |
+| 反常识警告型 | 1% | 警告/别再/避雷 |
+
 ### 数据采集
 
 - **数据 Schema**：`data/competitor_data_dictionary.md`（30+ 字段详细说明）
 - **样例数据**：`data/competitor_samples.json`（5 篇脱敏爆款，覆盖 3 个细分品类）
-- **更新方式**：直接编辑 `data/competitor_samples.json` 里的对象数组 → 跑 `build_competitor.py`
+- **虾仁数据**：`data/competitor_shrimp.json`（蒲公英导出 100 条）
+- **更新方式**：
+  - 脱敏样板：直接编辑 `competitor_samples.json` → `build_competitor.py`
+  - 虾仁：蒲公英导出 CSV → `transform_shrimp.py` → `build_competitor_shrimp.py`
 - **采集频率**：每周一次（每周一上午统一采集上周爆款）
-- **爆款阈值**：阅读 ≥10万 或 互动率 ≥5% 或 评论区有求链接类高赞
 
 ---
 
