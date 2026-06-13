@@ -104,9 +104,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 <th>封面点击率</th>
 <th class="col-bench">行业<br>封面(6%)</th>
 <th>商品卡<br>点击率</th>
-<th class="col-bench">行业<br>品卡(3%)</th>
+<th class="col-bench">行业<br>品卡(15.43%)</th>
 <th>支付<br>转化率</th>
-<th class="col-bench">行业<br>转化(1.5%)</th>
+<th class="col-bench">行业<br>转化(6.12%)</th>
 <th>客单价</th>
 <th class="col-bench">行业<br>客单(¥90)</th>
 <th>需动销量</th>
@@ -193,12 +193,12 @@ function renderTable(notes){
 
     // Color coding vs industry benchmarks
     var coverCls = (n['封面点击率'] != null && n['封面点击率'] > 6) ? 'good' : ((n['封面点击率'] != null && n['封面点击率'] > 0) ? 'warn' : '');
-    var cardCls = (n['商品卡点击率'] != null && n['商品卡点击率'] > 3) ? 'good' : ((n['商品卡点击率'] != null && n['商品卡点击率'] > 0) ? 'warn' : '');
-    var convCls = (n['转化率'] != null && n['转化率'] > 1.5) ? 'good' : ((n['转化率'] != null && n['转化率'] > 0) ? 'warn' : '');
+    var cardCls = (n['商品カ点击率'] != null && n['商品卡点击率'] > 15.43) ? 'good' : ((n['商品カ点击率'] != null && n['商品カ点击率'] > 0) ? 'warn' : '');
+    var convCls = (n['转化率'] != null && n['转化率'] > 6.12) ? 'good' : ((n['转化率'] != null && n['转化率'] > 0) ? 'warn' : '');
     var aspCls = (n['客单价'] > 90) ? 'good' : ((n['客单价'] > 0) ? 'warn' : '');
 
-    var cardBadge = (n['商品卡点击率'] != null && n['商品卡点击率'] > 3) ? '<span class="bench-badge">↑高于</span>' : ((n['商品卡点击率'] != null && n['商品卡点击率'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
-    var convBadge = (n['转化率'] != null && n['转化率'] > 1.5) ? '<span class="bench-badge">↑高于</span>' : ((n['转化率'] != null && n['转化率'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
+    var cardBadge = (n['商品卡点击率'] != null && n['商品卡点击率'] > 15.43) ? '<span class="bench-badge">↑高于</span>' : ((n['商品卡点击率'] != null && n['商品卡点击率'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
+    var convBadge = (n['转化率'] != null && n['转化率'] > 6.12) ? '<span class="bench-badge">↑高于</span>' : ((n['转化率'] != null && n['转化率'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
     var aspBadge = (n['客单价'] > 90) ? '<span class="bench-badge">↑高于</span>' : ((n['客单价'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
 
     html += '<tr>';
@@ -282,7 +282,7 @@ function exportCSV(){
       n['封面点击率']||'',
       '6.0',
       n['商品卡点击率']||'',
-      '3.0',
+      '15.43',
       n['转化率']||'',
       '1.5',
       n['客单价']||'',
