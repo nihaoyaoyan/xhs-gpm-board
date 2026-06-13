@@ -45,7 +45,7 @@ tr:hover td{background:var(--gray-light)}
 .gap-num{font-size:11px;color:var(--sub)}
 .detail-row{display:none;background:#f8f9ff;border-left:3px solid var(--red)}
 .detail-row td{padding:16px 20px}
-.detail-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 .detail-factor{text-align:center;padding:12px;border-radius:8px;background:#fff;border:1px solid var(--border)}
 .detail-factor .name{font-size:11px;color:var(--sub);margin-bottom:4px}
 .detail-factor .val{font-size:20px;font-weight:700}
@@ -217,8 +217,11 @@ function renderTable(data){
           '<div class="detail-factor '+(n.factor_status.asp==='below_avg'?'bad':(n.factor_status.asp==='between'?'ok':'good'))+'">'+
             '<div class="name">客单价</div><div class="val">¥'+n['客单价']+'</div><div class="bench">平均¥90 / 优秀¥100</div></div>'+
           '<div class="detail-factor">'+
-            '<div class="name">曝光量</div><div class="val">'+(n['曝光量']?n['曝光量'].toLocaleString():'—')+'</div>'+
-            '<div class="bench">阅读'+(n['阅读数']?n['阅读数'].toLocaleString():0)+'</div></div>'+
+            '<div class="name">总曝光量</div><div class="val">'+(n['曝光量']?n['曝光量'].toLocaleString():'—')+'</div>'+
+            '<div class="bench">行业平均 —</div></div>'+
+          '<div class="detail-factor">'+
+            '<div class="name">总阅读量</div><div class="val">'+(n['阅读数']?n['阅读数'].toLocaleString():'—')+'</div>'+
+            '<div class="bench">'+(n['曝光量']&&n['曝光量']>0?'封面CTR '+n['封面CTR']+'%':'')+'</div></div>'+
           '<div class="detail-action">'+
             (n['补单数'] > 0 ? '💡 <strong>需补'+n['补单数']+'单</strong> 使CVR达到行业优秀6.12%（当前商品点击'+n['商品点击次数']+'次，已出'+n['订单数']+'单，目标'+n['目标单数']+'单）' : (n['订单数']>0 ? '✅ CVR已达标' : '⚠️ 无订单，建议优化最大瓶颈：'+n.top_bottleneck))+
           '</div>'+
