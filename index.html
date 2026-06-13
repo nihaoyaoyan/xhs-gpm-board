@@ -3,58 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>大门业绩看板 2.0</title>
+  <title>小红书商品笔记GPM数据看板</title>
   <link rel="stylesheet" href="./assets/style.css" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📊%3C/text%3E%3C/svg%3E" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📱%3C/text%3E%3C/svg%3E" />
+  <style>
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+    .hero-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--primary) 0%, #ff5577 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--text-dim);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 720px;
+      margin: 0 auto 60px;
+      padding: 0 20px;
+    }
+    .link-card {
+      display: block;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 28px;
+      text-decoration: none;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .link-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 24px var(--primary-glow);
+    }
+    .link-card .icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+    .link-card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .link-card span {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .link-card .arrow {
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .meta-bar {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 20px 0;
+    }
+    @media (max-width: 600px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .hero { padding: 40px 16px 28px; }
+      .hero h1 { font-size: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
 
   <header class="header">
     <div class="header-inner">
       <div class="brand">
-        <div class="brand-logo">📊</div>
+        <div class="brand-logo">📱</div>
         <div class="brand-text">
-          <div class="brand-title">大门业绩看板 2.0</div>
-          <div class="brand-sub">AM <span id="owner-name">-</span> · <span id="owner-dept">-</span></div>
+          <div class="brand-title">小红书 GPM 数据看板</div>
+          <div class="brand-sub">商品笔记 · 海鲜/生鲜品类</div>
         </div>
       </div>
       <div class="header-meta">
-        <span class="pill live"><span class="live-dot"></span>实时数据</span>
-        <span class="pill">更新于 <span id="updated-at">-</span></span>
-        <span class="pill" id="data-source">DEMO · Mock 数据</span>
+        <span class="pill">2025-11-06 ~ 2026-05-31</span>
+        <span class="pill">1,192 篇笔记 · 9 个商品</span>
       </div>
     </div>
   </header>
 
-  <nav class="tabs">
-    <div class="tabs-inner">
-      <div class="tab" data-tab="tab1">📅 昨日业绩</div>
-      <div class="tab" data-tab="tab2">📈 趋势 & 异动</div>
-      <div class="tab" data-tab="tab3">🏪 商家健康</div>
-      <div class="tab" data-tab="tab4">🎯 场域分析</div>
-      <div class="tab" data-tab="tab5">🏷️ 类目盘子</div>
-      <div class="tab" data-tab="tab6">⚠️ 违规预警</div>
-      <div class="tab" data-tab="tab7">📱 小红书GPM</div>
-    </div>
-  </nav>
+  <div class="hero">
+    <div class="hero-icon">📊</div>
+    <h1>商品笔记 GPM 数据分析</h1>
+    <p>基于小红书商家后台真实导出数据，覆盖 1,192 篇商品笔记、9 个海鲜/生鲜商品的 GPM 经营分析</p>
+  </div>
 
-  <main class="main">
-    <div id="tab1" class="tab-panel"></div>
-    <div id="tab2" class="tab-panel"></div>
-    <div id="tab3" class="tab-panel"></div>
-    <div id="tab4" class="tab-panel"></div>
-    <div id="tab5" class="tab-panel"></div>
-    <div id="tab6" class="tab-panel"></div>
-    <div id="tab7" class="tab-panel"></div>
+  <div class="card-grid">
+    <a href="./xhs-gpm/" class="link-card">
+      <div class="icon">📈</div>
+      <h3>交互式数据看板</h3>
+      <span>6 张 KPI 卡片 + 6 个 ECharts 图表 + 可搜索排序的明细表，支持桌面/平板自适应</span>
+      <div class="arrow">打开看板 →</div>
+    </a>
+    <a href="./xhs-gpm/report.html" class="link-card">
+      <div class="icon">📄</div>
+      <h3>数据洞察报告</h3>
+      <span>6 章节专业报告：核心总览、商品排名、笔记对比、时间趋势、转化分析、P0/P1/P2 行动建议</span>
+      <div class="arrow">打开报告 →</div>
+    </a>
+  </div>
 
-    <div class="footer">
-      ✅ 真实数据 V4 · 数据来源：RedBI 数据集 1922 + 2479 + 25094 · AM=大门(朱锦程)<br/>
-      由 DIBP 📊 生成 · 每日 09:30 自动刷新
-    </div>
-  </main>
+  <div class="meta-bar">
+    数据来源：小红书商家后台 · 构建时间：2026-06-13
+  </div>
 
-  <script src="./data/real.js"></script>
-  <script src="./assets/app.js"></script>
 </body>
 </html>
