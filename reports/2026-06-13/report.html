@@ -3,580 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小红书商品笔记 GPM 分析报告</title>
+<title>鲜水湾 · 6月经营洞察报告</title>
 <style>
-  @page {
-    size: A4;
-    margin: 20mm;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", -apple-system, sans-serif;
-    font-size: 14px;
-    line-height: 1.8;
-    color: #333;
-    background: #f5f5f5;
-  }
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #fff;
-    box-shadow: 0 0 20px rgba(0,0,0,0.08);
-  }
-
-  /* ---- Header ---- */
-  .header {
-    background: linear-gradient(135deg, #ff2442 0%, #e01e3a 100%);
-    color: #fff;
-    padding: 48px 56px 40px;
-  }
-  .header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-  .header .subtitle {
-    font-size: 15px;
-    opacity: 0.85;
-    margin-bottom: 16px;
-  }
-  .header .meta-row {
-    display: flex;
-    gap: 32px;
-    font-size: 13px;
-    opacity: 0.75;
-    flex-wrap: wrap;
-  }
-  .header .meta-item span {
-    display: block;
-    font-size: 22px;
-    font-weight: 700;
-    opacity: 1;
-    line-height: 1.3;
-  }
-
-  /* ---- Section ---- */
-  .section {
-    padding: 32px 56px;
-    border-bottom: 1px solid #eee;
-  }
-  .section:last-child { border-bottom: none; }
-  .section h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ff2442;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ff2442;
-    margin-bottom: 20px;
-    display: inline-block;
-  }
-  .section h3 {
-    font-size: 16px;
-    font-weight: 700;
-    color: #222;
-    margin: 24px 0 10px;
-  }
-  .section h3::before {
-    content: "▎";
-    color: #ff2442;
-    margin-right: 8px;
-  }
-  .section p {
-    margin-bottom: 12px;
-    text-align: justify;
-  }
-  .highlight {
-    background: #fff4f5;
-    padding: 2px 6px;
-    border-radius: 3px;
-    color: #d01a30;
-    font-weight: 600;
-  }
-  .tag {
-    display: inline-block;
-    background: #ff2442;
-    color: #fff;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-right: 6px;
-  }
-
-  /* ---- KPI Grid ---- */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin: 16px 0;
-  }
-  .kpi-card {
-    background: #fafafa;
-    border: 1px solid #eee;
-    border-radius: 6px;
-    padding: 16px;
-    text-align: center;
-  }
-  .kpi-card .kpi-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #ff2442;
-    line-height: 1.3;
-  }
-  .kpi-card .kpi-label {
-    font-size: 12px;
-    color: #999;
-    margin-top: 4px;
-  }
-
-  /* ---- Table ---- */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0 24px;
-    font-size: 13px;
-  }
-  thead th {
-    background: #ff2442;
-    color: #fff;
-    padding: 10px 12px;
-    text-align: left;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  thead th:last-child { text-align: right; }
-  thead th:first-child { border-radius: 4px 0 0 0; }
-  thead th:last-child { border-radius: 0 4px 0 0; }
-  tbody td {
-    padding: 9px 12px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  tbody td:last-child { text-align: right; }
-  tbody tr:nth-child(even) { background: #fafafa; }
-  tbody tr:hover { background: #fff4f5; }
-
-  /* sub-tables inside findings */
-  .tight-table thead th {
-    font-size: 12px;
-    padding: 7px 10px;
-  }
-  .tight-table tbody td {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
-
-  /* ---- Alert box ---- */
-  .alert-box {
-    background: #fff8e1;
-    border-left: 4px solid #ff9800;
-    padding: 16px 20px;
-    margin: 16px 0;
-    border-radius: 0 6px 6px 0;
-    font-size: 13px;
-  }
-  .alert-box strong { color: #e65100; }
-
-  /* ---- Recommendation ---- */
-  .rec-list { list-style: none; padding: 0; }
-  .rec-item {
-    background: #fafafa;
-    border: 1px solid #eee;
-    border-radius: 6px;
-    padding: 18px 22px;
-    margin-bottom: 12px;
-    border-left: 4px solid #ff2442;
-  }
-  .rec-item .rec-priority {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #fff;
-    margin-right: 8px;
-  }
-  .rec-p0 { background: #d32f2f; }
-  .rec-p1 { background: #ff2442; }
-  .rec-p2 { background: #ff7043; }
-  .rec-p3 { background: #ffa726; }
-  .rec-p4 { background: #78909c; }
-  .rec-item .rec-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #222;
-  }
-  .rec-item .rec-detail {
-    margin-top: 6px;
-    font-size: 13px;
-    color: #666;
-    line-height: 1.7;
-  }
-  .rec-item .rec-impact {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #ff2442;
-    font-weight: 600;
-  }
-
-  /* ---- Footer ---- */
-  .footer {
-    background: #fafafa;
-    padding: 32px 56px;
-    text-align: center;
-    font-size: 12px;
-    color: #999;
-    border-top: 1px solid #eee;
-  }
-
-  @media print {
-    body { background: #fff; }
-    .container { box-shadow: none; max-width: 100%; }
-    .section { break-inside: avoid; }
-  }
-
-  @media (max-width: 768px) {
-    .section { padding: 24px 20px; }
-    .header { padding: 32px 20px; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  }
+:root {--bg:#fafbfc;--card:#fff;--text:#1a1a2e;--sub:#5a5a7a;--accent:#ff4757;--blue:#3742fa;--green:#2ed573;--orange:#ffa502;--border:#e8e8f0;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.04);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;max-width:860px;margin:0 auto;padding:40px 24px;}
+.cover{text-align:center;padding:60px 0;border-bottom:2px solid var(--border);margin-bottom:40px;}
+.cover h1{font-size:32px;font-weight:800;margin-bottom:8px;}
+.cover h1 span{color:var(--blue);}
+.cover .meta{font-size:14px;color:var(--sub);margin-top:12px;}
+.section{margin-bottom:40px;}
+.section h2{font-size:20px;font-weight:700;border-left:4px solid var(--blue);padding-left:12px;margin-bottom:16px;}
+.section h3{font-size:16px;font-weight:600;margin:20px 0 10px;color:var(--text);}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0 20px;box-shadow:var(--shadow);}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+th{background:#f0f0f8;font-weight:600;color:var(--sub);font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
+tr:hover td{background:#f8f8ff;}
+.finding{background:var(--card);border-left:3px solid var(--blue);padding:14px 18px;margin:14px 0;border-radius:0 var(--radius) var(--radius) 0;box-shadow:var(--shadow);}
+.finding.warn{border-left-color:var(--orange);}
+.finding.risk{border-left-color:var(--accent);}
+.finding .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-right:8px;}
+.tag.info{background:#e8f0fe;color:var(--blue);}
+.tag.warn{background:#fff3e0;color:#e17055;}
+.tag.risk{background:#ffe0e0;color:var(--accent);}
+.num{font-family:"SF Mono","Courier New",monospace;font-weight:700;}
+.num.big{font-size:24px;color:var(--blue);}
+.num.red{color:var(--accent);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0;}
+.kpi-box{background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow);}
+.kpi-box .label{font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;}
+.kpi-box .value{font-size:28px;font-weight:800;margin:6px 0;}
+.rec{background:var(--card);padding:16px 20px;margin:10px 0;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:12px;}
+.rec .icon{font-size:20px;}
+.rec .body{flex:1;}
+.rec .title{font-weight:600;margin-bottom:2px;}
+.rec .desc{font-size:13px;color:var(--sub);}
+.rec .priority{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;margin-left:6px;}
+.pri-high{background:#ffe0e0;color:#d63031;}
+.pri-mid{background:#fff3e0;color:#e17055;}
+.pri-low{background:#e8f0fe;color:var(--blue);}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:30px 0;border-top:1px solid var(--border);margin-top:40px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<div class="container">
 
-<!-- ==================== HEADER ==================== -->
-<div class="header">
-  <h1>小红书商品笔记 GPM 分析报告</h1>
-  <div class="subtitle">智数分析专家团 · 深度数据洞察</div>
-  <div class="meta-row">
-    <div class="meta-item">
-      数据跨度<br>
-      <span>2025.11 – 2026.06</span>
-    </div>
-    <div class="meta-item">
-      分析笔记<br>
-      <span>1,669 篇</span>
-    </div>
-    <div class="meta-item">
-      总 GMV<br>
-      <span>¥17,147</span>
-    </div>
-    <div class="meta-item">
-      总订单<br>
-      <span>169 笔</span>
-    </div>
-  </div>
+<div class="cover">
+  <h1>🥬 <span>鲜水湾</span> · 2026年6月经营洞察报告</h1>
+  <p class="meta">报告周期：2026年5月14日 – 6月12日 ｜ 生成：2026年6月13日<br/>数据来源：小红书商家后台 · 商品明细 / 商家流量 / 账号流量</p>
 </div>
 
-<!-- ==================== 1. 执行摘要 ==================== -->
+<!-- ===== 执行摘要 ===== -->
 <div class="section">
   <h2>一、执行摘要</h2>
-  <p>
-    本报告基于 <span class="highlight">1,669 篇</span>小红书商品笔记数据（2025 年 11 月至 2026 年 6 月），覆盖 10 个海鲜食品 SKU、4 位作者。期间累计产出
-    <span class="highlight">GMV ¥17,147</span>，完成 <span class="highlight">169 笔</span>订单，千次阅读 GMV（GPM）为 <span class="highlight">¥299.36</span>。
-  </p>
-  <p>
-    数据呈现典型的<strong>爆款驱动、极度集中</strong>特征：单条笔记贡献 20.7% 的 GMV，手剥虾仁单品占据 54.9% 的销售额，而 6/10 商品完全零销售。视频内容 <span class="highlight">62 条笔记零转化</span>，图文笔记贡献了全部 GMV。6 月份 12 天即超过 5 月全月 GMV，增长势头强劲。核心结论：<strong>质量远胜数量，精准选品与阅读量突破是 GPM 提升的关键杠杆</strong>。
+  <p>本周期内，鲜水湾通过17个商品链接、4个关联账号实现 <span class="num big">¥99,746</span> 支付GMV，共计 <span class="num">1,008</span> 笔订单、<span class="num">994</span> 名买家，客单价 <span class="num">¥64.65</span>。核心发现：</p>
+
+  <div class="finding risk">
+    <span class="tag risk">高风险</span><strong>GMV高度集中于Top3商品（92%）</strong>，手剥虾仁单品贡献12.7%。一旦该SKU出现断货、品控或竞品冲击，收入将剧烈波动。
+  </div>
+  <div class="finding warn">
+    <span class="tag warn">需关注</span><strong>整体退款率12.06%</strong>（退款金额¥12,031），其中盐田虾、青岛鲅鱼两个品类退款率超30%，品控风险突出。
+  </div>
+  <div class="finding warn">
+    <span class="tag warn">需关注</span><strong>新客依赖度86%</strong>，几乎没有老客复购体系。小红书生态中老客召回是显著的增量机会。
+  </div>
+  <div class="finding">
+    <span class="tag info">亮点</span><strong>综合搜索页是最大且最高效的流量渠道</strong>，贡献28.5%的GMV，访客转化路径清晰。
+  </div>
+</div>
+
+<!-- ===== 数据概览 ===== -->
+<div class="section">
+  <h2>二、核心指标概览</h2>
+  <div class="grid2">
+    <div class="kpi-box"><div class="label">累计GMV</div><div class="value">¥99,746</div></div>
+    <div class="kpi-box"><div class="label">支付买家</div><div class="value">994</div></div>
+    <div class="kpi-box"><div class="label">订单量</div><div class="value">1,008</div></div>
+    <div class="kpi-box"><div class="label">客单价</div><div class="value">¥64.65</div></div>
+    <div class="kpi-box"><div class="label">退货率</div><div class="value" style="color:#ff4757">12.06%</div></div>
+    <div class="kpi-box"><div class="label">加购转化率</div><div class="value">3.70%</div></div>
+  </div>
+  <p style="margin-top:16px;color:var(--sub);font-size:13px;">
+  总访客23,086人，总浏览29,392次，加购3,836人（加购率16.6%），访客→支付转化率4.3%。
   </p>
 </div>
 
-<!-- ==================== 2. 数据概览 ==================== -->
+<!-- ===== 商品分析 ===== -->
 <div class="section">
-  <h2>二、数据概览</h2>
+  <h2>三、商品结构分析</h2>
 
-  <h3>基础指标</h3>
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-value">1,669</div>
-      <div class="kpi-label">总笔记数</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-value">10</div>
-      <div class="kpi-label">商品数（SKU）</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-value">4</div>
-      <div class="kpi-label">作者数</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-value">219 天</div>
-      <div class="kpi-label">时间跨度</div>
+  <h3>3.1 GMV排行</h3>
+  <table>
+    <tr><th>商品</th><th>GMV</th><th>买家</th><th>订单</th><th>客单价</th><th>转化率</th><th>占比</th></tr>
+    <tr><td>手剥虾仁·5盒装</td><td class="num">¥12,638</td><td>158</td><td>161</td><td>¥79.99</td><td>5.04%</td><td>12.7%</td></tr>
+    <tr><td>智利三文鱼·8斤</td><td class="num">¥5,582</td><td>33</td><td>34</td><td>¥169.15</td><td>4.01%</td><td>5.6%</td></tr>
+    <tr><td>三文鱼扒·轮切</td><td class="num">¥4,717</td><td>34</td><td>34</td><td>¥138.74</td><td>3.31%</td><td>4.7%</td></tr>
+    <tr><td>挪威冰鲜三文鱼</td><td class="num">¥509</td><td>7</td><td>7</td><td>¥72.76</td><td>3.02%</td><td>0.5%</td></tr>
+    <tr><td>厄瓜多尔白虾</td><td class="num">¥336</td><td>3</td><td>3</td><td>¥112.00</td><td>2.44%</td><td>0.3%</td></tr>
+  </table>
+
+  <h3>3.2 集中度分析</h3>
+  <p>Top1商品占GMV的 <span class="num big">12.7%</span>，Top3占 <span class="num big">92.0%</span>，Top5占 <span class="num">93.1%</span>。HHI指数为 <span class="num">1,776</span>（>1000即为中等集中）。</p>
+
+  <div class="finding risk">
+    <span class="tag risk">结构风险</span>余下14个商品（含17个SKU的剩余部分）合计GMV仅¥6,878（6.9%），大量长尾商品几乎没有产出。建议评估是否下架低效SKU，集中资源推爆款。
+  </div>
+
+  <h3>3.3 退款风险</h3>
+  <table>
+    <tr><th>商品</th><th>退款金额</th><th>支付金额</th><th>退款率</th></tr>
+    <tr><td>盐田虾·有机无抗</td><td class="num red">¥257.44</td><td class="num">¥270</td><td class="num red">95.3%</td></tr>
+    <tr><td>青岛大鲅鱼</td><td class="num red">¥229.56</td><td class="num">¥322</td><td class="num red">71.3%</td></tr>
+    <tr><td>手剥虾仁·5盒装</td><td class="num">¥1,279</td><td class="num">¥12,638</td><td class="num">10.1%</td></tr>
+    <tr><td>三文鱼扒·轮切</td><td class="num">¥322</td><td class="num">¥4,717</td><td class="num">6.8%</td></tr>
+  </table>
+
+  <div class="finding risk">
+    <span class="tag risk">品控警报</span>盐田虾退货率95.3%、青岛鲅鱼71.3%，属于极异常水平。强烈建议立即核查这两个SKU的品控和物流链路（是否存在化冻、变质、规格不符等问题）。
+  </div>
+</div>
+
+<!-- ===== 渠道分析 ===== -->
+<div class="section">
+  <h2>四、渠道效率分析</h2>
+
+  <h3>4.1 渠道GMV排行</h3>
+  <table>
+    <tr><th>渠道</th><th>GMV</th><th>买家数</th><th>新客占比</th><th>访客价值</th></tr>
+    <tr><td>综合搜索页</td><td class="num">¥28,404</td><td>293</td><td>85.3%</td><td>¥3.47</td></tr>
+    <tr><td>关注页</td><td class="num">¥19,184</td><td>152</td><td>76.3%</td><td>¥6.53</td></tr>
+    <tr><td>发现页</td><td class="num">¥15,572</td><td>120</td><td>77.5%</td><td>¥5.67</td></tr>
+    <tr><td>订单页</td><td class="num">¥11,289</td><td>90</td><td>70.0%</td><td class="num">¥15.29</td></tr>
+    <tr><td>分享</td><td class="num">¥8,605</td><td>106</td><td>79.2%</td><td>¥3.75</td></tr>
+    <tr><td>"我"的页</td><td class="num">¥8,101</td><td>121</td><td>95.0%</td><td>¥1.91</td></tr>
+  </table>
+
+  <div class="finding">
+    <span class="tag info">关键发现</span><strong>订单页访客价值¥15.29远超其他渠道</strong>——这是因为订单页流量来自"已购买用户回访"，老客复购意图明确，转化率天然高。但订单页流量占比仅4.4%，说明老客召回流量池严重不足。
+  </div>
+  <div class="finding">
+    <span class="tag info">流量结构</span>综合搜索页 + 发现页 + 关注页三大公域渠道合计贡献63.3% GMV。"我"的页（收藏/个人页入口）转化效率最低（访客价值¥1.91），但贡献了4,207访客，说明大量用户在浏览但未决策。
+  </div>
+</div>
+
+<!-- ===== 账号分析 ===== -->
+<div class="section">
+  <h2>五、账号贡献度分析</h2>
+
+  <table>
+    <tr><th>账号</th><th>GMV</th><th>占比</th><th>订单</th><th>买家</th><th>点击量</th><th>点击转化</th><th>客单价</th></tr>
+    <tr><td>鲜水湾</td><td class="num">¥46,591</td><td>46.7%</td><td>477</td><td>421</td><td>13,009</td><td>3.24%</td><td>¥110.67</td></tr>
+    <tr><td>婉婉上班吃什么</td><td class="num">¥15,545</td><td>15.6%</td><td>166</td><td>151</td><td>7,237</td><td>2.09%</td><td>¥102.95</td></tr>
+    <tr><td>晨晨日记🎀</td><td class="num">¥3,194</td><td>3.2%</td><td>34</td><td>31</td><td>1,863</td><td>1.66%</td><td>¥103.03</td></tr>
+    <tr><td>菲菲上班吃什么</td><td class="num">¥2,860</td><td>2.9%</td><td>32</td><td>30</td><td>3,433</td><td>0.87%</td><td>¥95.33</td></tr>
+  </table>
+
+  <div class="finding">
+    <span class="tag info">账号策略</span>鲜水湾是绝对核心账号（46.7% GMV + 最高点击转化率3.24%），其内容质量和商品匹配度显著优于其他账号。婉婉上班吃什么为第二梯队（15.6%）。菲菲和晨晨的投入产出比偏低，可考虑减少这两个账号的推广预算。
+  </div>
+</div>
+
+<!-- ===== 建议 ===== -->
+<div class="section">
+  <h2>六、行动建议</h2>
+
+  <div class="rec">
+    <div class="icon">🔴</div>
+    <div class="body">
+      <div class="title">紧急处理盐田虾和青岛鲅鱼品控<span class="priority pri-high">P0 · 本周</span></div>
+      <div class="desc">两SKU退货率>70%，立即排查原因（产品品质/物流冷链/预期偏差），必要时暂时下架止损。预估改善后退款率可从12%降至8%以下。</div>
     </div>
   </div>
 
-  <h3>核心 KPI 总表</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>指标</th>
-        <th>数值</th>
-        <th>指标</th>
-        <th>数值</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>总 GMV</td><td>¥17,146.80</td><td>总订单数</td><td>169 笔</td></tr>
-      <tr><td>总阅读量</td><td>50,629</td><td>总商品点击</td><td>5,219</td></tr>
-      <tr><td>平均商品点击率</td><td>10.97%</td><td>平均支付转化率（PV）</td><td>2.36%</td></tr>
-      <tr><td>平均客单价</td><td>¥101.46</td><td>千次阅读 GPM</td><td>¥299.36</td></tr>
-      <tr><td>有销售笔记数</td><td>83 篇</td><td>出单率</td><td>4.97%</td></tr>
-      <tr><td>总点赞数</td><td>447</td><td>总收藏数</td><td>185</td></tr>
-      <tr><td>总分享数</td><td>334</td><td>总加购数</td><td>819</td></tr>
-    </tbody>
-  </table>
-
-  <h3>阅读量分布</h3>
-  <table>
-    <thead>
-      <tr><th>统计量</th><th>阅读数</th><th>商品点击</th><th>支付金额</th><th>支付订单</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>均值</td><td>30.3</td><td>3.1</td><td>¥10.27</td><td>0.10</td></tr>
-      <tr><td>标准差</td><td>398.7</td><td>28.4</td><td>¥110.13</td><td>1.24</td></tr>
-      <tr><td>最小值</td><td>0</td><td>0</td><td>¥0</td><td>0</td></tr>
-      <tr><td>25%分位</td><td>0</td><td>0</td><td>¥0</td><td>0</td></tr>
-      <tr><td><strong>中位数</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>¥0</strong></td><td><strong>0</strong></td></tr>
-      <tr><td>75%分位</td><td>5</td><td>0</td><td>¥0</td><td>0</td></tr>
-      <tr><td>最大值</td><td>15,912</td><td>1,057</td><td>¥3,548</td><td>48</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ==================== 3. 核心发现 ==================== -->
-<div class="section">
-  <h2>三、核心发现</h2>
-
-  <!-- 发现 1 -->
-  <h3>发现一：爆款驱动模式——单条笔记贡献 20.7% GMV</h3>
-  <p>
-    笔记 <em>"以为 69 没多少，结果解决了我一周上班带饭"</em> 以 <span class="highlight">¥3,548 的 GMV</span> 独占鳌头，占全部 GMV 的 <span class="highlight">20.7%</span>，产生 48 笔订单。该笔记获得 15,912 次阅读（占总阅读量 31.4%），商品点击率仅 6.6%，但转化率高达 <span class="highlight">4.54%</span>。Top 10 笔记合计贡献绝大部分销售，其余 1,586 篇笔记（95%）零销售。数据表明：<strong>极少数优质笔记驱动了几乎全部商业回报</strong>。
-  </p>
-
-  <!-- 发现 2 -->
-  <h3>发现二：商品极度集中——手剥虾仁占 54.9%，6/10 商品零销售</h3>
-  <p>
-    在 10 个 SKU 中，<strong>仅 4 个产生销售</strong>。手剥虾仁以 <span class="highlight">¥9,407 GMV（54.9%）</span>和 127 笔订单位居第一，笔记数 1,161 篇（占 69.6%）。智利三文鱼 ¥4,656（27.2%）、三文鱼扒 ¥3,034（17.7%）、挪威冰鲜三文鱼 ¥49.9（0.3%）分列其后。其余 6 个商品（北极甜虾、大虾、王牌大虾、生蚝、盐田虾、青岛大鲅鱼）合计 228 篇笔记、零销售。商品集中度高既是风险也是效率优势。
-  </p>
-  <table>
-    <thead>
-      <tr><th>商品名称</th><th>笔记数</th><th>GMV</th><th>GMV占比</th><th>订单</th><th>平均转化率</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>手剥虾仁 5盒装</td><td>1,161</td><td>¥9,407</td><td>54.9%</td><td>127</td><td>2.64%</td></tr>
-      <tr><td>智利尾端三文鱼 8斤</td><td>100</td><td>¥4,656</td><td>27.2%</td><td>23</td><td>1.45%</td></tr>
-      <tr><td>三文鱼扒轮切</td><td>177</td><td>¥3,034</td><td>17.7%</td><td>18</td><td>2.76%</td></tr>
-      <tr><td>挪威冰鲜三文鱼</td><td>3</td><td>¥49.9</td><td>0.3%</td><td>1</td><td>5.00%</td></tr>
-      <tr style="color:#999"><td>北极甜虾</td><td>18</td><td>¥0</td><td>0%</td><td>0</td><td>0%</td></tr>
-      <tr style="color:#999"><td>大虾鲜冻</td><td>140</td><td>¥0</td><td>0%</td><td>0</td><td>0%</td></tr>
-      <tr style="color:#999"><td>其他 4 个商品</td><td>70</td><td>¥0</td><td>0%</td><td>0</td><td>0%</td></tr>
-    </tbody>
-  </table>
-
-  <!-- 发现 3 -->
-  <h3>发现三：视频内容完全无效——62 条视频零转化</h3>
-  <p>
-    1,669 篇笔记中，<strong>1,607 篇为图文</strong>（96.3%）、<strong>62 篇为视频</strong>（3.7%）。图文笔记贡献了全部 <span class="highlight">¥17,147 GMV 和 169 笔订单</span>，平均转化率 2.43%。视频笔记尽管获得了 2,328 次阅读和 57 次商品点击，但 <span class="highlight">转化率为零</span>——没有任何一笔订单。每篇视频平均仅 0.92 次商品点击，远低于图文的 3.21 次。在当前数据集中，视频内容属于纯粹的无效投入。
-  </p>
-
-  <!-- 发现 4 -->
-  <h3>发现四：作者效率分化明显——菲菲转化率最高达 3.17%</h3>
-  <p>
-    四位作者在 GMV 总量和转化效率上呈现显著差异。<span class="highlight">菲菲上班吃什么</span>以 444 篇笔记获得 <span class="highlight">¥5,263 GMV</span> 和 72 笔订单，平均转化率 <span class="highlight">3.17%</span>，效率最高。鲜水湾 GMV 最高（¥6,685）但转化率仅 1.57%，以量取胜。小柚练后吃什么产出最低（¥1,493），转化率 1.84%。
-  </p>
-  <table>
-    <thead>
-      <tr><th>作者</th><th>笔记数</th><th>GMV</th><th>订单</th><th>阅读量</th><th>转化率</th><th>单笔记GMV</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>鲜水湾</td><td>478</td><td>¥6,685</td><td>44</td><td>11,643</td><td>1.57%</td><td>¥13.98</td></tr>
-      <tr><td>菲菲上班吃什么</td><td>444</td><td>¥5,263</td><td>72</td><td>26,533</td><td><strong>3.17%</strong></td><td>¥11.85</td></tr>
-      <tr><td>婉婉上班吃什么</td><td>347</td><td>¥3,706</td><td>33</td><td>7,738</td><td>2.91%</td><td>¥10.68</td></tr>
-      <tr><td>小柚练后吃什么</td><td>400</td><td>¥1,493</td><td>20</td><td>4,715</td><td>1.84%</td><td>¥3.73</td></tr>
-    </tbody>
-  </table>
-
-  <!-- 发现 5 -->
-  <h3>发现五：阅读量是关键门槛——突破 100 阅读后出单率从 6.5% 跃升至 43.9%</h3>
-  <p>
-    阅读量分级分析揭示了清晰的临界点。阅读量 &lt;100 的笔记多达 708 篇，出单率仅 <span class="highlight">6.5%</span>；一旦突破 <span class="highlight">100 阅读</span>，出单率跳升到 <span class="highlight">43.9%</span>；达到 500+ 后出单率超过 80%。这表明：<strong>获得基础曝光（≥100 阅读）是笔记商业化变现的必要条件</strong>。
-  </p>
-  <table>
-    <thead>
-      <tr><th>阅读区间</th><th>笔记数</th><th>GMV</th><th>平均转化率</th><th>出单率</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>&lt; 100</td><td>708</td><td>¥5,084</td><td>2.36%</td><td>6.5%</td></tr>
-      <tr><td>100 – 500</td><td>66</td><td>¥5,885</td><td>2.32%</td><td><strong>43.9%</strong></td></tr>
-      <tr><td>500 – 1,000</td><td>5</td><td>¥1,477</td><td>3.06%</td><td>80.0%</td></tr>
-      <tr><td>1,000 – 5,000</td><td>3</td><td>¥1,153</td><td>1.64%</td><td>100%</td></tr>
-      <tr><td>5,000+</td><td>1</td><td>¥3,548</td><td>4.54%</td><td>100%</td></tr>
-    </tbody>
-  </table>
-
-  <!-- 发现 6 -->
-  <h3>发现六：6 月加速增长——12 天 GMV 超越 5 月全月</h3>
-  <p>
-    6 月（截至 12 日）已实现 <span class="highlight">¥6,826 GMV</span>，超过 5 月全月的 ¥5,048，环比增长 <span class="highlight">35.2%</span>（按日均换算后增长近 <span class="highlight">2.7 倍</span>）。6 月日均笔记 15.4 篇（5 月 18.6 篇），但日均 GMV 达 ¥569 vs 5 月 ¥163。笔记数量减少、GMV 反而大增，说明内容质量而非数量在驱动增长。
-  </p>
-
-  <!-- 发现 7 -->
-  <h3>发现七：商品点击是 GMV 最强预测因子——相关性 0.87</h3>
-  <p>
-    各行为指标与 GMV 的 Pearson 相关性分析显示：<span class="highlight">商品点击次数</span>与 GMV 相关性最强（<strong>r = 0.87</strong>），高于加购（0.87）、点赞（0.83）、阅读（0.83）、收藏（0.83）和分享（0.79）。阅读量与点击量高度相关（r = 0.96）。这意味着：<strong>提升笔记的商品点击率是提升 GMV 的最直接路径</strong>。
-  </p>
-  <table>
-    <thead>
-      <tr><th>行为指标</th><th>与 GMV 相关性</th><th>行为指标</th><th>与 GMV 相关性</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>商品点击</td><td><strong>0.87</strong></td><td>加购</td><td>0.87</td></tr>
-      <tr><td>点赞</td><td>0.83</td><td>阅读量</td><td>0.83</td></tr>
-      <tr><td>收藏</td><td>0.83</td><td>分享</td><td>0.79</td></tr>
-      <tr><td colspan="2">阅读量 vs 商品点击</td><td colspan="2">0.96</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ==================== 4. 月度趋势解读 ==================== -->
-<div class="section">
-  <h2>四、月度趋势解读</h2>
-
-  <table>
-    <thead>
-      <tr><th>月份</th><th>笔记数</th><th>GMV</th><th>订单</th><th>阅读量</th><th>转化率</th><th>趋势</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>2025-11</td><td>65</td><td>¥0</td><td>0</td><td>54</td><td>0%</td><td>❄️ 冷启动</td></tr>
-      <tr><td>2025-12</td><td>67</td><td>¥148</td><td>2</td><td>882</td><td>1.04%</td><td>❄️ 试探期</td></tr>
-      <tr><td>2026-01</td><td>34</td><td>¥0</td><td>0</td><td>198</td><td>0%</td><td>❄️ 停滞</td></tr>
-      <tr><td>2026-02</td><td>80</td><td>¥0</td><td>0</td><td>226</td><td>0%</td><td>❄️ 停滞</td></tr>
-      <tr><td>2026-03</td><td>284</td><td><strong>¥3,962</strong></td><td>54</td><td>17,300</td><td><strong>4.70%</strong></td><td>🚀 爆发</td></tr>
-      <tr><td>2026-04</td><td>377</td><td>¥1,163</td><td>11</td><td>7,820</td><td>0.77%</td><td>📉 回落</td></tr>
-      <tr><td>2026-05</td><td>577</td><td>¥5,048</td><td>31</td><td>7,116</td><td>2.38%</td><td>📈 回升</td></tr>
-      <tr><td>2026-06</td><td>185</td><td><strong>¥6,826</strong></td><td>71</td><td>17,033</td><td>3.08%</td><td>🔥 加速</td></tr>
-    </tbody>
-  </table>
-
-  <p>
-    <strong>第一阶段（2025.11 – 2026.02）：冷启动期。</strong>4 个月累计仅产出 ¥148 GMV，106 篇笔记几乎零曝光，中位阅读趋近于 0。此阶段属于内容铺量探索期，尚未建立有效的流量获取能力。
-  </p>
-  <p>
-    <strong>第二阶段（2026.03）：首次起量。</strong>3 月出现爆发式增长——笔记量跃升至 284 篇，GMV 达 <span class="highlight">¥3,962</span>（占总 GMV 23.1%），转化率高达 4.70%。阅读量从每月百级跃升至 <span class="highlight">17,300</span>，表明爆款笔记开始出现，平台流量推荐机制生效。
-  </p>
-  <p>
-    <strong>第三阶段（2026.04）：回落调整。</strong>4 月笔记量继续增加至 377 篇，但 GMV 骤减至 <span class="highlight">¥1,163</span>，转化率仅 0.77%。笔记数量提升并未带来销售增长，提示内容质量而非数量才是瓶颈。
-  </p>
-  <p>
-    <strong>第四阶段（2026.05 – 2026.06）：加速增长。</strong>5 月恢复至 ¥5,048，6 月仅 12 天即达 <span class="highlight">¥6,826</span>，日均产出 ¥569——是 3 月日均（¥128）的 <span class="highlight">4.4 倍</span>。笔记数下降（577→185）反而 GMV 上升，验证了"少而精"策略的有效性。
-  </p>
-</div>
-
-<!-- ==================== 5. 数据质量警示 ==================== -->
-<div class="section">
-  <h2>五、数据质量警示</h2>
-
-  <div class="alert-box">
-    <strong>⚠ 以下数据质量问题需在解读和执行决策时加以注意：</strong>
+  <div class="rec">
+    <div class="icon">🟠</div>
+    <div class="body">
+      <div class="title">集中资源强化手剥虾仁爆款<span class="priority pri-high">P0 · 持续</span></div>
+      <div class="desc">虾仁已经是核心爆款（转化率5.04%），建议增加笔记投放量、针对"综合搜索页"关键词优化标题，利用现有转化优势放大流量。预估可将单品GMV从¥12,638提至¥20,000+。</div>
+    </div>
   </div>
 
-  <table>
-    <thead>
-      <tr><th>问题</th><th>详情</th><th>影响</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>95% 笔记零订单</strong></td>
-        <td>1,669 篇笔记中仅 83 篇有销售，1,586 篇（95%）从未产生任何订单</td>
-        <td>绝大多数指标（中位数、分位数）为 0，统计均值被长尾极端值严重拉偏</td>
-      </tr>
-      <tr>
-        <td><strong>中位阅读量 = 0</strong></td>
-        <td>50% 的笔记阅读数为 0（含 NaN / 下架等），75% 分位仅 5 次阅读</td>
-        <td>平台内容存活率极低，"笔记发出去约等于没发"是普遍状态</td>
-      </tr>
-      <tr>
-        <td><strong>6/10 商品零销售</strong></td>
-        <td>北极甜虾、大虾鲜冻、王牌大虾、生蚝、盐田虾、青岛大鲅鱼累计 228 篇笔记无订单</td>
-        <td>商品结构需要大幅精简，无效 SKU 消耗内容产能</td>
-      </tr>
-      <tr>
-        <td><strong>NaN 数据风险</strong></td>
-        <td>"王牌大虾"商品因阅读数为 0，导致商品点击率和转化率计算为 NaN</td>
-        <td>统计过程中需排除 NaN 样本，报告中的平均点击率仅基于有效样本（783/1669）</td>
-      </tr>
-      <tr>
-        <td><strong>转化率指标局限</strong></td>
-        <td>平均支付转化率 2.36% 仅基于 410 条有商品点击的笔记计算，非全量</td>
-        <td>全量视角下实际转化率可能更低，需关注"有互动笔记"的子集分析</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="rec">
+    <div class="icon">🟡</div>
+    <div class="body">
+      <div class="title">建立老客复购机制<span class="priority pri-mid">P1 · 本月</span></div>
+      <div class="desc">当前复购率仅14%。建议：① 订单页回访场景中增加"常购清单"入口；② 针对已购买用户在笔记评论区做定向回复和提醒；③ 在粉丝群发布限时复购优惠。目标：将复购率提升至25%。</div>
+    </div>
+  </div>
+
+  <div class="rec">
+    <div class="icon">🟡</div>
+    <div class="body">
+      <div class="title">优化"我"的页转化路径<span class="priority pri-mid">P1 · 本月</span></div>
+      <div class="desc">4,207访客从"我"的页进入但访客价值仅¥1.91，远低于其他渠道。建议在收藏/个人页入口增加限时优惠提示或商品好评展示，缩短决策链路。</div>
+    </div>
+  </div>
+
+  <div class="rec">
+    <div class="icon">🔵</div>
+    <div class="body">
+      <div class="title">补全笔记ID维度数据<span class="priority pri-low">P2 · 下周期</span></div>
+      <div class="desc">当前商品→渠道→账号三表之间缺少笔记ID主键，无法做完整漏斗关联（某篇笔记→渠道→商品→GMV）。下次导出数据时务必加入"笔记ID"列。</div>
+    </div>
+  </div>
 </div>
 
-<!-- ==================== 6. 结论与行动建议 ==================== -->
-<div class="section">
-  <h2>六、结论与行动建议</h2>
+<footer>
+  报告由智数分析专家团自动生成 · 诺亚 (Nova) 汇编<br/>
+  数据源：小红书商家后台 2026-05-14 ~ 2026-06-12<br/>
+  本报告基于可获取的数据维度进行分析，部分洞察可能有数据覆盖范围的限制。
+</footer>
 
-  <p style="margin-bottom: 20px;">
-    基于以上数据分析，按优先级提出以下 5 条行动建议。每条建议附量化预期，以便后续效果跟踪。
-  </p>
-
-  <ul class="rec-list">
-    <li class="rec-item">
-      <span class="rec-priority rec-p0">P0 立即执行</span>
-      <span class="rec-title">暂停视频内容生产，节省无效投入</span>
-      <div class="rec-detail">
-        62 条视频笔记获得 2,328 次阅读、57 次商品点击，但<strong>零转化</strong>。视频生产的时间/制作成本远高于图文（估算 3–5 倍），在当前平台能力和内容形式下完全无效。建议立即停止视频内容产出，将产能转移至图文笔记。
-      </div>
-      <div class="rec-impact">预期效果：节省约 3.7% 的内容产能，可多产出约 60 篇图文笔记 / 月</div>
-    </li>
-
-    <li class="rec-item">
-      <span class="rec-priority rec-p1">P1 高优先</span>
-      <span class="rec-title">聚焦手剥虾仁，复制爆款笔记模式</span>
-      <div class="rec-detail">
-        手剥虾仁以 54.9% 的 GMV 占比证明其市场需求明确、转化高效。建议将其作为<strong>核心单品</strong>持续放大，同时深度拆解爆款笔记（如"以为 69 没多少，结果解决了我一周上班带饭"）的标题结构、封面风格、发布时间和内容调性，形成可复用的爆款模板。
-      </div>
-      <div class="rec-impact">预期效果：若将手剥虾仁出单率从当前 10.9%（127/1161）提升至 20%，预计新增 GMV ¥4,700+</div>
-    </li>
-
-    <li class="rec-item">
-      <span class="rec-priority rec-p2">P2 重点推进</span>
-      <span class="rec-title">优化笔记质量而非数量——提高中位阅读量</span>
-      <div class="rec-detail">
-        当前中位阅读量为 0，说明大量笔记完全未被分发。阅读量突破 100 后出单率从 6.5% 跃升至 43.9%。核心策略应从"多发笔记"转向"发好笔记"：优化标题关键词、封面吸引力、发布时间，并有意识地利用互动（评论、收藏）撬动平台推荐算法。
-      </div>
-      <div class="rec-impact">预期效果：中位阅读从 0 提升至 10 以上，预计出单笔记数可从 83 篇增至 150+ 篇</div>
-    </li>
-
-    <li class="rec-item">
-      <span class="rec-priority rec-p3">P3 中期规划</span>
-      <span class="rec-title">清理零转化商品，测试新 SKU</span>
-      <div class="rec-detail">
-        6 个零销售商品消耗了 228 篇内容（占总笔记量 13.7%），建议<strong>暂停这些商品的笔记投放</strong>。同时可在三文鱼类目下测试新 SKU（如三文鱼排、烟熏三文鱼），利用现有三文鱼消费人群基础做品类延伸。
-      </div>
-      <div class="rec-impact">预期效果：释放 13.7% 内容产能用于核心商品，优化 SKU 结构后有望提升整体转化率 0.5–1%</div>
-    </li>
-
-    <li class="rec-item">
-      <span class="rec-priority rec-p4">P4 持续观察</span>
-      <span class="rec-title">重点扶持菲菲作者模式，推动多作者矩阵</span>
-      <div class="rec-detail">
-        菲菲上班吃什么以 3.17% 的转化率领先其他作者 1.7–2 倍，同时获得最高阅读量（26,533），呈现出内容吸引力与商业转化力的正循环。建议深度分析其内容策略（选题、话术、配图风格），用于培训其他作者，或探索引入风格相似的新作者。
-      </div>
-      <div class="rec-impact">预期效果：若其他作者转化率提升至菲菲水平，整体 GMV 预计增长 60–80%</div>
-    </li>
-  </ul>
-</div>
-
-<!-- ==================== FOOTER ==================== -->
-<div class="footer">
-  <p>智数分析专家团 · 小红书商品笔记 GPM 分析报告</p>
-  <p>数据来源：小红书商家后台 · 分析时间：2026-06-13 · 报告作者：若溪（Rex）</p>
-  <p style="margin-top:8px;font-size:11px;">本报告基于历史数据进行分析，不构成投资或经营建议。数据质量风险见第五章。</p>
-</div>
-
-</div>
 </body>
 </html>
