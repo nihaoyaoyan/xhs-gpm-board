@@ -121,8 +121,9 @@ reports.forEach(function(r){
   var d = new Date(r.date);
   var weekday = ['日','一','二','三','四','五','六'][d.getDay()];
   var path = 'reports/' + r.date + '/';
+  var v = '?v=' + r.date.replace(/-/g,'');
   list.innerHTML += 
-    '<a class="report-card" href="' + path + '">' +
+    '<a class="report-card" href="' + path + 'dashboard.html' + v + '">' +
     '<div class="report-date">' + d.getDate() + '<small>' + (d.getMonth()+1) + '月 周' + weekday + '</small></div>' +
     '<div class="report-meta">' +
     '<h3>' + r.date + ' · 商品笔记数据画像</h3>' +
