@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书商品笔记 GPM 数据看板 — 晚风店铺</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f5f6fa;color:#333}
+.header{background:linear-gradient(135deg,#ff2442 0%,#ff6b81 50%,#ff2442 100%);color:#fff;padding:24px 40px;text-align:center;box-shadow:0 4px 20px rgba(255,36,66,0.3);position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:rgba(255,255,255,0.06);border-radius:50%}
+.header h1{font-size:26px;font-weight:700;letter-spacing:2px;margin-bottom:4px;position:relative;z-index:1}
+.header .sub{font-size:13px;opacity:0.85;position:relative;z-index:1}
+.header .shop-name{font-size:15px;font-weight:600;margin-top:2px;position:relative;z-index:1}
+.container{max-width:1520px;margin:0 auto;padding:20px 24px}
+.summary-bar{display:flex;align-items:center;gap:16px;margin-bottom:20px;background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);flex-wrap:wrap}
+.summary-bar .item{font-size:13px;color:#666;display:flex;align-items:center;gap:6px}
+.summary-bar .item strong{color:#222}
+.summary-bar .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.summary-bar .dot.up{background:#27ae60}
+.summary-bar .dot.warn{background:#f39c12}
+.summary-bar .dot.alert{background:#e74c3c}
+.kpi-row{display:grid;grid-template-columns:repeat(8,1fr);gap:14px;margin-bottom:22px}
+.kpi-card{background:#fff;border-radius:12px;padding:16px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);text-align:center;border-top:3px solid #ff2442;transition:transform 0.2s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+.kpi-card .label{font-size:11px;color:#999;margin-bottom:5px;letter-spacing:1px}
+.kpi-card .value{font-size:22px;font-weight:700;color:#222}
+.kpi-card .sub{font-size:12px;color:#888;margin-top:2px}
+.charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:22px}
+.chart-panel{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.chart-panel.full-width{grid-column:1/-1}
+.chart-panel h3{font-size:14px;font-weight:600;color:#333;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;gap:8px}
+.chart-panel h3::before{content:'';display:inline-block;width:4px;height:16px;background:#ff2442;border-radius:2px}
+.chart-box{width:100%;height:380px}
+.chart-box-sm{width:100%;height:420px}
+.table-panel{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);overflow-x:auto;margin-bottom:22px}
+.table-panel h3{font-size:14px;font-weight:600;color:#333;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;gap:8px}
+.table-panel h3::before{content:'';display:inline-block;width:4px;height:16px;background:#ff2442;border-radius:2px}
+.table-wrapper{max-height:520px;overflow-y:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1300px}
+.data-table thead th{background:#ff2442;color:#fff;padding:9px 6px;text-align:center;font-weight:600;position:sticky;top:0;z-index:2;white-space:nowrap}
+.data-table thead th.col-bench{background:#c0392b;font-size:10px}
+.data-table tbody td{padding:6px 6px;text-align:center;border-bottom:1px solid #f0f0f0}
+.data-table tbody tr:hover{background:#fff5f5}
+.data-table tbody tr:nth-child(even){background:#fafafa}
+.data-table tbody tr:nth-child(even):hover{background:#fff5f5}
+.data-table .tag-img{background:#ff2442;color:#fff;padding:2px 6px;border-radius:3px;font-size:10px}
+.data-table .tag-video{background:#ff7f50;color:#fff;padding:2px 6px;border-radius:3px;font-size:10px}
+.highlight{color:#e74c3c;font-weight:600}
+.good{color:#27ae60;font-weight:600}
+.warn{color:#f39c12;font-weight:600}
+.bench-badge{font-size:10px;padding:1px 5px;border-radius:3px;background:#e8f5e9;color:#27ae60;white-space:nowrap}
+.bench-badge.under{background:#ffebee;color:#e74c3c}
+.footer{text-align:center;padding:16px;color:#999;font-size:12px}
+.filter-bar{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{padding:6px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;outline:none;background:#fff}
+.filter-bar select:focus,.filter-bar input:focus{border-color:#ff2442}
+.filter-bar .btn{padding:6px 16px;background:#ff2442;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+.filter-bar .btn:hover{background:#e01e3a}
+.filter-bar .btn-export{padding:6px 16px;background:#27ae60;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+.filter-bar .btn-export:hover{background:#219a52}
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(4,1fr)}.charts-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}.header{padding:18px 16px}.header h1{font-size:20px}.chart-box{height:300px}}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>小红书商品笔记 GPM 数据看板</h1>
+<div class="sub">数据周期：2025-11-06 ~ 2026-06-12（219天）| 1,669篇笔记 · 10个商品 · 4位作者</div>
+<div class="shop-name">晚风店铺</div>
+</div>
+<div class="container">
+
+<div class="summary-bar" id="summary-bar"></div>
+
+<div class="kpi-row" id="kpi-row"></div>
+
+<div class="charts-grid">
+<div class="chart-panel"><h3>商品 GMV 与转化率对比</h3><div class="chart-box" id="chart-product-combo"></div></div>
+<div class="chart-panel"><h3>商品卡点击率 vs 行业基准(4%)对比</h3><div class="chart-box" id="chart-click-bench"></div></div>
+<div class="chart-panel"><h3>月度 GMV & 笔记数趋势</h3><div class="chart-box" id="chart-monthly"></div></div>
+<div class="chart-panel"><h3>阅读量分档 x 出单率分析</h3><div class="chart-box" id="chart-reads-bucket"></div></div>
+<div class="chart-panel"><h3>作者 GMV 与转化率对比</h3><div class="chart-box" id="chart-author"></div></div>
+<div class="chart-panel"><h3>指标相关性热力图</h3><div class="chart-box-sm" id="chart-corr"></div></div>
+</div>
+
+<div class="table-panel">
+<h3>笔记明细 · GPM核心指标（全部1,669篇）</h3>
+<div class="filter-bar">
+<select id="filter-product" onchange="applyFilters()"><option value="">全部商品</option></select>
+<select id="filter-author" onchange="applyFilters()"><option value="">全部作者</option></select>
+<select id="filter-type" onchange="applyFilters()"><option value="">全部类型</option></select>
+<input type="text" id="filter-id" placeholder="搜索笔记ID..." oninput="applyFilters()">
+<input type="text" id="filter-title" placeholder="搜索标题关键词..." oninput="applyFilters()">
+<button class="btn-export" onclick="exportCSV()">📥 导出 CSV</button>
+<span style="font-size:12px;color:#888;margin-left:8px" id="table-count"></span>
+</div>
+<div class="table-wrapper"><table class="data-table">
+<thead>
+<tr>
+<th>#</th>
+<th>笔记ID</th>
+<th>笔记标题</th>
+<th>作者</th>
+<th>商品</th>
+<th>类型</th>
+<th>封面点击率</th>
+<th class="col-bench">行业<br>封面(6%)</th>
+<th>商品卡<br>点击率</th>
+<th class="col-bench">行业<br>品卡(3%)</th>
+<th>支付<br>转化率</th>
+<th class="col-bench">行业<br>转化(1.5%)</th>
+<th>客单价</th>
+<th class="col-bench">行业<br>客单(¥90)</th>
+<th>需动销量</th>
+</tr>
+</thead>
+<tbody id="table-body"></tbody>
+</table></div>
+</div>
+
+<div class="footer">
+晚风店铺 · 小红书商品笔记GPM数据看板 · 数据由Excel导入自动生成 · 行业基准值为食品生鲜类目参考值<br>
+⚠️「封面点击率」当前用商品卡点击率替代（原始导出缺封面曝光数据），「需动销量」为占位列
+</div>
+</div>
+
+<script>
+// ===== EMBEDDED DATA =====
+var DATA = {
+  notes: __NOTES_JSON__,
+  summary: __SUMMARY_JSON__,
+  products: __PRODUCTS_JSON__,
+  authors: __AUTHORS_JSON__,
+  monthly: __MONTHLY_JSON__,
+  readsBucket: __READS_BUCKET_JSON__,
+  correlations: __CORRELATIONS_JSON__,
+  corrMatrix: __CORR_MATRIX_JSON__
+};
+
+// ===== INIT =====
+(function(){
+  renderSummaryBar(DATA.summary);
+  renderKpiCards(DATA.summary);
+  renderTable(DATA.notes);
+  populateFilters(DATA.notes);
+  initCharts();
+})();
+
+// ===== SUMMARY BAR =====
+function renderSummaryBar(s){
+  var growthIcon = s.momGrowth > 0 ? '&#9650;' : (s.momGrowth < 0 ? '&#9660;' : '');
+  var growthCls = s.momGrowth > 0 ? 'up' : 'warn';
+  var bestMonthLabel = s.bestMonth.replace('2026-','').replace('2025-','');
+  var html = '';
+  html += '<div class="item"><span style="font-size:16px">📊</span> <strong>' + bestMonthLabel + '月</strong> 最佳：GMV <strong>¥' + s.bestMonthGMV.toLocaleString() + '</strong>，订单 <strong>' + s.bestMonthOrders + '</strong> 笔' + (s.momGrowth ? ' <span class="dot ' + growthCls + '"></span> 环比' + (s.momGrowth > 0 ? '+' : '') + s.momGrowth + '%' : '') + '</div>';
+  html += '<div class="item">|</div>';
+  html += '<div class="item"><span style="font-size:16px">🏆</span> 核心商品 <strong>' + escHtml(s.topProductName) + '</strong> 贡献 ¥' + s.topProductGMV.toLocaleString() + '（' + s.topProductPct + '%）</div>';
+  html += '<div class="item">|</div>';
+  if(s.videoNotesFail){
+    html += '<div class="item"><span style="font-size:16px">⚠️</span> 视频笔记 <strong>' + s.videoNotes + '篇</strong> 零出单，建议优化视频内容策略</div>';
+  }
+  document.getElementById('summary-bar').innerHTML = html;
+}
+
+// ===== KPI CARDS =====
+function renderKpiCards(s){
+  var cards = [
+    {label:'💰 总 GMV', value:'¥' + s.totalGMV.toLocaleString(), sub:'数据周期累计'},
+    {label:'📦 总订单数', value:s.totalOrders.toLocaleString(), sub:'人均' + (s.totalOrders / (s.notesWithSales || 1)).toFixed(1) + '单'},
+    {label:'👁 总阅读量', value:s.totalReads.toLocaleString(), sub:'篇均' + Math.round(s.totalReads / s.totalNotes) + '次'},
+    {label:'🖱 商品卡点击率', value:s.avgClickRate + '%', sub:'均值，中位数2.6%'},
+    {label:'🔄 支付转化率', value:s.avgConvRate + '%', sub:'出单笔记均值'},
+    {label:'💵 平均客单价', value:'¥' + s.avgASP, sub:'中位数¥69'},
+    {label:'📈 GPM千次阅读', value:'¥' + s.gpm, sub:'千次阅读产出'},
+    {label:'✅ 出单率', value:s.salesRate + '%', sub:s.notesWithSales + '/' + s.totalNotes + '篇出单'}
+  ];
+  var html = '';
+  cards.forEach(function(c){
+    html += '<div class="kpi-card"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div><div class="sub">' + c.sub + '</div></div>';
+  });
+  document.getElementById('kpi-row').innerHTML = html;
+}
+
+// ===== TABLE =====
+function renderTable(notes){
+  var tbody = document.getElementById('table-body');
+  var html = '';
+  var limit = Math.min(notes.length, 500);
+  for(var i=0; i<limit; i++){
+    var n = notes[i];
+    var typeTag = n['笔记类型'] === '视频' ? '<span class="tag-video">视频</span>' : '<span class="tag-img">图文</span>';
+    var coverCtr = (n['封面点击率'] != null && !isNaN(n['封面点击率'])) ? n['封面点击率'].toFixed(2)+'%' : '—';
+    var cardCtr = (n['商品卡点击率'] != null && !isNaN(n['商品卡点击率'])) ? n['商品卡点击率'].toFixed(2)+'%' : '—';
+    var conv = (n['转化率'] != null && !isNaN(n['转化率'])) ? n['转化率'].toFixed(2)+'%' : '—';
+    var asp = (n['客单价'] > 0) ? '¥'+Number(n['客单价']).toFixed(0) : '—';
+
+    // Color coding vs industry benchmarks
+    var coverCls = (n['封面点击率'] != null && n['封面点击率'] > 6) ? 'good' : ((n['封面点击率'] != null && n['封面点击率'] > 0) ? 'warn' : '');
+    var cardCls = (n['商品卡点击率'] != null && n['商品卡点击率'] > 3) ? 'good' : ((n['商品卡点击率'] != null && n['商品卡点击率'] > 0) ? 'warn' : '');
+    var convCls = (n['转化率'] != null && n['转化率'] > 1.5) ? 'good' : ((n['转化率'] != null && n['转化率'] > 0) ? 'warn' : '');
+    var aspCls = (n['客单价'] > 90) ? 'good' : ((n['客单价'] > 0) ? 'warn' : '');
+
+    var cardBadge = (n['商品卡点击率'] != null && n['商品卡点击率'] > 3) ? '<span class="bench-badge">↑高于</span>' : ((n['商品卡点击率'] != null && n['商品卡点击率'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
+    var convBadge = (n['转化率'] != null && n['转化率'] > 1.5) ? '<span class="bench-badge">↑高于</span>' : ((n['转化率'] != null && n['转化率'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
+    var aspBadge = (n['客单价'] > 90) ? '<span class="bench-badge">↑高于</span>' : ((n['客单价'] > 0) ? '<span class="bench-badge under">↓低于</span>' : '');
+
+    html += '<tr>';
+    html += '<td>'+(i+1)+'</td>';
+    html += '<td style="font-family:monospace;font-size:10px">'+n['笔记ID']+'</td>';
+    html += '<td style="text-align:left;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+escHtml(n['笔记标题']||'')+'">'+escHtml((n['笔记标题']||'').substring(0,28))+'</td>';
+    html += '<td>'+escHtml(n['作者']||'')+'</td>';
+    html += '<td style="text-align:left;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+escHtml(n['商品']||'')+'">'+escHtml((n['商品']||'').substring(0,20))+'</td>';
+    html += '<td>'+typeTag+'</td>';
+    html += '<td class="'+coverCls+'">'+coverCtr+'</td>';
+    html += '<td style="color:#999;font-size:10px">6.0%</td>';
+    html += '<td class="'+cardCls+'">'+cardCtr+' '+cardBadge+'</td>';
+    html += '<td style="color:#999;font-size:10px">3.0%</td>';
+    html += '<td class="'+convCls+'">'+conv+' '+convBadge+'</td>';
+    html += '<td style="color:#999;font-size:10px">1.5%</td>';
+    html += '<td class="'+aspCls+'">'+asp+' '+aspBadge+'</td>';
+    html += '<td style="color:#999;font-size:10px">¥90</td>';
+    html += '<td>—</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+  document.getElementById('table-count').textContent = '显示 ' + limit + '/' + notes.length + ' 篇笔记';
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function populateFilters(notes){
+  var products = [...new Set(notes.map(function(n){return n['商品']}))].sort();
+  var authors = [...new Set(notes.map(function(n){return n['作者']}))].sort();
+  var types = [...new Set(notes.map(function(n){return n['笔记类型']}))].sort();
+  fillSelect('filter-product', products);
+  fillSelect('filter-author', authors);
+  fillSelect('filter-type', types);
+}
+function fillSelect(id, arr){
+  var sel = document.getElementById(id);
+  arr.forEach(function(v){
+    var opt = document.createElement('option');
+    opt.value = v; opt.textContent = v; sel.appendChild(opt);
+  });
+}
+function applyFilters(){
+  var prod = document.getElementById('filter-product').value;
+  var auth = document.getElementById('filter-author').value;
+  var type = document.getElementById('filter-type').value;
+  var idQ = document.getElementById('filter-id').value.trim().toLowerCase();
+  var titleQ = document.getElementById('filter-title').value.trim().toLowerCase();
+  var filtered = DATA.notes.filter(function(n){
+    if(prod && n['商品'] !== prod) return false;
+    if(auth && n['作者'] !== auth) return false;
+    if(type && n['笔记类型'] !== type) return false;
+    if(idQ && n['笔记ID'].toLowerCase().indexOf(idQ) === -1) return false;
+    if(titleQ && (n['笔记标题']||'').toLowerCase().indexOf(titleQ) === -1) return false;
+    return true;
+  });
+  renderTable(filtered);
+}
+function exportCSV(){
+  var prod = document.getElementById('filter-product').value;
+  var auth = document.getElementById('filter-author').value;
+  var type = document.getElementById('filter-type').value;
+  var idQ = document.getElementById('filter-id').value.trim().toLowerCase();
+  var titleQ = document.getElementById('filter-title').value.trim().toLowerCase();
+  var filtered = DATA.notes.filter(function(n){
+    if(prod && n['商品'] !== prod) return false;
+    if(auth && n['作者'] !== auth) return false;
+    if(type && n['笔记类型'] !== type) return false;
+    if(idQ && n['笔记ID'].toLowerCase().indexOf(idQ) === -1) return false;
+    if(titleQ && (n['笔记标题']||'').toLowerCase().indexOf(titleQ) === -1) return false;
+    return true;
+  });
+  var headers = ['笔记ID','笔记标题','作者','商品','类型','封面点击率','行业封面点击率','商品卡点击率','行业商品卡点击率','转化率','行业转化率','客单价','行业客单价','需动销量'];
+  var rows = [headers.join(',')];
+  filtered.forEach(function(n){
+    rows.push([
+      '"'+n['笔记ID']+'"',
+      '"'+(n['笔记标题']||'').replace(/"/g,'""')+'"',
+      '"'+n['作者']+'"',
+      '"'+n['商品']+'"',
+      n['笔记类型'],
+      n['封面点击率']||'',
+      '6.0',
+      n['商品卡点击率']||'',
+      '3.0',
+      n['转化率']||'',
+      '1.5',
+      n['客单价']||'',
+      '90',
+      ''
+    ].join(','));
+  });
+  var BOM = '\uFEFF';
+  var blob = new Blob([BOM + rows.join('\n')], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'xhs_gpm_晚风店铺.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== CHARTS =====
+function initCharts(){
+  chartProductCombo();
+  chartClickBench();
+  chartMonthly();
+  chartReadsBucket();
+  chartAuthor();
+  chartCorr();
+  window.addEventListener('resize', function(){
+    ['chart-product-combo','chart-click-bench','chart-monthly','chart-reads-bucket','chart-author','chart-corr'].forEach(function(id){
+      var dom = document.getElementById(id);
+      if(dom){
+        var inst = echarts.getInstanceByDom(dom);
+        if(inst) inst.resize();
+      }
+    });
+  });
+}
+
+// 1. Product GMV + Conversion combo chart
+function chartProductCombo(){
+  var dom = document.getElementById('chart-product-combo');
+  var chart = echarts.init(dom);
+  var prods = DATA.products.filter(function(p){return p.gmv > 0;});
+  var names = prods.map(function(p){return p.name.length > 18 ? p.name.substring(0,17)+'...' : p.name;});
+  var gmvs = prods.map(function(p){return p.gmv;});
+  var convs = prods.map(function(p){return Math.max(p.conversion, 0);});
+  chart.setOption({
+    tooltip:{trigger:'axis',axisPointer:{type:'cross',crossStyle:{color:'#999'}}},
+    legend:{data:['GMV (元)','转化率 (%)'],bottom:0},
+    grid:{left:65,right:65,top:20,bottom:50},
+    xAxis:{type:'category',data:names,axisLabel:{rotate:30,fontSize:10,interval:0}},
+    yAxis:[
+      {type:'value',name:'GMV (元)',nameTextStyle:{color:'#ff2442'},axisLabel:{formatter:'¥{value}'},splitLine:{lineStyle:{color:'#f0f0f0'}}},
+      {type:'value',name:'转化率 (%)',nameTextStyle:{color:'#27ae60'},axisLabel:{formatter:'{value}%'},splitLine:{show:false}}
+    ],
+    series:[
+      {name:'GMV (元)',type:'bar',data:gmvs,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ff6b81'},{offset:1,color:'#ff2442'}]),borderRadius:[6,6,0,0]},barMaxWidth:45,
+        label:{show:!!0,position:'top',formatter:function(p){return '¥'+p.value.toLocaleString();},fontSize:10}},
+      {name:'转化率 (%)',type:'line',yAxisIndex:1,data:convs,lineStyle:{color:'#27ae60',width:3},itemStyle:{color:'#27ae60'},symbol:'circle',symbolSize:8,
+        label:{show:true,position:'top',formatter:'{c}%',fontSize:10}}
+    ]
+  });
+}
+
+// 2. Product Click Rate vs Industry Benchmark (4%)
+function chartClickBench(){
+  var dom = document.getElementById('chart-click-bench');
+  var chart = echarts.init(dom);
+  var prods = DATA.products.filter(function(p){return p.avgClickRate > 0;});
+  var names = prods.map(function(p){return p.name.length > 15 ? p.name.substring(0,14)+'..' : p.name;});
+  var actual = prods.map(function(p){return p.avgClickRate;});
+  chart.setOption({
+    tooltip:{trigger:'axis',formatter:function(params){return params[0].name + '<br/>商品卡点击率: <b>' + params[0].value + '%</b><br/>行业基准: <b>4%</b>';}},
+    grid:{left:55,right:30,top:20,bottom:80},
+    xAxis:{type:'category',data:names,axisLabel:{rotate:30,fontSize:10,interval:0}},
+    yAxis:{type:'value',name:'点击率 (%)',axisLabel:{formatter:'{value}%'},splitLine:{lineStyle:{color:'#f0f0f0'}}},
+    series:[
+      {name:'商品卡点击率',type:'bar',data:actual,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ff6b81'},{offset:1,color:'#ff2442'}]),borderRadius:[6,6,0,0]},barMaxWidth:40,
+        markLine:{silent:true,symbol:'none',data:[{yAxis:4,name:'行业基准',label:{formatter:'行业基准 4%',position:'end',color:'#f39c12',fontSize:11,fontWeight:'bold'}}],lineStyle:{color:'#f39c12',type:'dashed',width:2}}},
+    ]
+  });
+}
+
+// 3. Monthly GMV + Note Count trend
+function chartMonthly(){
+  var dom = document.getElementById('chart-monthly');
+  var chart = echarts.init(dom);
+  var months = DATA.monthly.map(function(m){return m.month.replace('2025-','').replace('2026-','');});
+  var gmvs = DATA.monthly.map(function(m){return m.gmv;});
+  var notes = DATA.monthly.map(function(m){return m.noteCount;});
+  chart.setOption({
+    tooltip:{trigger:'axis'},
+    legend:{data:['GMV (元)','笔记数'],bottom:0},
+    grid:{left:60,right:60,top:20,bottom:50},
+    xAxis:{type:'category',data:months},
+    yAxis:[
+      {type:'value',name:'GMV',axisLabel:{formatter:'¥{value}'},splitLine:{lineStyle:{color:'#f0f0f0'}}},
+      {type:'value',name:'笔记数',splitLine:{show:false}}
+    ],
+    series:[
+      {name:'GMV (元)',type:'bar',data:gmvs,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ff6b81'},{offset:1,color:'#ff2442'}]),borderRadius:[6,6,0,0]},barMaxWidth:40,
+        label:{show:true,position:'top',formatter:function(p){return p.value>0?'¥'+(p.value/1000).toFixed(1)+'k':'';},fontSize:10}},
+      {name:'笔记数',type:'line',yAxisIndex:1,data:notes,lineStyle:{color:'#7c3aed',width:3},itemStyle:{color:'#7c3aed'},symbol:'circle',symbolSize:8,
+        label:{show:true,position:'top',fontSize:10}}
+    ]
+  });
+}
+
+// 4. Reads Bucket x Sales Rate
+function chartReadsBucket(){
+  var dom = document.getElementById('chart-reads-bucket');
+  var chart = echarts.init(dom);
+  var buckets = DATA.readsBucket.map(function(b){return b.bucket;});
+  var counts = DATA.readsBucket.map(function(b){return b.count;});
+  var rates = DATA.readsBucket.map(function(b){return b.salesRate;});
+  var gmvs = DATA.readsBucket.map(function(b){return b.gmv;});
+  chart.setOption({
+    tooltip:{trigger:'axis',formatter:function(params){
+      var tip = params[0].name + '<br/>';
+      params.forEach(function(p){tip += p.marker + ' ' + p.seriesName + ': ' + (p.seriesName.indexOf('GMV')>=0?'¥':'') + p.value + (p.seriesName.indexOf('%')>=0?'%':'') + '<br/>';});
+      return tip;
+    }},
+    legend:{data:['笔记数','出单率 (%)','GMV (元)'],bottom:0},
+    grid:{left:55,right:55,top:20,bottom:50},
+    xAxis:{type:'category',data:buckets},
+    yAxis:[
+      {type:'value',name:'笔记数 / GMV',splitLine:{lineStyle:{color:'#f0f0f0'}}},
+      {type:'value',name:'出单率 (%)',axisLabel:{formatter:'{value}%'},max:110,splitLine:{show:false}}
+    ],
+    series:[
+      {name:'笔记数',type:'bar',data:counts,itemStyle:{color:'rgba(255,36,66,0.6)',borderRadius:[6,6,0,0]},barMaxWidth:50,barGap:'30%'},
+      {name:'GMV (元)',type:'bar',data:gmvs,itemStyle:{color:'rgba(255,107,129,0.4)',borderRadius:[6,6,0,0]},barMaxWidth:50},
+      {name:'出单率 (%)',type:'line',yAxisIndex:1,data:rates,lineStyle:{color:'#27ae60',width:3},itemStyle:{color:'#27ae60'},symbol:'diamond',symbolSize:10,
+        label:{show:true,position:'top',formatter:'{c}%',fontSize:11,fontWeight:'bold'}}
+    ]
+  });
+}
+
+// 5. Author GMV + Conversion comparison
+function chartAuthor(){
+  var dom = document.getElementById('chart-author');
+  var chart = echarts.init(dom);
+  var names = DATA.authors.map(function(a){return a.name;});
+  var gmvs = DATA.authors.map(function(a){return a.gmv;});
+  var convs = DATA.authors.map(function(a){return a.conversion;});
+  var notes = DATA.authors.map(function(a){return a.count;});
+  chart.setOption({
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+    legend:{data:['GMV (元)','转化率 (%)','笔记数'],bottom:0},
+    grid:{left:65,right:65,top:20,bottom:50},
+    xAxis:{type:'category',data:names,axisLabel:{fontSize:12}},
+    yAxis:[
+      {type:'value',name:'GMV (元)',axisLabel:{formatter:'¥{value}'},splitLine:{lineStyle:{color:'#f0f0f0'}}},
+      {type:'value',name:'转化率 (%)',axisLabel:{formatter:'{value}%'},splitLine:{show:false}}
+    ],
+    series:[
+      {name:'GMV (元)',type:'bar',data:gmvs,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ff6b81'},{offset:1,color:'#ff2442'}]),borderRadius:[6,6,0,0]},barMaxWidth:70,
+        label:{show:true,position:'top',formatter:function(p){return '¥'+(p.value/1000).toFixed(1)+'k';},fontSize:10}},
+      {name:'转化率 (%)',type:'line',yAxisIndex:1,data:convs,lineStyle:{color:'#2980b9',width:3},itemStyle:{color:'#2980b9'},symbol:'diamond',symbolSize:10,
+        label:{show:true,position:'top',formatter:'{c}%',fontSize:10}},
+      {name:'笔记数',type:'bar',data:notes,itemStyle:{color:'rgba(124,58,237,0.3)',borderRadius:[6,6,0,0]},barMaxWidth:70,barGap:'-100%'}
+    ]
+  });
+}
+
+// 6. Correlation Heatmap
+function chartCorr(){
+  var dom = document.getElementById('chart-corr');
+  var chart = echarts.init(dom);
+  var m = DATA.corrMatrix;
+  var labels = m.labels;
+  var gridData = m.data;
+
+  // Color map: 0.7=light, 0.85=medium, 1.0=dark red
+  var maxVal = 1, minVal = 0.7;
+
+  chart.setOption({
+    tooltip:{
+      position:'top',
+      formatter:function(p){
+        var v = p.value[2];
+        if(v === null || v === undefined) return labels[p.value[1]] + ' × ' + labels[p.value[0]] + ': —';
+        return labels[p.value[1]] + ' × ' + labels[p.value[0]] + ': <b>' + v.toFixed(4) + '</b>';
+      }
+    },
+    grid:{left:80,right:40,top:10,bottom:60},
+    xAxis:{type:'category',data:labels,axisLabel:{rotate:0,fontSize:11},position:'top',splitArea:{show:true}},
+    yAxis:{type:'category',data:labels,axisLabel:{fontSize:11},inverse:true,splitArea:{show:true}},
+    visualMap:{
+      min:0.7, max:1.0,
+      calculable:true,
+      orient:'horizontal',
+      left:'center',
+      bottom:5,
+      itemWidth:18,
+      itemHeight:120,
+      text:['1.0', '0.7'],
+      textStyle:{fontSize:10},
+      inRange:{color:['#fff0f0','#ffaaaa','#ff5566','#e02020','#b01010']}
+    },
+    series:[{
+      type:'heatmap',
+      data:gridData,
+      label:{
+        show:true,
+        fontSize:11,
+        formatter:function(p){
+          var v = p.value[2];
+          if(v === null || v === undefined) return '—';
+          return v === 1 ? '1.0' : v.toFixed(3);
+        },
+        color:function(p){
+          var v = p.value[2];
+          return (v !== null && v !== undefined && v >= 0.88) ? '#fff' : '#333';
+        }
+      },
+      emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(0,0,0,0.3)'}}
+    }]
+  });
+}
+</script>
+</body>
+</html>

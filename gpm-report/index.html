@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>若溪 · 小红书 GPM 分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ff2442;
+    --red-dark: #d41e35;
+    --red-light: #fff0f2;
+    --bg: #fafbfc;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.04);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ====== HEADER ====== */
+  .header {
+    background: linear-gradient(135deg, var(--red) 0%, #e01b38 50%, #c4152e 100%);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(255,36,66,0.25);
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-logo {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    backdrop-filter: blur(8px);
+  }
+  .header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-sub { font-size: 13px; opacity: 0.85; font-weight: 500; margin-top: 2px; }
+  .header-meta {
+    text-align: right;
+    font-size: 13px;
+    opacity: 0.85;
+    line-height: 1.6;
+  }
+
+  /* ====== MAIN ====== */
+  .main {
+    flex: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+    width: 100%;
+  }
+
+  /* ====== KPI STRIP ====== */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .kpi-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .kpi-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .kpi-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-bottom: 8px; }
+  .kpi-value { font-size: 32px; font-weight: 800; color: var(--text); letter-spacing: -1px; }
+  .kpi-change { font-size: 13px; margin-top: 6px; font-weight: 500; }
+  .kpi-up { color: #059669; }
+  .kpi-warn { color: #d97706; }
+  .kpi-red { color: var(--red); }
+
+  /* ====== CARDS ====== */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .nav-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--red);
+    border-radius: 4px 4px 0 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .nav-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    border-color: var(--red);
+  }
+  .nav-card:hover::before { transform: scaleX(1); }
+  .nav-card-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .nav-card-icon.chart { background: #fef2f2; }
+  .nav-card-icon.doc { background: #fefce8; }
+  .nav-card h2 {
+    font-size: 20px; font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .nav-card p {
+    font-size: 14px; color: var(--text-secondary);
+    line-height: 1.7;
+    flex: 1;
+  }
+  .nav-card .cta {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600;
+    color: var(--red);
+    margin-top: 4px;
+  }
+  .nav-card .cta svg { transition: transform 0.2s; }
+  .nav-card:hover .cta svg { transform: translateX(3px); }
+
+  /* ====== HIGHLIGHTS ====== */
+  .highlights {
+    margin-bottom: 40px;
+  }
+  .section-title {
+    font-size: 14px; font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .insight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .insight-tag {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .insight-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .insight-dot.hot { background: var(--red); }
+  .insight-dot.warn { background: #f59e0b; }
+  .insight-dot.info { background: #3b82f6; }
+  .insight-dot.ok { background: #10b981; }
+
+  /* ====== FOOTER ====== */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 40px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: var(--card-bg);
+  }
+  .footer-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 768px) {
+    .header { padding: 20px 20px; flex-direction: column; gap: 8px; text-align: center; }
+    .header-meta { text-align: center; }
+    .main { padding: 32px 16px 48px; }
+    .kpi-strip { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .kpi-value { font-size: 26px; }
+    .footer { padding: 16px 20px; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== HEADER ====== -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">📊</div>
+    <div>
+      <div class="header-title">若溪 · 小红书 GPM 分析</div>
+      <div class="header-sub">商品笔记绩效全链路拆解</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    数据范围 2026年4月 – 6月<br>
+    1,669 篇笔记 &nbsp;|&nbsp; 10 款商品 &nbsp;|&nbsp; 5 位作者
+  </div>
+</header>
+
+<!-- ====== MAIN ====== -->
+<main class="main">
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">总 GMV</div>
+      <div class="kpi-value">¥17,147</div>
+      <div class="kpi-change kpi-up">↑ 6月 ¥6,826（环比+35%）</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">核心商品贡献</div>
+      <div class="kpi-value">55%</div>
+      <div class="kpi-change">手剥虾仁 ¥9,407</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">GPM 千次阅读</div>
+      <div class="kpi-value" style="color: var(--red)">¥299</div>
+      <div class="kpi-change kpi-warn">⚠ 点击-购买相关性 0.87</div>
+    </div>
+  </div>
+
+  <!-- Navigation Cards -->
+  <div class="cards">
+    <a href="dashboard.html" class="nav-card">
+      <div class="nav-card-icon chart">📈</div>
+      <h2>交互式数据看板</h2>
+      <p>8个 KPI 卡片 + 6张 ECharts 交互图表 + 明细表（10字段/行业对比）+ 筛选/搜索/CSV导出。全部 1,669 条数据内嵌，无需后端。</p>
+      <div class="cta">
+        打开看板
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+    <a href="report.html" class="nav-card">
+      <div class="nav-card-icon doc">📋</div>
+      <h2>GPM 分析报告</h2>
+      <p>6大板块：执行摘要 → 数据概览 → 7项核心发现 → 月度趋势解读 → 数据质量警示 → 5条优先级行动建议。A4 打印友好。</p>
+      <div class="cta">
+        阅读报告
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- Key Insights -->
+  <div class="highlights">
+    <div class="section-title">核心洞察速览</div>
+    <div class="insight-grid">
+      <div class="insight-tag">
+        <span class="insight-dot hot"></span>
+        <span><strong>爆款驱动模式</strong> — 20.7% 笔记贡献 80%+ GMV；手剥虾仁单一商品占比 54.9%。头部集中度过高，存在单点风险。</span>
+      </div>
+      <div class="insight-tag">
+        <span class="insight-dot warn"></span>
+        <span><strong>视频内容无效</strong> — 62 篇视频笔记零出单。视频产能占比 3.7%，建议暂停以释放资源。</span>
+      </div>
+      <div class="insight-tag">
+        <span class="insight-dot info"></span>
+        <span><strong>阅读量是关键门槛</strong> — 阅读量 100+ 后出单率跃升至 43.9%。6 月 12 天 GMV 已超 5 月整月，增长加速明显。</span>
+      </div>
+      <div class="insight-tag">
+        <span class="insight-dot ok"></span>
+        <span><strong>点击-购买强关联</strong> — 商品卡点击与 GMV 相关性 0.87，阅读量与 GMV 0.67，内容质量（阅读）先于转化。</span>
+      </div>
+      <div class="insight-tag">
+        <span class="insight-dot hot"></span>
+        <span><strong>P0：暂停视频 · P1：聚焦虾仁</strong> — 优先释放无效产能，复制手剥虾仁爆款模式，预期新增 GMV ¥4,700+。</span>
+      </div>
+      <div class="insight-tag">
+        <span class="insight-dot warn"></span>
+        <span><strong>95% 笔记零订单</strong> — 1669 篇中仅 83 篇产生订单。优化内容质量，提升中位阅读，目标出单笔记 150+。</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ====== FOOTER ====== -->
+<footer class="footer">
+  <span>若溪 GPM 分析项目</span>
+  <span class="footer-dot"></span>
+  <span>赛奇 · EDA 分析</span>
+  <span class="footer-dot"></span>
+  <span>达仕 · 交互看板</span>
+  <span class="footer-dot"></span>
+  <span>若溪 · 分析报告</span>
+  <span class="footer-dot"></span>
+  <span>2026.06.13</span>
+</footer>
+
+</body>
+</html>
