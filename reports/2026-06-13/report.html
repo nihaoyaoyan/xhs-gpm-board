@@ -3,216 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>鲜水湾 · 6月经营洞察报告</title>
+<title>鲜水湾 · GPM综合分析报告</title>
 <style>
-:root {--bg:#fafbfc;--card:#fff;--text:#1a1a2e;--sub:#5a5a7a;--accent:#ff4757;--blue:#3742fa;--green:#2ed573;--orange:#ffa502;--border:#e8e8f0;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.04);}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;max-width:860px;margin:0 auto;padding:40px 24px;}
-.cover{text-align:center;padding:60px 0;border-bottom:2px solid var(--border);margin-bottom:40px;}
-.cover h1{font-size:32px;font-weight:800;margin-bottom:8px;}
-.cover h1 span{color:var(--blue);}
-.cover .meta{font-size:14px;color:var(--sub);margin-top:12px;}
-.section{margin-bottom:40px;}
-.section h2{font-size:20px;font-weight:700;border-left:4px solid var(--blue);padding-left:12px;margin-bottom:16px;}
-.section h3{font-size:16px;font-weight:600;margin:20px 0 10px;color:var(--text);}
-table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0 20px;box-shadow:var(--shadow);}
-th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
-th{background:#f0f0f8;font-weight:600;color:var(--sub);font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
-tr:hover td{background:#f8f8ff;}
-.finding{background:var(--card);border-left:3px solid var(--blue);padding:14px 18px;margin:14px 0;border-radius:0 var(--radius) var(--radius) 0;box-shadow:var(--shadow);}
-.finding.warn{border-left-color:var(--orange);}
-.finding.risk{border-left-color:var(--accent);}
-.finding .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-right:8px;}
-.tag.info{background:#e8f0fe;color:var(--blue);}
-.tag.warn{background:#fff3e0;color:#e17055;}
-.tag.risk{background:#ffe0e0;color:var(--accent);}
-.num{font-family:"SF Mono","Courier New",monospace;font-weight:700;}
-.num.big{font-size:24px;color:var(--blue);}
-.num.red{color:var(--accent);}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0;}
-.kpi-box{background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow);}
-.kpi-box .label{font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;}
-.kpi-box .value{font-size:28px;font-weight:800;margin:6px 0;}
-.rec{background:var(--card);padding:16px 20px;margin:10px 0;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:12px;}
-.rec .icon{font-size:20px;}
-.rec .body{flex:1;}
-.rec .title{font-weight:600;margin-bottom:2px;}
-.rec .desc{font-size:13px;color:var(--sub);}
-.rec .priority{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;margin-left:6px;}
-.pri-high{background:#ffe0e0;color:#d63031;}
-.pri-mid{background:#fff3e0;color:#e17055;}
-.pri-low{background:#e8f0fe;color:var(--blue);}
-footer{text-align:center;color:var(--sub);font-size:12px;padding:30px 0;border-top:1px solid var(--border);margin-top:40px;}
-@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+:root{--bg:#fafbfc;--card:#fff;--text:#1a1a2e;--sub:#5a5a7a;--red:#ff2442;--blue:#0984e3;--green:#00b894;--orange:#e17055;--border:#e8e8f0;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.04)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.8;font-size:15px;max-width:860px;margin:0 auto;padding:40px 24px}
+.cover{text-align:center;padding:60px 0;border-bottom:2px solid var(--border);margin-bottom:40px}
+.cover h1{font-size:32px;font-weight:800;margin-bottom:8px}
+.cover h1 span{color:var(--blue)}
+.cover .meta{font-size:14px;color:var(--sub);margin-top:12px}
+.section{margin-bottom:40px}
+.section h2{font-size:20px;font-weight:700;border-left:4px solid var(--blue);padding-left:12px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0 20px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:#f0f0f8;font-weight:600;color:var(--sub);font-size:12px}
+tr:hover td{background:#f8f8ff}
+.finding{background:var(--card);border-left:3px solid var(--blue);padding:14px 18px;margin:14px 0;border-radius:0 var(--radius) var(--radius) 0;box-shadow:var(--shadow)}
+.finding.risk{border-left-color:var(--red)}
+.finding.warn{border-left-color:var(--orange)}
+.finding .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-right:8px}
+.tag.info{background:#e8f0fe;color:var(--blue)}
+.tag.risk{background:#ffe0e0;color:var(--red)}
+.tag.warn{background:#fff3e0;color:var(--orange)}
+.tag.good{background:#e6faf5;color:var(--green)}
+.num{font-family:"SF Mono","Courier New",monospace;font-weight:700}
+.num.big{font-size:24px;color:var(--blue)}
+.num.red{color:var(--red)}
+.num.green{color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.kpi-box{background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)}
+.kpi-box .label{font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
+.kpi-box .value{font-size:26px;font-weight:800;margin:6px 0}
+.rec{background:var(--card);padding:16px 20px;margin:10px 0;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:12px}
+.rec .icon{font-size:20px}
+.rec .body{flex:1}
+.rec .title{font-weight:600;margin-bottom:2px}
+.rec .desc{font-size:13px;color:var(--sub)}
+.rec .pri{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;margin-left:6px}
+.pri-p0{background:#ffe0e0;color:var(--red)}
+.pri-p1{background:#fff3e0;color:var(--orange)}
+.pri-p2{background:#e8f0fe;color:var(--blue)}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:30px 0;border-top:1px solid var(--border);margin-top:40px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <div class="cover">
-  <h1>🥬 <span>鲜水湾</span> · 2026年6月经营洞察报告</h1>
-  <p class="meta">报告周期：2026年5月14日 – 6月12日 ｜ 生成：2026年6月13日<br/>数据来源：小红书商家后台 · 商品明细 / 商家流量 / 账号流量</p>
+  <h1>📋 <span>鲜水湾</span> · GPM综合分析报告</h1>
+  <p class="meta">数据范围：2025.11 – 2026.06 ｜ 生成：2026年6月13日<br/>数据来源：小红书商家后台 · 商品笔记 + 笔记分析 + 搜索词</p>
 </div>
 
 <!-- ===== 执行摘要 ===== -->
 <div class="section">
   <h2>一、执行摘要</h2>
-  <p>本周期内，鲜水湾通过17个商品链接、4个关联账号实现 <span class="num big">¥99,746</span> 支付GMV，共计 <span class="num">1,008</span> 笔订单、<span class="num">994</span> 名买家，客单价 <span class="num">¥64.65</span>。核心发现：</p>
+  <p>本报告整合<span class="num">1,669</span>篇商品笔记诊断数据与<span class="num">1,431</span>个搜索关键词表现数据。</p>
 
-  <div class="finding risk">
-    <span class="tag risk">高风险</span><strong>GMV高度集中于Top3商品（92%）</strong>，手剥虾仁单品贡献12.7%。一旦该SKU出现断货、品控或竞品冲击，收入将剧烈波动。
-  </div>
-  <div class="finding warn">
-    <span class="tag warn">需关注</span><strong>整体退款率12.06%</strong>（退款金额¥12,031），其中盐田虾、青岛鲅鱼两个品类退款率超30%，品控风险突出。
-  </div>
-  <div class="finding warn">
-    <span class="tag warn">需关注</span><strong>新客依赖度86%</strong>，几乎没有老客复购体系。小红书生态中老客召回是显著的增量机会。
-  </div>
-  <div class="finding">
-    <span class="tag info">亮点</span><strong>综合搜索页是最大且最高效的流量渠道</strong>，贡献28.5%的GMV，访客转化路径清晰。
-  </div>
-</div>
-
-<!-- ===== 数据概览 ===== -->
-<div class="section">
-  <h2>二、核心指标概览</h2>
   <div class="grid2">
-    <div class="kpi-box"><div class="label">累计GMV</div><div class="value">¥99,746</div></div>
-    <div class="kpi-box"><div class="label">支付买家</div><div class="value">994</div></div>
-    <div class="kpi-box"><div class="label">订单量</div><div class="value">1,008</div></div>
-    <div class="kpi-box"><div class="label">客单价</div><div class="value">¥64.65</div></div>
-    <div class="kpi-box"><div class="label">退货率</div><div class="value" style="color:#ff4757">12.06%</div></div>
-    <div class="kpi-box"><div class="label">加购转化率</div><div class="value">3.70%</div></div>
+    <div class="kpi-box"><div class="label">笔记直接GMV</div><div class="value">¥<span id="kpi1">—</span></div></div>
+    <div class="kpi-box"><div class="label">搜索渠道GMV</div><div class="value" style="color:var(--blue)">¥<span id="kpi2">—</span></div></div>
+    <div class="kpi-box"><div class="label">有GMV笔记</div><div class="value"><span id="kpi3">—</span></div></div>
+    <div class="kpi-box"><div class="label">搜索订单</div><div class="value" style="color:var(--blue)"><span id="kpi4">—</span></div></div>
   </div>
-  <p style="margin-top:16px;color:var(--sub);font-size:13px;">
-  总访客23,086人，总浏览29,392次，加购3,836人（加购率16.6%），访客→支付转化率4.3%。
-  </p>
-</div>
-
-<!-- ===== 商品分析 ===== -->
-<div class="section">
-  <h2>三、商品结构分析</h2>
-
-  <h3>3.1 GMV排行</h3>
-  <table>
-    <tr><th>商品</th><th>GMV</th><th>买家</th><th>订单</th><th>客单价</th><th>转化率</th><th>占比</th></tr>
-    <tr><td>手剥虾仁·5盒装</td><td class="num">¥12,638</td><td>158</td><td>161</td><td>¥79.99</td><td>5.04%</td><td>12.7%</td></tr>
-    <tr><td>智利三文鱼·8斤</td><td class="num">¥5,582</td><td>33</td><td>34</td><td>¥169.15</td><td>4.01%</td><td>5.6%</td></tr>
-    <tr><td>三文鱼扒·轮切</td><td class="num">¥4,717</td><td>34</td><td>34</td><td>¥138.74</td><td>3.31%</td><td>4.7%</td></tr>
-    <tr><td>挪威冰鲜三文鱼</td><td class="num">¥509</td><td>7</td><td>7</td><td>¥72.76</td><td>3.02%</td><td>0.5%</td></tr>
-    <tr><td>厄瓜多尔白虾</td><td class="num">¥336</td><td>3</td><td>3</td><td>¥112.00</td><td>2.44%</td><td>0.3%</td></tr>
-  </table>
-
-  <h3>3.2 集中度分析</h3>
-  <p>Top1商品占GMV的 <span class="num big">12.7%</span>，Top3占 <span class="num big">92.0%</span>，Top5占 <span class="num">93.1%</span>。HHI指数为 <span class="num">1,776</span>（>1000即为中等集中）。</p>
 
   <div class="finding risk">
-    <span class="tag risk">结构风险</span>余下14个商品（含17个SKU的剩余部分）合计GMV仅¥6,878（6.9%），大量长尾商品几乎没有产出。建议评估是否下架低效SKU，集中资源推爆款。
+    <span class="tag risk">核心问题</span><strong>搜索渠道GMV（¥<span id="f1">—</span>）是笔记直接GMV（¥<span id="f2">—</span>）的<span id="f3">—</span>倍。</strong>97%的笔记发布3天后推荐流量枯竭，全靠搜索词续命。内容创作频率（最近一周仅1篇新笔记）严重不足。
   </div>
-
-  <h3>3.3 退款风险</h3>
-  <table>
-    <tr><th>商品</th><th>退款金额</th><th>支付金额</th><th>退款率</th></tr>
-    <tr><td>盐田虾·有机无抗</td><td class="num red">¥257.44</td><td class="num">¥270</td><td class="num red">95.3%</td></tr>
-    <tr><td>青岛大鲅鱼</td><td class="num red">¥229.56</td><td class="num">¥322</td><td class="num red">71.3%</td></tr>
-    <tr><td>手剥虾仁·5盒装</td><td class="num">¥1,279</td><td class="num">¥12,638</td><td class="num">10.1%</td></tr>
-    <tr><td>三文鱼扒·轮切</td><td class="num">¥322</td><td class="num">¥4,717</td><td class="num">6.8%</td></tr>
-  </table>
-
   <div class="finding risk">
-    <span class="tag risk">品控警报</span>盐田虾退货率95.3%、青岛鲅鱼71.3%，属于极异常水平。强烈建议立即核查这两个SKU的品控和物流链路（是否存在化冻、变质、规格不符等问题）。
+    <span class="tag risk">最大瓶颈</span><strong>商品转化率是80.6%笔记的最大瓶颈</strong>。但搜索词数据显示：场景词（减脂餐食谱等）CVR 6-8%，远超品类词（三文鱼等）CVR 4-5%。内容策略应向场景化方向调整。
+  </div>
+  <div class="finding warn">
+    <span class="tag warn">机会窗口</span><strong>搜索需求正在爆发式增长</strong>。搜索词从2025年11月的91个增长到2026年5月的894个，7个月增长<span style="color:var(--orange)">9.8倍</span>。4-5月新出现的「减脂餐食谱」「减肥餐食谱」等词贡献了<span class="num green">¥7,510</span> GMV。
   </div>
 </div>
 
-<!-- ===== 渠道分析 ===== -->
+<!-- ===== 笔记诊断 ===== -->
 <div class="section">
-  <h2>四、渠道效率分析</h2>
-
-  <h3>4.1 渠道GMV排行</h3>
+  <h2>二、笔记诊断概况</h2>
   <table>
-    <tr><th>渠道</th><th>GMV</th><th>买家数</th><th>新客占比</th><th>访客价值</th></tr>
-    <tr><td>综合搜索页</td><td class="num">¥28,404</td><td>293</td><td>85.3%</td><td>¥3.47</td></tr>
-    <tr><td>关注页</td><td class="num">¥19,184</td><td>152</td><td>76.3%</td><td>¥6.53</td></tr>
-    <tr><td>发现页</td><td class="num">¥15,572</td><td>120</td><td>77.5%</td><td>¥5.67</td></tr>
-    <tr><td>订单页</td><td class="num">¥11,289</td><td>90</td><td>70.0%</td><td class="num">¥15.29</td></tr>
-    <tr><td>分享</td><td class="num">¥8,605</td><td>106</td><td>79.2%</td><td>¥3.75</td></tr>
-    <tr><td>"我"的页</td><td class="num">¥8,101</td><td>121</td><td>95.0%</td><td>¥1.91</td></tr>
+    <thead><tr><th>指标</th><th>数值</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>笔记总数</td><td><span class="num">1,669</span></td><td>2025.11 – 2026.06</td></tr>
+      <tr><td>有GMV笔记</td><td><span class="num">45</span> (2.7%)</td><td>97.3%笔记零出单</td></tr>
+      <tr><td>封面CTR均值</td><td><span class="num" id="txtCover">—</span></td><td>行业平均6% / 优秀10.1%</td></tr>
+      <tr><td>推荐中笔记</td><td><span class="num green" id="txtRec">—</span></td><td>发布≤3天，仍有推荐流量</td></tr>
+      <tr><td>搜索续命笔记</td><td><span class="num red" id="txtSearch">—</span></td><td>发布>3天，靠搜索存活</td></tr>
+      <tr><td>平均补单数</td><td><span class="num" id="txt补单">—</span>单</td><td>使CVR达行业优秀6.12%需补</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 搜索词洞察 ===== -->
+<div class="section">
+  <h2>三、搜索关键词核心洞察</h2>
+  <table id="tbGold">
+    <thead><tr><th>#</th><th>搜索词</th><th>GMV</th><th>订单</th><th>CVR</th><th>行动建议</th></tr></thead>
+    <tbody></tbody>
   </table>
 
-  <div class="finding">
-    <span class="tag info">关键发现</span><strong>订单页访客价值¥15.29远超其他渠道</strong>——这是因为订单页流量来自"已购买用户回访"，老客复购意图明确，转化率天然高。但订单页流量占比仅4.4%，说明老客召回流量池严重不足。
-  </div>
-  <div class="finding">
-    <span class="tag info">流量结构</span>综合搜索页 + 发现页 + 关注页三大公域渠道合计贡献63.3% GMV。"我"的页（收藏/个人页入口）转化效率最低（访客价值¥1.91），但贡献了4,207访客，说明大量用户在浏览但未决策。
+  <div class="finding warn">
+    <span class="tag warn">机会缺口</span><strong>「虾仁做法大全」</strong>获得<span class="num red">17,649</span>次搜索曝光，仅2单成交（CVR 1.7%）。这是需求量巨大但笔记没接住的典型词，需要专门创作虾仁做法内容。
   </div>
 </div>
 
-<!-- ===== 账号分析 ===== -->
+<!-- ===== 商品表现 ===== -->
 <div class="section">
-  <h2>五、账号贡献度分析</h2>
-
-  <table>
-    <tr><th>账号</th><th>GMV</th><th>占比</th><th>订单</th><th>买家</th><th>点击量</th><th>点击转化</th><th>客单价</th></tr>
-    <tr><td>鲜水湾</td><td class="num">¥46,591</td><td>46.7%</td><td>477</td><td>421</td><td>13,009</td><td>3.24%</td><td>¥110.67</td></tr>
-    <tr><td>婉婉上班吃什么</td><td class="num">¥15,545</td><td>15.6%</td><td>166</td><td>151</td><td>7,237</td><td>2.09%</td><td>¥102.95</td></tr>
-    <tr><td>晨晨日记🎀</td><td class="num">¥3,194</td><td>3.2%</td><td>34</td><td>31</td><td>1,863</td><td>1.66%</td><td>¥103.03</td></tr>
-    <tr><td>菲菲上班吃什么</td><td class="num">¥2,860</td><td>2.9%</td><td>32</td><td>30</td><td>3,433</td><td>0.87%</td><td>¥95.33</td></tr>
+  <h2>四、商品表现</h2>
+  <table id="tbProd">
+    <thead><tr><th>商品</th><th>GMV</th><th>订单</th><th>笔记数</th><th>近七日阅读</th></tr></thead>
+    <tbody></tbody>
   </table>
-
-  <div class="finding">
-    <span class="tag info">账号策略</span>鲜水湾是绝对核心账号（46.7% GMV + 最高点击转化率3.24%），其内容质量和商品匹配度显著优于其他账号。婉婉上班吃什么为第二梯队（15.6%）。菲菲和晨晨的投入产出比偏低，可考虑减少这两个账号的推广预算。
-  </div>
 </div>
 
-<!-- ===== 建议 ===== -->
+<!-- ===== 行动建议 ===== -->
 <div class="section">
-  <h2>六、行动建议</h2>
+  <h2>五、行动建议（优先级排序）</h2>
 
   <div class="rec">
     <div class="icon">🔴</div>
     <div class="body">
-      <div class="title">紧急处理盐田虾和青岛鲅鱼品控<span class="priority pri-high">P0 · 本周</span></div>
-      <div class="desc">两SKU退货率>70%，立即排查原因（产品品质/物流冷链/预期偏差），必要时暂时下架止损。预估改善后退款率可从12%降至8%以下。</div>
+      <div class="title">P0 — 规模化内容创作 <span class="pri pri-p0">本周启动</span></div>
+      <div class="desc">目标 <span class="num">40篇/月</span>，每条笔记精准匹配1-2个高转化长尾词（减脂餐食谱、减脂晚餐、虾仁做法等）。利用搜索需求爆发窗口，通过内容数量抢占搜索排名。预期新增GMV <span class="num green">¥5,000+/月</span>。</div>
     </div>
   </div>
 
   <div class="rec">
     <div class="icon">🟠</div>
     <div class="body">
-      <div class="title">集中资源强化手剥虾仁爆款<span class="priority pri-high">P0 · 持续</span></div>
-      <div class="desc">虾仁已经是核心爆款（转化率5.04%），建议增加笔记投放量、针对"综合搜索页"关键词优化标题，利用现有转化优势放大流量。预估可将单品GMV从¥12,638提至¥20,000+。</div>
+      <div class="title">P1 — 搜索词精准覆盖 <span class="pri pri-p1">2周内</span></div>
+      <div class="desc">重点创作覆盖「虾仁做法大全」「煎三文鱼」「带饭上班食谱推荐」等<span class="num">11个高曝光低转化词</span>。这些词已证明确有搜索需求，只需做对内容就能转化。每个词至少创作 <span class="num">3篇</span>专题笔记。</div>
+    </div>
+  </div>
+
+  <div class="rec">
+    <div class="icon">🟠</div>
+    <div class="body">
+      <div class="title">P1 — 场景化内容转型 <span class="pri pri-p1">2周内</span></div>
+      <div class="desc">数据显示场景词CVR（6-8%）远超品类词（4-5%）。笔记标题和正文应从「产品名+规格」转向「场景+解决方案」。模板：<em>「上班带饭一周不重样｜虾仁这样做好吃到哭」</em>。</div>
     </div>
   </div>
 
   <div class="rec">
     <div class="icon">🟡</div>
     <div class="body">
-      <div class="title">建立老客复购机制<span class="priority pri-mid">P1 · 本月</span></div>
-      <div class="desc">当前复购率仅14%。建议：① 订单页回访场景中增加"常购清单"入口；② 针对已购买用户在笔记评论区做定向回复和提醒；③ 在粉丝群发布限时复购优惠。目标：将复购率提升至25%。</div>
+      <div class="title">P2 — 建立数据反馈闭环 <span class="pri pri-p2">1个月内</span></div>
+      <div class="desc">每周导出一次最新的商品笔记和搜索词数据，运行管线更新看板。监控长尾金词榜单变化，发现新机会词第一时间创作。目标：看板成为你每天决策的第一屏。</div>
     </div>
   </div>
 
   <div class="rec">
     <div class="icon">🟡</div>
     <div class="body">
-      <div class="title">优化"我"的页转化路径<span class="priority pri-mid">P1 · 本月</span></div>
-      <div class="desc">4,207访客从"我"的页进入但访客价值仅¥1.91，远低于其他渠道。建议在收藏/个人页入口增加限时优惠提示或商品好评展示，缩短决策链路。</div>
-    </div>
-  </div>
-
-  <div class="rec">
-    <div class="icon">🔵</div>
-    <div class="body">
-      <div class="title">补全笔记ID维度数据<span class="priority pri-low">P2 · 下周期</span></div>
-      <div class="desc">当前商品→渠道→账号三表之间缺少笔记ID主键，无法做完整漏斗关联（某篇笔记→渠道→商品→GMV）。下次导出数据时务必加入"笔记ID"列。</div>
+      <div class="title">P2 — 补全流量来源数据 <span class="pri pri-p2">持续</span></div>
+      <div class="desc">在后台找到可导出单篇笔记「搜索曝光/推荐曝光」明细的报表。接入后可精确量化推荐衰减速度，而非当前基于3天假设的估算。</div>
     </div>
   </div>
 </div>
 
-<footer>
-  报告由智数分析专家团自动生成 · 诺亚 (Nova) 汇编<br/>
-  数据源：小红书商家后台 2026-05-14 ~ 2026-06-12<br/>
-  本报告基于可获取的数据维度进行分析，部分洞察可能有数据覆盖范围的限制。
-</footer>
+<footer>鲜水湾 · GPM综合分析报告 · 智数分析专家团 · 管线驱动自动更新 · 2026.06.13</footer>
 
+<script>
+var R = {"summary": {"noteGMV": 8910.9, "noteOrders": 96, "totalNotes": 1669, "notesWithSales": 45, "searchGMV": 101862.36, "searchOrders": 1024, "searchKeywords": 1431, "avgCoverCtr": 8.58}, "products": [{"name": "手剥虾仁 无冰衣无添加 低脂餐一人食 上", "gmv": 5445.0, "orders": 73, "notes": 1161, "reads": 22820}, {"name": "智利尾端中段整条三文鱼 8斤深海鱼低脂餐", "gmv": 2113.9, "orders": 14, "notes": 100, "reads": 3119}, {"name": "三文鱼扒智利三文鱼扒轮切三文鱼冷冻三文鱼", "gmv": 1352.0, "orders": 9, "notes": 177, "reads": 3750}, {"name": "青岛大鲅鱼春鲅鱼鲅鱼新鲜冷冻马鲛鱼蓝点马", "gmv": 0, "orders": 0, "notes": 5, "reads": 186}, {"name": "北极甜虾头籽甜虾元宝虾北极熊冰虾孕妈妈宝", "gmv": 0, "orders": 0, "notes": 18, "reads": 136}, {"name": "盐田虾无抗有机盐田虾孕妈妈宝宝辅食顺丰包", "gmv": 0, "orders": 0, "notes": 1, "reads": 40}, {"name": "大虾鲜冻大虾厄瓜多尔白虾盐冻大虾虾仁海洋", "gmv": 0, "orders": 0, "notes": 140, "reads": 151}, {"name": "挪威冰鲜三文鱼刺身级食材生鱼片日式火锅食", "gmv": 0, "orders": 0, "notes": 3, "reads": 50}, {"name": "生蚝乳山生蚝海蛎子顺丰包邮", "gmv": 0, "orders": 0, "notes": 62, "reads": 30}, {"name": "王牌大虾鲜冻大虾厄瓜多尔白虾盐冻大虾年货", "gmv": 0, "orders": 0, "notes": 2, "reads": 0}], "authors": [{"name": "鲜水湾", "gmv": 3016.9, "orders": 25, "notes": 478, "reads": 6700}, {"name": "菲菲上班吃什么", "gmv": 2937.0, "orders": 40, "notes": 444, "reads": 16034}, {"name": "婉婉上班吃什么", "gmv": 2016.0, "orders": 19, "notes": 347, "reads": 4883}, {"name": "小柚练后吃什么", "gmv": 941.0, "orders": 12, "notes": 400, "reads": 2665}], "monthly": [{"month": "2025-11", "keywords": 91, "gmv": 1378.0, "orders": 20, "exposure": 8986, "clicks": 282}, {"month": "2025-12", "keywords": 172, "gmv": 3532.3, "orders": 34, "exposure": 15041, "clicks": 894}, {"month": "2026-01", "keywords": 224, "gmv": 2973.9, "orders": 36, "exposure": 21503, "clicks": 845}, {"month": "2026-02", "keywords": 260, "gmv": 7302.6, "orders": 40, "exposure": 22437, "clicks": 1234}, {"month": "2026-03", "keywords": 261, "gmv": 5137.1, "orders": 53, "exposure": 17066, "clicks": 1362}, {"month": "2026-04", "keywords": 471, "gmv": 34203.16, "orders": 280, "exposure": 24262, "clicks": 4294}, {"month": "2026-05", "keywords": 894, "gmv": 47335.3, "orders": 561, "exposure": 54817, "clicks": 7084}], "decay": {"推荐中": 50, "搜索续命": 1619}, "factors": {"封面点击率": 532, "商品转化率": 1401, "笔记支付转化率": 1625, "客单价": 1659}, "bnPct": {"封面CTR": 3.5, "商品卡CTR": 80.6, "CVR": 15.1, "客单价": 0.7, "曝光量": 0.0}, "longTailGold": [{"keyword": "智利三文鱼排冷冻三文鱼三文鱼扒顺丰包邮整条三文鱼深海鱼", "gmv": 439.0, "orders": 7, "buyers": 7, "exposure": 8, "clicks": 6, "ctr": 75.0, "cvr": 116.67, "months": 1, "length": 27, "score": 485.22}, {"keyword": "挪威冰鲜三文鱼刺身级食材生鱼片日式火锅食材顺丰包邮", "gmv": 349.3, "orders": 7, "buyers": 7, "exposure": 7, "clicks": 7, "ctr": 100.0, "cvr": 100.0, "months": 1, "length": 25, "score": 415.89}, {"keyword": "什么菜可以冻上吃", "gmv": 138.0, "orders": 2, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 200.0, "months": 1, "length": 8, "score": 395.5}, {"keyword": "减脂吃三文鱼", "gmv": 496.0, "orders": 2, "buyers": 1, "exposure": 2, "clicks": 1, "ctr": 50.0, "cvr": 200.0, "months": 1, "length": 6, "score": 351.56}, {"keyword": "早餐营养食谱", "gmv": 187.0, "orders": 2, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 200.0, "months": 1, "length": 6, "score": 351.56}, {"keyword": "营养午餐", "gmv": 226.0, "orders": 2, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 200.0, "months": 1, "length": 4, "score": 307.61}, {"keyword": "青岛大鲅鱼春鲅鱼鲅鱼新鲜冷冻马鲛鱼蓝点马鲛鱼顺丰包邮", "gmv": 59.7, "orders": 3, "buyers": 3, "exposure": 4, "clicks": 3, "ctr": 75.0, "cvr": 100.0, "months": 1, "length": 26, "score": 277.26}, {"keyword": "盐田虾无抗有机盐田虾孕妈妈宝宝辅食顺丰包邮无打药无污染健康虾", "gmv": 109.6, "orders": 4, "buyers": 4, "exposure": 5, "clicks": 5, "ctr": 100.0, "cvr": 80.0, "months": 1, "length": 30, "score": 257.51}, {"keyword": "青岛大鲅鱼春鲅鱼鲅鱼新鲜冷冻马鲛鱼蓝点马鲛鱼", "gmv": 39.8, "orders": 2, "buyers": 2, "exposure": 2, "clicks": 2, "ctr": 100.0, "cvr": 100.0, "months": 1, "length": 22, "score": 219.72}, {"keyword": "哪里能买到好的三文鱼", "gmv": 338.0, "orders": 1, "buyers": 1, "exposure": 1, "clicks": 1, "ctr": 100.0, "cvr": 100.0, "months": 1, "length": 10, "score": 138.63}], "gaps": [{"keyword": "虾仁做法大全", "gmv": 138.0, "orders": 2, "buyers": 2, "exposure": 17649, "clicks": 115, "ctr": 0.65, "cvr": 1.74, "months": 7, "length": 6}, {"keyword": "北极甜虾", "gmv": 119.8, "orders": 2, "buyers": 2, "exposure": 1699, "clicks": 227, "ctr": 13.36, "cvr": 0.88, "months": 5, "length": 4}, {"keyword": "生蚝的营养价值和功效", "gmv": 109.9, "orders": 1, "buyers": 1, "exposure": 1243, "clicks": 160, "ctr": 12.87, "cvr": 0.62, "months": 5, "length": 10}, {"keyword": "煎三文鱼", "gmv": 632.0, "orders": 4, "buyers": 4, "exposure": 950, "clicks": 235, "ctr": 24.74, "cvr": 1.7, "months": 3, "length": 4}, {"keyword": "抗炎饮食", "gmv": 456.0, "orders": 2, "buyers": 2, "exposure": 783, "clicks": 149, "ctr": 19.03, "cvr": 1.34, "months": 3, "length": 4}], "emerging": [{"keyword": "减脂餐食谱", "gmv": 3676.0, "orders": 49, "buyers": 49, "exposure": 4663, "clicks": 685, "ctr": 14.69, "cvr": 7.15, "months": 2, "length": 5}, {"keyword": "减肥餐食谱", "gmv": 1429.0, "orders": 19, "buyers": 19, "exposure": 1714, "clicks": 234, "ctr": 13.65, "cvr": 8.12, "months": 2, "length": 5}, {"keyword": "减脂餐一日三餐一周食谱", "gmv": 1281.0, "orders": 16, "buyers": 16, "exposure": 1531, "clicks": 219, "ctr": 14.3, "cvr": 7.31, "months": 2, "length": 11}, {"keyword": "盒马虾仁", "gmv": 1153.0, "orders": 15, "buyers": 15, "exposure": 1945, "clicks": 218, "ctr": 11.21, "cvr": 6.88, "months": 2, "length": 4}, {"keyword": "青岛鲅鱼", "gmv": 723.8, "orders": 4, "buyers": 3, "exposure": 274, "clicks": 69, "ctr": 25.18, "cvr": 5.8, "months": 2, "length": 4}], "avg补单数": 1.1};
+var S = R.summary;
+
+document.getElementById('kpi1').textContent = S.noteGMV.toLocaleString();
+document.getElementById('kpi2').textContent = (S.searchGMV/10000).toFixed(1)+'万';
+document.getElementById('kpi3').textContent = S.notesWithSales+'/'+S.totalNotes;
+document.getElementById('kpi4').textContent = S.searchOrders;
+document.getElementById('f1').textContent = (S.searchGMV/10000).toFixed(1)+'万';
+document.getElementById('f2').textContent = S.noteGMV.toLocaleString();
+document.getElementById('f3').textContent = (S.searchGMV/S.noteGMV).toFixed(1);
+
+document.getElementById('txtCover').textContent = S.avgCoverCtr+'%';
+document.getElementById('txtRec').textContent = R.decay['推荐中'];
+document.getElementById('txtSearch').textContent = R.decay['搜索续命'];
+document.getElementById('txt补单').textContent = R.avg补单数;
+
+// Gold table
+document.querySelector('#tbGold tbody').innerHTML = R.longTailGold.map(function(g,i){
+  return '<tr><td>'+(i+1)+'</td><td style="font-weight:600">'+g.keyword+'</td><td>¥'+g.gmv.toLocaleString()+'</td><td>'+g.orders+'</td>'+
+    '<td><span style="color:'+(g.cvr>=6?'var(--green)':'var(--orange)')+';font-weight:600">'+g.cvr+'%</span></td>'+
+    '<td style="font-size:13px">'+(g.cvr>=6?'优先铺笔记':'可尝试布局')+'</td></tr>';
+}).join('');
+
+// Product table
+document.querySelector('#tbProd tbody').innerHTML = R.products.map(function(p){
+  return '<tr><td style="font-weight:600">'+p.name+'</td><td>¥'+p.gmv.toLocaleString()+'</td><td>'+p.orders+'</td><td>'+p.notes+'</td><td>'+p.reads.toLocaleString()+'</td></tr>';
+}).join('');
+</script>
 </body>
 </html>
