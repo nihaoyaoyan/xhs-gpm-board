@@ -86,6 +86,8 @@ tr.expanded td{background:#f0f0ff!important}
         <option value="">全部瓶颈类型</option>
         <option value="封面CTR">封面点击率</option>
         <option value="商品卡CTR">商品转化率</option>
+        <option value="CVR">笔记支付转化率</option>
+        <option value="客单价">客单价</option>
         <option value="CVR">CVR</option>
         <option value="客单价">客单价</option>
       </select>
@@ -99,7 +101,7 @@ tr.expanded td{background:#f0f0ff!important}
     </div>
     <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
       <table><thead><tr>
-        <th>笔记ID</th><th>标题</th><th>曝光</th><th>封面点击率</th><th>商品转化率</th><th>笔记支付转化率</th><th>客单价</th><th>GMV</th><th>最大瓶颈</th><th>CVR补单</th>
+        <th>笔记ID</th><th>标题</th><th>曝光</th><th>封面点击率</th><th>商品转化率</th><th>笔记支付转化率</th><th>客单价</th><th>GMV</th><th>最大瓶颈</th><th>需补单数量</th>
       </tr></thead><tbody id="tableBody"></tbody></table>
     </div>
   </div>
@@ -183,7 +185,8 @@ function factorCell(val, status, gap){
 
 function bnBadge(f){
   var clsMap = {'封面CTR':'bn-cover','商品卡CTR':'bn-card','CVR':'bn-cvr','客单价':'bn-asp','曝光量':'bn-exp'};
-  return '<span class="bn-tag '+(clsMap[f]||'bn-exp')+'">'+f+'</span>';
+  var nameMap = {'封面CTR':'封面点击率','商品卡CTR':'商品转化率','CVR':'笔记支付转化率','客单价':'客单价','曝光量':'曝光量'};
+  return '<span class="bn-tag '+(clsMap[f]||'bn-exp')+'">'+(nameMap[f]||f)+'</span>';
 }
 
 function renderTable(data){
