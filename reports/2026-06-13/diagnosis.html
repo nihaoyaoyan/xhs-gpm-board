@@ -144,7 +144,7 @@ r1.setOption({
 });
 
 // CHART 2: BOTTLENECK PIE
-var bnData = Object.entries(SUMMARY.bottleneck_pct).map(function(e){return {name:e[0],value:e[1]};});
+var bnData = Object.entries(SUMMARY.bottleneck_pct).map(function(e){return {name:BOTTLENECK_NAMES[e[0]]||e[0],value:e[1]};});
 var r2 = echarts.init(document.getElementById('bottleneckPie'));
 r2.setOption({
   tooltip:{trigger:'item',formatter:'{b}: {c}%'},
