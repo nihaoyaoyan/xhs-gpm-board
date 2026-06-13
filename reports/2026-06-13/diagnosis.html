@@ -116,10 +116,14 @@ var BENCH = DIAG.summary.benchmarks;
 var SUMMARY = DIAG.summary;
 
 // KPI CARDS
+var BOTTLENECK_NAMES = {'封面CTR':'封面点击率','商品卡CTR':'商品转化率','CVR':'笔记支付转化率','客单价':'客单价','曝光量':'曝光量'};
+var sortedBn = Object.entries(SUMMARY.bottleneck_pct).sort(function(a,b){return b[1]-a[1]});
+var topBnKey = sortedBn[0][0];
+var topBnName = BOTTLENECK_NAMES[topBnKey] || topBnKey;
 document.getElementById('kpiRow').innerHTML = [
   {label:'笔记总数',value:SUMMARY.total,sub:'1669条'},
   {label:'有GMV笔记',value:SUMMARY.notes_with_gmv,sub:Math.round(SUMMARY.notes_with_gmv/SUMMARY.total*100)+'%'},
-  {label:'最大瓶颈',value:Object.entries(SUMMARY.bottleneck_pct).sort(function(a,b){return b[1]-a[1]})[0][0],sub:Object.entries(SUMMARY.bottleneck_pct).sort(function(a,b){return b[1]-a[1]})[0][1]+'%'},
+  {label:'最大瓶颈',value:topBnName,sub:sortedBn[0][1]+'%'},
   {label:'封面点击率低于平均',value:SUMMARY.factor_below_avg.cover_ctr,sub:Math.round(SUMMARY.factor_below_avg.cover_ctr/SUMMARY.total*100)+'%'},
   {label:'商品转化率低于平均',value:SUMMARY.factor_below_avg.card_ctr,sub:Math.round(SUMMARY.factor_below_avg.card_ctr/SUMMARY.total*100)+'%'},
   {label:'笔记支付转化率低于平均',value:SUMMARY.factor_below_avg.cvr,sub:Math.round(SUMMARY.factor_below_avg.cvr/SUMMARY.total*100)+'%'},
@@ -147,7 +151,7 @@ r2.setOption({
   series:[{type:'pie',radius:['45%','72%'],center:['50%','55%'],itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:2},
     label:{formatter:'{b}\n{d}%',fontSize:11},
     data:bnData.map(function(d){
-      var colors={'\u5c01\u9762CTR':'#ff2442','\u5546\u54c1\u5361CTR':'#e17055','CVR':'#0984e3','\u5ba2\u5355\u4ef7':'#00b894','\u66dd\u5149\u91cf':'#636e72'};
+      var colors={'封面点击率':'#ff2442','商品转化率':'#e17055','笔记支付转化率':'#0984e3','客单价':'#00b894','曝光量':'#636e72'};
       d.itemStyle={color:colors[d.name]||'#636e72'};
       return d;
     })
