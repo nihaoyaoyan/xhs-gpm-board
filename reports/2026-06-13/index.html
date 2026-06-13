@@ -110,10 +110,11 @@
   /* ====== CARDS ====== */
   .cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-bottom: 40px;
   }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr 1fr; } }
   .nav-card {
     background: var(--card-bg);
     border-radius: var(--radius);
@@ -280,6 +281,15 @@
 
   <!-- Navigation Cards -->
   <div class="cards">
+    <a href="diagnosis.html?v=20260613" class="nav-card">
+      <div class="nav-card-icon chart">🔍</div>
+      <h2>笔记诊断看板</h2>
+      <p>5因子漏斗诊断：封面CTR × 商品卡CTR × CVR × 客单价 × 曝光。逐条笔记瓶颈定位 + "补X单达标"建议。双线基准（平均/优秀）。</p>
+      <div class="cta">
+        诊断笔记
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
     <a href="dashboard.html?v=20260613" class="nav-card">
       <div class="nav-card-icon chart">📈</div>
       <h2>交互式数据看板</h2>
