@@ -47,18 +47,19 @@ tr:hover td{background:#f8f8ff}
 .pri-p1{background:#fff3e0;color:var(--orange)}
 .pri-p2{background:#e8f0fe;color:var(--blue)}
 footer{text-align:center;color:var(--sub);font-size:12px;padding:30px 0;border-top:1px solid var(--border);margin-top:40px}
-@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+nav{background:#fff;border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04);max-width:none;margin:0;font-size:13px}nav a{color:var(--sub);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .15s}nav a:hover{background:#f3f4f6}nav a.active{color:#fff;background:var(--red);font-weight:600}nav .sep{color:#d1d5db}@media(max-width:640px){.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<nav style="background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04);max-width:none;margin:0;font-size:13px">
-  <a href="../../../index.html" style="color:#6b7280;text-decoration:none;padding:6px 12px;border-radius:6px">🏠 落地页</a>
-  <a href="diagnosis.html" style="color:#6b7280;text-decoration:none;padding:6px 12px;border-radius:6px">📊 笔记诊断</a>
-  <a href="search.html" style="color:#6b7280;text-decoration:none;padding:6px 12px;border-radius:6px">🔍 搜索词分析</a>
-  <a href="dashboard.html" style="color:#6b7280;text-decoration:none;padding:6px 12px;border-radius:6px">📈 综合看板</a>
-  <a href="report.html" style="color:#fff;background:#ff2442;text-decoration:none;padding:6px 12px;border-radius:6px;font-weight:600">📑 GPM报告</a>
-  <a href="competitor-shrimp.html" style="color:#d97706;text-decoration:none;padding:6px 12px;border-radius:6px;font-weight:600">🦐 虾仁爆款</a>
+<nav>
+  <a href="index.html">🏠 落地页</a>
+  <a href="diagnosis.html">📊 笔记诊断</a>
+  <a href="search.html">🔍 搜索词分析</a>
+  <a href="dashboard.html">📈 综合看板</a>
+  <a href="report.html" class="active">📑 GPM报告</a>
+  <span class="sep">|</span>
+  <a href="competitor-shrimp.html">🦐 虾仁爆款</a>
 </nav>
 <div class="cover">
   <h1>📋 <span>鲜水湾</span> · GPM综合分析报告</h1>

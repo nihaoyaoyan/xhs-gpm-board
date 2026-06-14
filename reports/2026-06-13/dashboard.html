@@ -37,17 +37,18 @@ tr:hover td{background:#f8f8ff}
 .tag-green{background:#e6faf5;color:#00b894}
 .tag-blue{background:#e8f0fe;color:#0984e3}
 .footer{text-align:center;padding:24px;color:var(--sub);font-size:12px;border-top:1px solid var(--border)}
-@media(max-width:768px){.chart-row{grid-template-columns:1fr}}
+nav{background:#fff;border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04)}nav a{color:var(--sub);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;transition:all .15s}nav a:hover{background:#f3f4f6}nav a.active{color:#fff;background:var(--red);font-weight:600}nav .sep{color:#d1d5db}@media(max-width:768px){.chart-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<nav style="background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-  <a href="../../../index.html" style="color:#6b7280;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px">🏠 落地页</a>
-  <a href="diagnosis.html" style="color:#6b7280;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px">📊 笔记诊断</a>
-  <a href="search.html" style="color:#6b7280;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px">🔍 搜索词分析</a>
-  <a href="dashboard.html" style="color:#fff;background:#ff2442;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;font-weight:600">📈 综合看板</a>
-  <a href="report.html" style="color:#6b7280;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px">📑 GPM报告</a>
-  <a href="competitor-shrimp.html" style="color:#d97706;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;font-weight:600">🦐 虾仁爆款</a>
+<nav>
+  <a href="index.html">🏠 落地页</a>
+  <a href="diagnosis.html">📊 笔记诊断</a>
+  <a href="search.html">🔍 搜索词分析</a>
+  <a href="dashboard.html" class="active">📈 综合看板</a>
+  <a href="report.html">📑 GPM报告</a>
+  <span class="sep">|</span>
+  <a href="competitor-shrimp.html">🦐 虾仁爆款</a>
 </nav>
 <div class="header">
   <h1>📊 鲜水湾 · 综合数据看板</h1>
