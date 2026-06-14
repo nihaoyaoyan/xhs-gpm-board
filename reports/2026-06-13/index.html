@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>若溪 · 小红书 GPM 分析</title>
+<title>鲜水湾 · 小红书 GPM 分析</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -34,6 +34,29 @@
     display: flex;
     flex-direction: column;
   }
+
+  /* ====== NAV ====== */
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  nav a {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all .15s;
+  }
+  nav a:hover { background: #f3f4f6; }
+  nav a.active { color: #fff; background: var(--red); font-weight: 600; }
+  nav .sep { color: #d1d5db; }
 
   /* ====== HEADER ====== */
   .header {
@@ -107,72 +130,46 @@
   .kpi-warn { color: #d97706; }
   .kpi-red { color: var(--red); }
 
-  /* ====== CARDS ====== */
-  .cards {
+  /* ====== TAG GRID (子入口) ====== */
+  .tag-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     margin-bottom: 40px;
   }
-  @media (max-width: 900px) { .cards { grid-template-columns: 1fr 1fr; } }
-  .nav-card {
+  .tag-card {
     background: var(--card-bg);
     border-radius: var(--radius);
-    padding: 36px 32px;
+    padding: 24px 28px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border);
     text-decoration: none;
     color: inherit;
-    transition: all 0.25s ease;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 18px;
   }
-  .nav-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: var(--red);
-    border-radius: 4px 4px 0 0;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
-  }
-  .nav-card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-3px);
+  .tag-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
     border-color: var(--red);
   }
-  .nav-card:hover::before { transform: scaleX(1); }
-  .nav-card-icon {
-    width: 52px; height: 52px;
-    border-radius: 14px;
+  .tag-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--red-light);
     display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
+    font-size: 24px;
+    flex-shrink: 0;
   }
-  .nav-card-icon.chart { background: #fef2f2; }
-  .nav-card-icon.doc { background: #fefce8; }
-  .nav-card h2 {
-    font-size: 20px; font-weight: 700;
-    letter-spacing: -0.3px;
+  .tag-body { flex: 1; }
+  .tag-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .tag-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  @media (max-width: 640px) {
+    .tag-grid { grid-template-columns: 1fr; }
   }
-  .nav-card p {
-    font-size: 14px; color: var(--text-secondary);
-    line-height: 1.7;
-    flex: 1;
-  }
-  .nav-card .cta {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 600;
-    color: var(--red);
-    margin-top: 4px;
-  }
-  .nav-card .cta svg { transition: transform 0.2s; }
-  .nav-card:hover .cta svg { transform: translateX(3px); }
 
   /* ====== HIGHLIGHTS ====== */
   .highlights {
@@ -233,7 +230,7 @@
     .header-meta { text-align: center; }
     .main { padding: 32px 16px 48px; }
     .kpi-strip { grid-template-columns: 1fr; }
-    .cards { grid-template-columns: 1fr; }
+    .tag-grid { grid-template-columns: 1fr; }
     .insight-grid { grid-template-columns: 1fr; }
     .kpi-value { font-size: 26px; }
     .footer { padding: 16px 20px; flex-wrap: wrap; }
@@ -242,18 +239,29 @@
 </head>
 <body>
 
+<!-- ====== NAV ====== -->
+<nav>
+  <a href="index.html" class="active">🏠 落地页</a>
+  <a href="diagnosis.html">📊 笔记诊断</a>
+  <a href="search.html">🔍 搜索词分析</a>
+  <a href="dashboard.html">📈 综合看板</a>
+  <a href="report.html">📑 GPM报告</a>
+  <span class="sep">|</span>
+  <a href="competitor-shrimp.html">🦐 虾仁爆款</a>
+</nav>
+
 <!-- ====== HEADER ====== -->
 <header class="header">
   <div class="header-brand">
     <div class="header-logo">📊</div>
     <div>
-      <div class="header-title">若溪 · 小红书 GPM 分析</div>
+      <div class="header-title">鲜水湾 · 小红书 GPM 分析</div>
       <div class="header-sub">商品笔记绩效全链路拆解</div>
     </div>
   </div>
   <div class="header-meta">
-    数据范围 2025.11 – 2026.06<br>
-    1,669 篇笔记 &nbsp;|&nbsp; 1,431 个搜索词
+    数据范围 2026年4月 – 6月<br>
+    1,669 篇笔记 &nbsp;|&nbsp; 10 款商品 &nbsp;|&nbsp; 5 位作者
   </div>
 </header>
 
@@ -263,58 +271,57 @@
   <!-- KPI Strip -->
   <div class="kpi-strip">
     <div class="kpi-card">
-      <div class="kpi-label">笔记直接 GMV</div>
-      <div class="kpi-value">¥8,911</div>
-      <div class="kpi-change">45/1,669 篇出单 (2.7%)</div>
+      <div class="kpi-label">总 GMV</div>
+      <div class="kpi-value">¥17,147</div>
+      <div class="kpi-change kpi-up">↑ 6月 ¥6,826（环比+35%）</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">搜索渠道 GMV</div>
-      <div class="kpi-value">¥10.2万</div>
-      <div class="kpi-change">1,431个搜索词 · 1,024单</div>
+      <div class="kpi-label">核心商品贡献</div>
+      <div class="kpi-value">55%</div>
+      <div class="kpi-change">手剥虾仁 ¥9,407</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">搜索推荐对比</div>
-      <div class="kpi-value" style="color: #0984e3">11.4×</div>
-      <div class="kpi-change">搜索GMV是笔记的11倍+</div>
+      <div class="kpi-label">GPM 千次阅读</div>
+      <div class="kpi-value" style="color: var(--red)">¥299</div>
+      <div class="kpi-change kpi-warn">⚠ 点击-购买相关性 0.87</div>
     </div>
   </div>
 
-  <!-- Navigation Cards -->
-  <div class="cards">
-    <a href="diagnosis.html?v=20260613" class="nav-card">
-      <div class="nav-card-icon chart">🔍</div>
-      <h2>笔记诊断看板</h2>
-      <p>5因子漏斗诊断 + 双线基准对比。逐条笔记瓶颈定位 + "补X单达标"建议 + 推荐衰减监控。1,669条笔记全量内嵌。</p>
-      <div class="cta">
-        诊断笔记
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- 子入口标签 -->
+  <div class="tag-grid">
+    <a href="diagnosis.html" class="tag-card">
+      <div class="tag-icon">📊</div>
+      <div class="tag-body">
+        <div class="tag-title">笔记诊断</div>
+        <div class="tag-desc">封面点击率 / 商品卡点击率 / 转化率诊断，附行业优秀基准</div>
       </div>
     </a>
-    <a href="dashboard.html?v=20260613" class="nav-card">
-      <div class="nav-card-icon chart">📈</div>
-      <h2>综合数据看板</h2>
-      <p>笔记诊断 + 搜索词分析双数据源。商品GMV总览 + 月度趋势 + 长尾金词热力图。数据管线驱动，随Excel更新自动重建。</p>
-      <div class="cta">
-        打开看板
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <a href="search.html" class="tag-card">
+      <div class="tag-icon">🔍</div>
+      <div class="tag-body">
+        <div class="tag-title">搜索词分析</div>
+        <div class="tag-desc">搜索词排名 / 点击率 / 转化率，识别高潜关键词</div>
       </div>
     </a>
-    <a href="report.html?v=20260613" class="nav-card">
-      <div class="nav-card-icon doc">📋</div>
-      <h2>GPM 综合分析报告</h2>
-      <p>5大板块：执行摘要 → 笔记诊断 → 搜索词洞察 → 长尾金词 → 行动建议。整合双数据源，面向决策的深度分析报告。</p>
-      <div class="cta">
-        阅读报告
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <a href="dashboard.html" class="tag-card">
+      <div class="tag-icon">📈</div>
+      <div class="tag-body">
+        <div class="tag-title">综合看板</div>
+        <div class="tag-desc">8 个 KPI + 6 张 ECharts 图表 + 明细表，全量数据交互</div>
       </div>
     </a>
-    <a href="search.html?v=20260613" class="nav-card">
-      <div class="nav-card-icon chart">🔎</div>
-      <h2>搜索词分析看板</h2>
-      <p>7个月搜索关键词数据：1431个词 × ¥10.2万GMV。高转化长尾词挖掘 + 机会缺口发现 + 新星词趋势。搜索渠道GMV是笔记的11倍。</p>
-      <div class="cta">
-        关键词分析
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <a href="competitor-shrimp.html" class="tag-card">
+      <div class="tag-icon">🦐</div>
+      <div class="tag-body">
+        <div class="tag-title">虾仁爆款笔记</div>
+        <div class="tag-desc">100 篇竞品爆款拆解：公式 / 博主矩阵 / 标题库</div>
+      </div>
+    </a>
+    <a href="report.html" class="tag-card">
+      <div class="tag-icon">📑</div>
+      <div class="tag-body">
+        <div class="tag-title">GPM 报告</div>
+        <div class="tag-desc">执行摘要 / 核心发现 / 行动建议，A4 打印友好</div>
       </div>
     </a>
   </div>
@@ -325,27 +332,27 @@
     <div class="insight-grid">
       <div class="insight-tag">
         <span class="insight-dot hot"></span>
-        <span><strong>搜索 = 绝对主力</strong> — 搜索GMV ¥10.2万，是笔记直接GMV的11倍。97%笔记靠搜索续命，关键词布局是核心增长引擎。</span>
+        <span><strong>爆款驱动模式</strong> — 20.7% 笔记贡献 80%+ GMV；手剥虾仁单一商品占比 54.9%。头部集中度过高，存在单点风险。</span>
       </div>
       <div class="insight-tag">
         <span class="insight-dot warn"></span>
-        <span><strong>商品卡转化率是最大瓶颈</strong> — 80.6%笔记的商品转化率低于行业平均。场景词CVR（6-8%）远超品类词（4-5%）。</span>
+        <span><strong>视频内容无效</strong> — 62 篇视频笔记零出单。视频产能占比 3.7%，建议暂停以释放资源。</span>
       </div>
       <div class="insight-tag">
         <span class="insight-dot info"></span>
-        <span><strong>推荐流量仅有3天窗口</strong> — 发布3天后推荐流量枯竭，全靠搜索词接续。最近一周仅发布1篇新笔记，内容更新需加强。</span>
+        <span><strong>阅读量是关键门槛</strong> — 阅读量 100+ 后出单率跃升至 43.9%。6 月 12 天 GMV 已超 5 月整月，增长加速明显。</span>
       </div>
       <div class="insight-tag">
         <span class="insight-dot ok"></span>
-        <span><strong>长尾金词机会显著</strong> — 「减脂餐上班族带饭」CVR 15.6%、「减肥餐三餐食谱一周瘦十斤」CVR 24%，精准长尾词转化率远超大盘。</span>
+        <span><strong>点击-购买强关联</strong> — 商品卡点击与 GMV 相关性 0.87，阅读量与 GMV 0.67，内容质量（阅读）先于转化。</span>
       </div>
       <div class="insight-tag">
         <span class="insight-dot hot"></span>
-        <span><strong>P0：规模化内容创作 + 关键词覆盖</strong> — 目标40篇/月，每条笔记精准匹配1-2个高转化长尾词，预期新增GMV ¥5,000+/月。</span>
+        <span><strong>P0：暂停视频 · P1：聚焦虾仁</strong> — 优先释放无效产能，复制手剥虾仁爆款模式，预期新增 GMV ¥4,700+。</span>
       </div>
       <div class="insight-tag">
         <span class="insight-dot warn"></span>
-        <span><strong>机会缺口：虾仁做法大全</strong> — 17,649次搜索曝光，CVR仅1.7%。需求确凿但笔记没接住，需要专门创作匹配内容。</span>
+        <span><strong>95% 笔记零订单</strong> — 1669 篇中仅 83 篇产生订单。优化内容质量，提升中位阅读，目标出单笔记 150+。</span>
       </div>
     </div>
   </div>
@@ -356,11 +363,11 @@
 <footer class="footer">
   <span>鲜水湾 GPM 分析项目</span>
   <span class="footer-dot"></span>
-  <span>数据来源：商品笔记 06-06~12 / 笔记分析 06-13 / 搜索词 2025.11~2026.05</span>
+  <span>赛奇 · EDA 分析</span>
   <span class="footer-dot"></span>
   <span>达仕 · 交互看板</span>
   <span class="footer-dot"></span>
-  <span>若溪 · 分析报告</span>
+  <span>鲜水湾 · 分析报告</span>
   <span class="footer-dot"></span>
   <span>2026.06.13</span>
 </footer>
