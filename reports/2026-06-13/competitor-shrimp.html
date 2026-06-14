@@ -70,6 +70,7 @@
   .formula-card .formula-rep .rep-body { flex: 1; min-width: 0; }
   .formula-card .formula-rep .rep-title { font-size: 13px; color: #1f2937; font-weight: 600; margin-bottom: 6px; }
   .formula-card .formula-rep .rep-meta { font-size: 11px; color: #6b7280; }
+  .formula-card .formula-rep .rep-content { font-size: 11.5px; color: #4b5563; margin-top: 6px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .formula-card .formula-rep .rep-hook { display: inline-block; background: #fff; color: var(--c); font-size: 11px; padding: 1px 6px; border-radius: 4px; margin: 1px 2px; border: 1px solid var(--c-border); }
 
   /* Note card */
@@ -115,6 +116,9 @@
   .note-table td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
   .note-table tr:hover td { background: var(--c-bg); }
   .note-table .ttl-cell { max-width: 320px; line-height: 1.4; }
+  .note-table .content-preview { max-width: 260px; font-size: 11.5px; color: #4b5563; line-height: 1.5; }
+  .note-table .tags-cell { max-width: 220px; }
+  .note-table .table-tag { display: inline-block; background: var(--c-bg); color: var(--c); font-size: 10px; padding: 1px 5px; border-radius: 3px; margin: 1px 2px; border: 1px solid var(--c-border); }
   .note-table .formula-tag { display: inline-block; background: var(--c); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
 
   /* Insight card */
@@ -274,11 +278,11 @@
           <th>#</th>
           <th>标题</th>
           <th>封面</th>
+          <th>内容预览</th>
+          <th>标签</th>
           <th>博主 / 粉丝</th>
           <th>公式</th>
           <th>发布时间</th>
-          <th>话题数</th>
-          <th>图片数</th>
           <th>钩子</th>
         </tr>
       </thead>
@@ -471,11 +475,13 @@ Object.entries(formulaAgg).sort(function(a,b){return b[1].count - a[1].count;}).
   } else {
     reps.slice(0, 3).forEach(function(r){
       var cover = r.cover_url || '';
+      var excerpt = (r.content_excerpt || '').replace(/<[^>]+>/g,'');
       formulaHTML += '<div class="formula-rep">' +
         (cover ? '<img class="rep-cover" src="' + cover + '" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" alt=""/>' : '<div class="rep-cover rep-cover-empty">🖼️</div>') +
         '<div class="rep-body">' +
           '<div class="rep-title">📝 ' + escapeHTML(r.title) + '</div>' +
           '<div class="rep-meta">👤 ' + r.author + ' · 粉丝 ' + r.followers.toLocaleString() + ' · 封面: ' + r.cover_pattern + '</div>' +
+          (excerpt ? '<div class="rep-content">' + escapeHTML(excerpt) + '</div>' : '') +
           '<div style="margin-top:4px">' +
             r.content_hooks.map(function(h){return '<span class="rep-hook">⚡' + h.type + ': ' + h.match + '</span>';}).join('') +
           '</div>' +
@@ -582,19 +588,22 @@ function renderTable(){
   rows.forEach(function(n){
     var hooks = n.content_hooks.slice(0,4).map(function(h){return '<span class="hook">' + h.type + '</span>';}).join('');
     var cover = n.cover_url || '';
+    var excerpt = (n.content_excerpt || '').replace(/<[^>]+>/g,'');
+    var tags = n.content_keywords || n.tags_display || [];
+    var tagsHTML = tags.slice(0,5).map(function(t){return '<span class="table-tag">' + t + '</span>';}).join('') + (tags.length > 5 ? '<span style="font-size:10px;color:#9ca3af">+' + (tags.length-5) + '</span>' : '');
     html += '<tr>' +
       '<td><b>' + n.id + '</b></td>' +
       '<td class="ttl-cell"><a href="' + n.note_url + '" target="_blank" style="color:#1f2937;text-decoration:none;font-weight:500">' + escapeHTML(n.title) + '</a></td>' +
       '<td>' + (cover ? '<a href="' + n.note_url + '" target="_blank"><img class="lib-cover" src="' + cover + '" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=lib-cover-empty>🖼️</div>\'" alt=""/></a>' : '<div class="lib-cover-empty">🖼️</div>') + '</td>' +
+      '<td class="content-preview" title="' + escapeHTML(excerpt) + '">' + escapeHTML(excerpt.length > 80 ? excerpt.slice(0,80) + '…' : excerpt) + '</td>' +
+      '<td class="tags-cell">' + tagsHTML + '</td>' +
       '<td>' + n.author_name + '<br><span style="color:#6b7280;font-size:11px">' + n.author_followers.toLocaleString() + ' 粉</span></td>' +
       '<td><span class="formula-tag">' + n.title_pattern + '</span></td>' +
       '<td style="font-size:11px">' + n.publish_date + '<br><span style="color:#9ca3af">' + n.publish_weekday + ' ' + n.publish_hour + '点</span></td>' +
-      '<td style="text-align:center">' + n.tag_count + '</td>' +
-      '<td style="text-align:center">' + n.image_count + '</td>' +
       '<td style="max-width:240px">' + hooks + '</td>' +
     '</tr>';
   });
-  document.getElementById('lib-tbody').innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:20px;color:#9ca3af">无匹配</td></tr>';
+  document.getElementById('lib-tbody').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:20px;color:#9ca3af">无匹配</td></tr>';
 }
 
 ['search-input','filter-formula','filter-author','sort-by'].forEach(function(id){
