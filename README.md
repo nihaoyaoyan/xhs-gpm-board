@@ -147,20 +147,22 @@ python data/XX_keyword_gen.py      # 搜索词JSON生成（新月份时运行）
 python data/build_search.py
 python data/build_summary.py && python data/build_report.py
 
-# 虾仁爆款（蒲公英 Excel/CSV 导出后）
-python data/transform_shrimp_excel.py    # Excel/CSV → JSON
-python data/build_competitor_shrimp.py    # 构建看板
-
-# 三文鱼爆款（蒲公英数据导出后 · 后续扩展）
-# python data/transform_salmon.py
-# python data/build_competitor_salmon.py
+# 竞品爆款笔记（所有品类，通用脚本自动遍历）
+# 1) 准备数据：把 Excel/CSV 处理成 data/competitor_<key>.json（key 见 competitor_categories.py）
+# 2) 跑脚本：遍历配置自动生成所有品类 HTML 到 reports/2026-06-13/
+python data/build_all_competitor.py
 ```
 
 ---
 
 ## 🔥 竞品爆款笔记看板
 
-**唯一页面**：`competitor-shrimp.html`（虾仁真实数据 + 三文鱼占位 tab）
+**架构（v3 升级）**：每个品类一个独立 HTML，由通用模板 + 通用构建脚本动态生成。
+新增品类只需在 `data/competitor_categories.py` 加一行配置 + 准备对应 JSON，无需改任何 HTML/JS。
+
+**当前品类**：
+- `competitor-shrimp.html` — 虾仁真实数据（100 条蒲公英导出 + 真实互动数据）
+- 🐟 三文鱼爆款（待数据）— 配置已就绪，导出三文鱼关键词后即可一键生成 `competitor-salmon.html`
 
 **🗑️ 已下架**：`competitor-demo.html`（脱敏样板）于 2026-06-13 删除，虾仁真实数据已能完整覆盖 4-Tab 拆解需求。
 
@@ -171,7 +173,7 @@ python data/build_competitor_shrimp.py    # 构建看板
 **数据源**：蒲公英【社媒助手】热门商业笔记 · 2026-06-13 导出 · 关键词"虾仁" · 100 条
 **数据升级**：v2 通过【笔记分析】模块重新导出，补全真实互动数据（点赞/收藏/评论/分享），互动量 20~6,461。
 
-#### 5 个 Tab
+#### 4 个 Tab
 
 | Tab | 内容 | 价值 |
 |-----|------|------|
@@ -179,7 +181,6 @@ python data/build_competitor_shrimp.py    # 构建看板
 | 🎯 公式拆解 | 11 种爆款公式聚合（每种含代表笔记 3 篇 + 平均图片/话题/粉丝数） | 学习虾仁专属打法 |
 | 👥 博主矩阵 | 30 个 TOP 博主详情卡 + 笔记数 vs 粉丝数散点图 + TOP 10 横向条形图 | 找对标账号 |
 | 📚 100条标题库 | 全 100 条笔记的可搜索/筛选/排序表（按公式/博主/发布时间/粉丝数/图片数） | 选题灵感库 |
-| 🐟 三文鱼爆款 | **占位 tab** — 数据待补（用户后续通过【社媒助手】导出三文鱼数据后接入，复用 4-Tab 框架） | 即将上线 |
 
 #### 11 种虾仁爆款公式（启发式分类）
 
@@ -199,11 +200,13 @@ python data/build_competitor_shrimp.py    # 构建看板
 
 ### 数据采集
 
-- **数据 Schema**：`data/competitor_data_dictionary.md`（30+ 字段详细说明）
+- **品类配置**：`data/competitor_categories.py`（新增品类只需在 CATEGORIES 列表加 dict）
+- **通用模板**：`dashboard/template_competitor_category.html`（用 `{{CATEGORY}}` / `{{COLOR}}` 等占位符）
+- **通用构建**：`data/build_all_competitor.py`（遍历配置 → 渲染 HTML → 写到部署目录）
 - **虾仁数据**：`data/competitor_shrimp.json`（蒲公英导出 100 条 + 真实互动）
 - **更新方式**：
-  - 虾仁：蒲公英导出 Excel/CSV → `transform_shrimp_excel.py` → `build_competitor_shrimp.py`
-  - 三文鱼（后续）：蒲公英导出 → `transform_salmon.py` → `build_competitor_salmon.py`（占位 tab 已就绪）
+  - 虾仁：蒲公英导出 Excel/CSV → 写入 `competitor_shrimp.json` → 跑 `build_all_competitor.py`
+  - 三文鱼（后续）：蒲公英导出 → 写 `competitor_salmon.json` + 在 `competitor_categories.py` 取消三文鱼的注释 → 跑 `build_all_competitor.py`
 - **采集频率**：每周一次（每周一上午统一采集上周爆款）
 
 ---
