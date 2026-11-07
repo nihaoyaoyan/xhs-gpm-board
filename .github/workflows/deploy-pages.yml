@@ -1,0 +1,70 @@
+name: Deploy Web to GitHub Pages
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: 计算 Pages 基路径
+        id: base
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          if [ "$REPO" = "$OWNER.github.io" ]; then
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=/$REPO/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 安装依赖并构建
+        working-directory: web
+        env:
+          VITE_BASE: ${{ steps.base.outputs.base }}
+          # 仓库 Variables 里配置 VITE_API_BASE 即可切换后端地址；
+          # 未配置时回退为相对路径 /api/v1
+          VITE_API_BASE: ${{ vars.VITE_API_BASE }}
+        run: |
+          npm ci
+          npx vite build
+
+      - name: SPA 深链接回退
+        run: cp web/dist/index.html web/dist/404.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

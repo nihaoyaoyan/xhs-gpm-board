@@ -25,6 +25,7 @@ env/
 .env
 .env.*
 !.env.example
+.ssh/
 
 # ---------- 本地数据库与数据 ----------
 backend/data/

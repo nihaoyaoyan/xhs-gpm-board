@@ -15,7 +15,7 @@ function readToken(): string | null {
 }
 
 export const http = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE || '/api/v1',
   timeout: 30_000,
 });
 
