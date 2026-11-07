@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.token_cache.json
+*.bak
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.log

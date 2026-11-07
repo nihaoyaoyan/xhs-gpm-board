@@ -1,0 +1,74 @@
+{
+  "package": "xhs-chengfeng-mapi-mcp",
+  "version": "1.0.0",
+  "build_date": "20261106",
+  "display_name": "乘风 / 千帆 MAPI MCP",
+  "source_app_id": "13495",
+  "scopes": [
+    "wind_report"
+  ],
+  "tool_count": 19,
+  "write_tool_count": 0,
+  "stdio_entry": "server.py",
+  "http_entry": "serve_http.py",
+  "http_default_port": 8000,
+  "python_requires": ">=3.10",
+  "mcp_sdk": ">=1.2.0,<2 (verified on 1.30.0)",
+  "credentials_included": false,
+  "source_git_changes": [
+    "?? xhs-chengfeng-mapi-mcp/.env.bak_20261015",
+    "?? xhs-chengfeng-mapi-mcp/.token_cache.json.bak_20261015"
+  ],
+  "files": [
+    {
+      "name": "xhs-chengfeng-mapi-mcp/.env.example",
+      "sha256": "62248615fb9c0b760fb385239f04b7aab6918156bde2374005127a30fa982f83",
+      "bytes": 652
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/.gitignore",
+      "sha256": "a3a67396a90528d61f8ec34800e1fb12fe6867f9e5cf8d5a9d879142a6e275b4",
+      "bytes": 88
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/README.md",
+      "sha256": "1491069b9171dfd42e7e5b7c3fcb2e88047df9d783dcaa105d037ed9a2905344",
+      "bytes": 3305
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/mcp.json.example",
+      "sha256": "ccd72bea92011a510bedfd1a3579192d7776a5361d31d80a98e8ec7ccaa771b1",
+      "bytes": 223
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/requirements.txt",
+      "sha256": "74aedeb6128fb9c7aaccb9ecb41776f4af9c61bcc62a2a3273c43f7cd9275b1a",
+      "bytes": 177
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/serve_http.py",
+      "sha256": "7594084748a7589be231940121aa1758b4cd6b4044fd913b90c67edb3b57044f",
+      "bytes": 2391
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/server.py",
+      "sha256": "6f1a429edd95271d02d13939b9b41e5f78b261a0b73942836e873480a5651e38",
+      "bytes": 35922
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/smoke_test.py",
+      "sha256": "c9a02b1c4b81d7b45ca514c4e4b5a3fe7ddcbab0144346f16a174623dac1231f",
+      "bytes": 1860
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/start_http.bat",
+      "sha256": "5b60a7cef19d96b8e1aeb4546bdc1404155354f50de7066aa6ceec71dd5af78e",
+      "bytes": 253
+    },
+    {
+      "name": "xhs-chengfeng-mapi-mcp/start_stdio.bat",
+      "sha256": "992cd048718dcc21f4c095b9d0792d3940882df4446af7a8e59950aebe026cdf",
+      "bytes": 233
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+.trae
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+web/node_modules
+web/dist
+node_modules
+mcp_server/servers

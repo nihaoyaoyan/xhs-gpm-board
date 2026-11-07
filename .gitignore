@@ -1,0 +1,51 @@
+# ---------- 依赖 ----------
+node_modules/
+.pnp.*
+.pnp.js
+
+# ---------- 构建产物 ----------
+dist/
+build/
+*.tsbuildinfo
+coverage/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ---------- 环境变量与凭证（禁止入库） ----------
+.env
+.env.*
+!.env.example
+
+# ---------- 本地数据库与数据 ----------
+backend/data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.csv
+*.xlsx
+
+# ---------- 日志与临时文件 ----------
+logs/
+*.log
+.screenshots/
+.uploads/
+tmp/
+.cache/
+
+# ---------- 系统 / IDE ----------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

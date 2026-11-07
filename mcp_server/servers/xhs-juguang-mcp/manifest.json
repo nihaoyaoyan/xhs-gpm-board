@@ -1,0 +1,77 @@
+{
+  "package": "xhs-juguang-mcp",
+  "version": "1.0.0",
+  "build_date": "20261106",
+  "display_name": "聚光 MAPI MCP",
+  "source_app_id": "13494",
+  "scopes": [
+    "report_service",
+    "ad_query",
+    "ad_manage",
+    "account_manage"
+  ],
+  "tool_count": 106,
+  "write_tool_count": 31,
+  "stdio_entry": "server.py",
+  "http_entry": "serve_http.py",
+  "http_default_port": 8001,
+  "python_requires": ">=3.10",
+  "mcp_sdk": ">=1.2.0,<2 (verified on 1.30.0)",
+  "credentials_included": false,
+  "source_git_changes": [
+    " M xhs-juguang-mcp/server.py",
+    "?? xhs-juguang-mcp/server.py.bak"
+  ],
+  "files": [
+    {
+      "name": "xhs-juguang-mcp/.env.example",
+      "sha256": "5a2ee0aab199873659f757f01cfc338c29f4be039f7f4c7e33081cfc64060e5e",
+      "bytes": 1931
+    },
+    {
+      "name": "xhs-juguang-mcp/.gitignore",
+      "sha256": "a3a67396a90528d61f8ec34800e1fb12fe6867f9e5cf8d5a9d879142a6e275b4",
+      "bytes": 88
+    },
+    {
+      "name": "xhs-juguang-mcp/README.md",
+      "sha256": "6cd62557ff471087c870451e54dcdf31eb779640cc8f8d801205c81cb3f8fa56",
+      "bytes": 3824
+    },
+    {
+      "name": "xhs-juguang-mcp/mcp.json.example",
+      "sha256": "0464c29dab495e2f5ae84e93ba9d7df3ed6ae59de4eef79f8661161a52adbf98",
+      "bytes": 216
+    },
+    {
+      "name": "xhs-juguang-mcp/requirements.txt",
+      "sha256": "74aedeb6128fb9c7aaccb9ecb41776f4af9c61bcc62a2a3273c43f7cd9275b1a",
+      "bytes": 177
+    },
+    {
+      "name": "xhs-juguang-mcp/serve_http.py",
+      "sha256": "3cabeeab8bb66ffe6d49a4085eaeec0f0d5adcc7fa02f311afda5a702bdb9bd8",
+      "bytes": 2391
+    },
+    {
+      "name": "xhs-juguang-mcp/server.py",
+      "sha256": "6a9402ca4aca0a9bc6f8774c1a80c4c2e303fa43c7f6c094faf8cd4617160f72",
+      "bytes": 319358
+    },
+    {
+      "name": "xhs-juguang-mcp/smoke_test.py",
+      "sha256": "45dcca552382529e0bc88b3a113254278fd3bbe9bda3e6e39d2eefaceaf06408",
+      "bytes": 2602
+    },
+    {
+      "name": "xhs-juguang-mcp/start_http.bat",
+      "sha256": "22c368777f5b2cb89063f25bffc562f5d21d053c038a3759abccf24e0db8ce8e",
+      "bytes": 253
+    },
+    {
+      "name": "xhs-juguang-mcp/start_stdio.bat",
+      "sha256": "992cd048718dcc21f4c095b9d0792d3940882df4446af7a8e59950aebe026cdf",
+      "bytes": 233
+    }
+  ]
+}

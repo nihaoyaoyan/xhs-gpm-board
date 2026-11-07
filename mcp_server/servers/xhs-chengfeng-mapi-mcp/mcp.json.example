@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "xhs-chengfeng-mapi-mcp": {
+      "type": "stdio",
+      "command": "<ABS_PATH_TO_PYTHON>",
+      "args": [
+        "<ABS_PATH_TO_UNPACKED_DIR>/server.py"
+      ],
+      "timeout": 30000
+    }
+  }
+}
